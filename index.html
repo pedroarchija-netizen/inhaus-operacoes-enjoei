@@ -220,7 +220,7 @@ tbody tr:last-child td{border-bottom:none;}
   #etiqueta-area,#etiqueta-area *{visibility:visible!important;}
   #etiqueta-area{position:fixed!important;top:0!important;left:0!important;width:100mm!important;height:75mm!important;background:#fff!important;color:#000!important;padding:3mm!important;font-family:Arial,sans-serif!important;font-size:8pt!important;overflow:hidden!important;}
 }
-#etiqueta-area{display:none;width:100mm;height:75mm;background:#fff;color:#000;padding:3mm;font-family:Arial,sans-serif;font-size:8pt;border:1px solid #ccc;box-sizing:border-box;}
+#etiqueta-area{position:fixed;top:-9999px;left:-9999px;width:100mm;height:75mm;background:#fff;color:#000;padding:3mm;font-family:Arial,sans-serif;font-size:8pt;border:1px solid #ccc;box-sizing:border-box;visibility:hidden;}
 #etiqueta-area h4{font-size:11pt;font-weight:700;margin:0 0 2mm;text-align:center;border-bottom:1px solid #000;padding-bottom:1mm;}
 #etiqueta-area .el{display:flex;justify-content:space-between;margin:1mm 0;font-size:7.5pt;}
 #etiqueta-area .el strong{font-weight:600;}
@@ -528,6 +528,10 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="dash-card"><h3>Top colaboradores</h3><div id="dash-colab"></div></div>
         </div>
         <div class="dash-card" style="margin-bottom:1.25rem"><h3>Produção por colaborador por área</h3><div id="dash-colab-area"></div></div>
+
+        <!-- Cards de área -->
+        <div style="margin-bottom:0.5rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
+        <div id="dash-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
       </div>
     </div>
 
@@ -1507,9 +1511,9 @@ function printEtiqueta(loteId){
   document.getElementById('etiq-apr').textContent=tri.aprovadas||0;
   document.getElementById('etiq-rep').textContent=tri.reprovadas||0;
   document.getElementById('etiq-prazo').textContent=l.prazo?fmtDate(l.prazo):'—';
-  const ea=document.getElementById('etiqueta-area');ea.style.display='block';
+  const ea=document.getElementById('etiqueta-area');ea.style.visibility='visible';
   try{JsBarcode('#etiq-barcode',l.lote,{format:'CODE128',width:1.5,height:30,displayValue:false});}catch(e){}
-  setTimeout(()=>{window.print();},300);
+  setTimeout(()=>{window.print();setTimeout(()=>{ea.style.visibility='hidden';},500);},300);
 }
 
 // ═══════ PROCESSOS (Cad/Pas/Fot/Dob) ════════════
@@ -1817,7 +1821,7 @@ function renderDash(){
     });
   });
   const rows=Object.entries(colabArea).sort((a,b)=>{const ta=Object.values(b[1]).reduce((s,v)=>s+v,0);const tb2=Object.values(a[1]).reduce((s,v)=>s+v,0);return ta-tb2;}).slice(0,12);
-  if(!rows.length){document.getElementById('dash-colab-area').innerHTML='<div class="empty" style="padding:1rem">Sem dados no período.</div>';return;}
+  if(!rows.length){document.getElementById('dash-colab-area').innerHTML='<div class="empty" style="padding:1rem">Sem dados no período.</div>';renderDashAreaCards();return;}
   const allAreas=['Triagem','Cadastro','Passadoria','Fotografia','Notificação','Dobra'];
   document.getElementById('dash-colab-area').innerHTML=`<table>
     <thead><tr><th>Colaborador</th>${allAreas.map(a=>`<th class="nc">${a}</th>`).join('')}<th class="nc">Total</th></tr></thead>
@@ -1827,6 +1831,198 @@ function renderDash(){
       return `<tr><td style="font-size:12px" title="${c}">${nome}</td>${allAreas.map(a=>`<td class="nc" style="font-size:12px">${ar[a]||'—'}</td>`).join('')}<td class="nc" style="font-weight:700;color:var(--accent)">${tot}</td></tr>`;
     }).join('')}</tbody>
   </table>`;
+}
+
+
+// ═══════ DASHBOARD — CARDS DE ÁREA ════════════════
+function renderDashAreaCards(){
+  const d1=document.getElementById('dash-d1')?.value||'';
+  const d2=document.getElementById('dash-d2')?.value||'';
+  const recF=filtraDash(REC,'data');
+  const trisF=Object.values(TRIS).filter(t=>(!d1||t.data>=d1)&&(!d2||t.data<=d2));
+  const lotesF=filtraDash(LOTES,'data');
+
+  const areasDef=[
+    {key:'rec', label:'Recebimento', icon:'📥', cor:'var(--accent)',
+      total:recF.length,
+      colabs: (() => {
+        const m={};
+        recF.forEach(r=>{m[r.colaborador]=(m[r.colaborador]||0)+1;});
+        return m;
+      })(),
+      tempos: (() => {
+        const sorted=[...recF].sort((a,b)=>a.data>b.data?1:-1);
+        return calcTempos(sorted,'data','hora');
+      })()
+    },
+    {key:'tri', label:'Triagem', icon:'🔍', cor:'var(--purple)',
+      total:trisF.length,
+      colabs: (() => {
+        const m={};
+        trisF.forEach(t=>{m[t.colaborador]=(m[t.colaborador]||0)+1;});
+        return m;
+      })(),
+      tempos: calcTempos([...trisF].sort((a,b)=>a.data>b.data?1:-1),'data','hora')
+    },
+    {key:'lot', label:'Criação de Lotes', icon:'📦', cor:'var(--teal)',
+      total:lotesF.length,
+      colabs: (() => {
+        const m={};
+        lotesF.forEach(l=>{m[l.colaborador]=(m[l.colaborador]||0)+1;});
+        return m;
+      })(),
+      tempos: calcTempos([...lotesF].sort((a,b)=>a.data>b.data?1:-1),'data','hora')
+    },
+    {key:'cad', label:'Cadastro', icon:'🏷️', cor:'var(--warn)',
+      total:lotesF.filter(l=>l.cad).length,
+      colabs: getColabsProc(lotesF,'cad'),
+      tempos: getTemposProc(lotesF,'cad')
+    },
+    {key:'pas', label:'Passadoria', icon:'👕', cor:'var(--teal)',
+      total:lotesF.filter(l=>l.pas).length,
+      colabs: getColabsProc(lotesF,'pas'),
+      tempos: getTemposProc(lotesF,'pas')
+    },
+    {key:'fot', label:'Fotografia', icon:'📸', cor:'var(--pink)',
+      total:lotesF.filter(l=>l.fot).length,
+      colabs: getColabsProc(lotesF,'fot'),
+      tempos: getTemposProc(lotesF,'fot')
+    },
+    {key:'not', label:'Notificação', icon:'🔔', cor:'var(--danger)',
+      total:lotesF.filter(l=>l.not).length,
+      colabs: getColabsProc(lotesF,'not'),
+      tempos: getTemposProc(lotesF,'not')
+    },
+    {key:'dob', label:'Dobra', icon:'🗂️', cor:'var(--muted)',
+      total:lotesF.filter(l=>l.dob).length,
+      colabs: getColabsProc(lotesF,'dob'),
+      tempos: getTemposProc(lotesF,'dob')
+    },
+  ];
+
+  const numColabs = a => Object.keys(a.colabs).length;
+  const topColab = a => {
+    const entries = Object.entries(a.colabs);
+    if(!entries.length) return '—';
+    return entries.sort((x,y)=>y[1]-x[1])[0][0].split(' ')[0];
+  };
+
+  document.getElementById('dash-area-cards').innerHTML = areasDef.map(a => `
+    <div onclick="openDashArea('${a.key}')" style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:1rem 1.1rem;cursor:pointer;transition:all 0.15s;border-left:3px solid ${a.cor}" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600;color:var(--text)">${a.icon} ${a.label}</span>
+        <span style="font-size:20px;font-weight:700;color:${a.cor}">${a.total}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);display:flex;gap:12px">
+        <span>👤 ${numColabs(a)} colab${numColabs(a)!==1?'s':''}</span>
+        ${a.tempos.medio?`<span>⏱ média ${a.tempos.medio}</span>`:''}
+        ${numColabs(a)>0?`<span>🏆 ${topColab(a)}</span>`:''}
+      </div>
+    </div>`).join('');
+
+  window._dashAreaDefs = areasDef;
+}
+
+function getColabsProc(lotes, key){
+  const m={};
+  lotes.filter(l=>l[key]).forEach(l=>{
+    const colab = l[key].colab || l[key].colaborador || '—';
+    m[colab]=(m[colab]||0)+1;
+  });
+  return m;
+}
+
+function getTemposProc(lotes, key){
+  const itens = lotes.filter(l=>l[key]&&l[key].data&&l[key].hora)
+    .map(l=>({data:l[key].data, hora:l[key].hora}))
+    .sort((a,b)=>a.data>b.data?1:a.data<b.data?-1:a.hora>b.hora?1:-1);
+  return calcTempos(itens,'data','hora');
+}
+
+function calcTempos(items, campoD, campoH){
+  if(items.length<2) return {medio:'',lista:[]};
+  const diffs=[];
+  for(let i=1;i<items.length;i++){
+    const a=new Date(`${items[i-1][campoD]}T${items[i-1][campoH]||'00:00'}`);
+    const b=new Date(`${items[i][campoD]}T${items[i][campoH]||'00:00'}`);
+    const diff=b-a;
+    if(diff>0) diffs.push({de:items[i-1],ate:items[i],diff});
+  }
+  if(!diffs.length) return {medio:'',lista:[]};
+  const avg=diffs.reduce((s,d)=>s+d.diff,0)/diffs.length;
+  return {medio:fmtDuracao(avg), lista:diffs};
+}
+
+function fmtDuracao(ms){
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  if(h>24){const d=Math.floor(h/24);return `${d}d ${h%24}h`;}
+  if(h>0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+function openDashArea(key){
+  const a = window._dashAreaDefs?.find(x=>x.key===key);
+  if(!a){toast('Dados não carregados.','er');return;}
+
+  const colabs = Object.entries(a.colabs).sort((x,y)=>y[1]-x[1]);
+  const tempos = a.tempos;
+
+  let html = '';
+
+  // Tabela por colaborador
+  html += `<div style="margin-bottom:1.25rem">
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Produção por colaborador</div>`;
+  if(colabs.length){
+    const total = colabs.reduce((s,x)=>s+x[1],0);
+    const max = colabs[0][1];
+    html += colabs.map(([nome,qtd])=>`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div style="width:140px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${nome}">${nome}</div>
+        <div style="flex:1;background:var(--surface2);border-radius:4px;height:8px">
+          <div style="width:${Math.round((qtd/max)*100)}%;height:8px;border-radius:4px;background:${a.cor}"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);min-width:30px;text-align:right">${qtd}</div>
+        <div style="font-size:11px;color:var(--muted);min-width:40px">${Math.round((qtd/total)*100)}%</div>
+      </div>`).join('');
+  } else {
+    html += '<div style="color:var(--muted);font-size:13px;padding:8px 0">Sem dados no período.</div>';
+  }
+  html += '</div>';
+
+  // Tempo médio entre registros
+  html += `<div style="margin-bottom:1.25rem">
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Tempo médio entre lotes</div>`;
+  if(tempos.medio){
+    html += `<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;display:inline-flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:22px;font-weight:700;color:${a.cor}">${tempos.medio}</span>
+      <span style="font-size:12px;color:var(--muted)">tempo médio entre operações</span>
+    </div>`;
+    // Tabela dos últimos 10 intervalos
+    const ultimos = tempos.lista.slice(-10).reverse();
+    html += `<div style="font-size:11px;color:var(--muted);margin-bottom:6px">Últimos ${ultimos.length} intervalos registrados:</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:4px 8px;color:var(--muted);font-weight:500">De</th>
+        <th style="text-align:left;padding:4px 8px;color:var(--muted);font-weight:500">Até</th>
+        <th style="text-align:right;padding:4px 8px;color:var(--muted);font-weight:500">Intervalo</th>
+      </tr></thead>
+      <tbody>${ultimos.map(d=>`
+        <tr style="border-top:1px solid var(--border)">
+          <td style="padding:5px 8px">${fmtDate(d.de.data)} ${d.de.hora||''}</td>
+          <td style="padding:5px 8px">${fmtDate(d.ate.data)} ${d.ate.hora||''}</td>
+          <td style="padding:5px 8px;text-align:right;font-weight:600;color:${a.cor}">${fmtDuracao(d.diff)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } else {
+    html += '<div style="color:var(--muted);font-size:13px;padding:8px 0">Dados insuficientes para calcular tempo médio.</div>';
+  }
+  html += '</div>';
+
+  document.getElementById('m-dash-area-titulo').textContent = `${a.icon} ${a.label} — Detalhamento`;
+  document.getElementById('m-dash-area-body').innerHTML = html;
+  openM('m-dash-area');
 }
 
 // ═══════ BADGES ═══════════════════════════════════
@@ -2111,5 +2307,17 @@ function showUsrMsg(el, txt) {
 
 init();
 </script>
+
+<!-- ══ MODAL DETALHE ÁREA ══ -->
+<div class="overlay" id="m-dash-area">
+  <div class="modal" style="max-width:700px;width:95%">
+    <h3 id="m-dash-area-titulo">Detalhe da área</h3>
+    <div id="m-dash-area-body"></div>
+    <div class="farow" style="margin-top:1rem">
+      <button class="btn" onclick="closeM('m-dash-area')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
