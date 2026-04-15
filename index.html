@@ -1057,8 +1057,8 @@ function renderRec(){
     <td class="hm" style="color:var(--muted)">${r.obs||'—'}</td>
     <td style="display:flex;gap:4px">
       <button class="btn xs" onclick="verCod(${r.id})">Ver códigos</button>
-      ${USER_NIVEL>=2?`<button class="btn xs" onclick="editRec(${r.id})" title="Editar">✏️</button>`:''}
-      ${USER_NIVEL>=3?`<button class="btn xs danger-btn" onclick="excluirRec(${r.id})" title="Excluir">🗑️</button>`:''}
+      ${USER_NIVEL>=2?`<button class="btn xs" onclick="editRec('${r.id}')" title="Editar">✏️</button>`:''}
+      ${USER_NIVEL>=3?`<button class="btn xs danger-btn" onclick="excluirRec('${r.id}')" title="Excluir">🗑️</button>`:''}
     </td>
   </tr>`).join('');
 }
