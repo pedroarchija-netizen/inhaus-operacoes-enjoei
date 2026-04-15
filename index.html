@@ -122,7 +122,9 @@ tbody tr:last-child td{border-bottom:none;}
 .badge.concluido{background:var(--sl);color:var(--success);}
 .badge.nivel1{background:rgba(122,154,184,.15);color:var(--muted);}
 .badge.nivel2{background:var(--wl);color:var(--warn);}
+.badge.nivel0{background:rgba(122,154,184,.08);color:var(--muted);}
 .badge.nivel3{background:var(--pl);color:var(--purple);}
+.badge.nivel4{background:rgba(248,113,113,.15);color:var(--danger);}
 
 /* STATUS PILL */
 .spill{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;}
@@ -332,6 +334,7 @@ tbody tr:last-child td{border-bottom:none;}
       <button class="ni"    id="ni-fot"  onclick="go('fot')"><span class="ic">📸</span>Fotografia<span class="nb" id="nb-fot"></span></button>
       <button class="ni"    id="ni-not"  onclick="go('not')"><span class="ic">🔔</span>Notificação<span class="nb" id="nb-not"></span></button>
       <button class="ni"    id="ni-dob"  onclick="go('dob')"><span class="ic">🗂️</span>Dobra<span class="nb" id="nb-dob"></span></button>
+      <button class="ni"    id="ni-dev"  onclick="go('dev')"><span class="ic">↩️</span>Devolução<span class="nb" id="nb-dev"></span></button>
       <div class="ns">Análise</div>
       <button class="ni"    id="ni-dash" onclick="go('dash')"><span class="ic">📊</span>Dashboard</button>
       <div class="ns">Administração</div>
@@ -347,7 +350,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div id="p-rec" class="page on">
       <div class="ph">
         <div><h1>📥 Recebimento</h1><p>Registro de chegada de volumes</p></div>
-        <button class="btn pri" onclick="openRec()">+ Novo recebimento</button>
+        
       </div>
       <div class="flow">
         <div class="fs act">📥 Recebimento</div><div class="fa">›</div>
@@ -363,7 +366,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="card">
         <div class="ch"><h2>Histórico de recebimentos</h2>
           <div style="display:flex;gap:8px">
-            <select id="rf-t" onchange="renderRec()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit"><option value="">Todas</option><option>Correios</option><option>Devolução</option><option>Venuxx</option></select>
+            <select id="rf-t" onchange="renderRec()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit"><option value="">Todas</option><option>Correios</option><option>Venuxx</option><option>Devolução Correios</option><option>Devolução Jadlog</option><option>Devolução Kangu Log</option></select>
             <input type="date" id="rf-d" onchange="renderRec()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text)">
             <button class="btn sm" onclick="csvRec()">⬇ CSV</button>
           </div>
@@ -391,6 +394,21 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="fs">🔔 Notificação</div><div class="fa">›</div>
         <div class="fs">🗂️ Dobra</div>
       </div>
+      <!-- Filtro período triagem -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--muted);font-weight:500">PERÍODO:</span>
+            <input type="date" id="tri-d1" onchange="renderTriKPI();renderTriPend();renderTriDone()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <span style="color:var(--muted)">→</span>
+            <input type="date" id="tri-d2" onchange="renderTriKPI();renderTriPend();renderTriDone()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <button class="btn sm" onclick="setTriPeriodo(0)">Hoje</button>
+            <button class="btn sm" onclick="setTriPeriodo(7)">7d</button>
+            <button class="btn sm" onclick="setTriPeriodo(30)">30d</button>
+            <button class="btn sm" onclick="document.getElementById('tri-d1').value='';document.getElementById('tri-d2').value='';renderTriKPI();renderTriPend();renderTriDone()">✕</button>
+          </div>
+        </div>
+      </div>
       <div class="kg" id="kpi-tri"></div>
       <div class="card">
         <div class="ch"><h2>Volumes aguardando triagem</h2></div>
@@ -401,7 +419,7 @@ tbody tr:last-child td{border-bottom:none;}
         </table></div>
       </div>
       <div class="card">
-        <div class="ch"><h2>Triagens realizadas</h2><button class="btn sm" onclick="csvTri()">⬇ CSV</button></div>
+        <div class="ch"><h2>Triagens realizadas</h2><button class="btn sm" onclick="csvTriFiltrado()">⬇ CSV</button></div>
         <div class="search-bar"><input id="tri-ds" placeholder="Pesquisar código de rastreio..." oninput="renderTriDone()"></div>
         <div class="tw"><table>
           <thead><tr><th>Código rastreio</th><th>Data</th><th>Hora</th><th class="hm">Colaborador</th><th class="hm">Embalagem</th><th class="hm">N° Bag</th><th class="nc hm">👗</th><th class="nc hm">👟</th><th class="nc hm">👜</th><th class="nc hm">💍</th><th class="nc hm">🏠</th><th class="nc">Total</th><th class="nc">✅</th><th class="nc">❌</th><th>Taxa</th></tr></thead>
@@ -415,6 +433,21 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="ph">
         <div><h1>📦 Criação de Lotes</h1><p>Agrupe rastreios triados em lotes</p></div>
         <button class="btn pri" onclick="openLot()">+ Criar lote</button>
+      </div>
+      <!-- Filtro período lotes -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--muted);font-weight:500">PERÍODO:</span>
+            <input type="date" id="lot-d1" onchange="renderLotKPI();renderLotPend();renderLot()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <span style="color:var(--muted)">→</span>
+            <input type="date" id="lot-d2" onchange="renderLotKPI();renderLotPend();renderLot()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <button class="btn sm" onclick="setLotPeriodo(0)">Hoje</button>
+            <button class="btn sm" onclick="setLotPeriodo(7)">7d</button>
+            <button class="btn sm" onclick="setLotPeriodo(30)">30d</button>
+            <button class="btn sm" onclick="document.getElementById('lot-d1').value='';document.getElementById('lot-d2').value='';renderLotKPI();renderLotPend();renderLot()">✕</button>
+          </div>
+        </div>
       </div>
       <div class="flow">
         <div class="fs done">📥 Recebimento</div><div class="fa">›</div>
@@ -490,6 +523,106 @@ tbody tr:last-child td{border-bottom:none;}
       <div id="proc-inner-dob"></div>
     </div>
 
+    <!-- ══ DEVOLUÇÃO ══ -->
+    <div id="p-dev" class="page">
+      <div class="ph">
+        <div><h1>↩️ Devolução</h1><p>Processamento de volumes devolvidos</p></div>
+      </div>
+      <!-- Filtro período -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-size:12px;color:var(--muted);font-weight:500">PERÍODO:</span>
+            <input type="date" id="dev-d1" onchange="renderDevKPI();renderDevPend();renderDevDone()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <span style="color:var(--muted)">→</span>
+            <input type="date" id="dev-d2" onchange="renderDevKPI();renderDevPend();renderDevDone()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <button class="btn sm" onclick="setDevPeriodo(0)">Hoje</button>
+            <button class="btn sm" onclick="setDevPeriodo(7)">7d</button>
+            <button class="btn sm" onclick="setDevPeriodo(30)">30d</button>
+            <button class="btn sm" onclick="document.getElementById('dev-d1').value='';document.getElementById('dev-d2').value='';renderDevKPI();renderDevPend();renderDevDone()">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="kg" id="kpi-dev"></div>
+      <!-- Volumes disponíveis para processar -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Volumes aguardando processamento</h2></div>
+        <div class="search-bar"><input id="dev-s" placeholder="Pesquisar código de rastreio..." oninput="renderDevPend()"></div>
+        <div id="dev-pend-list"></div>
+      </div>
+      <!-- Processados -->
+      <div class="card">
+        <div class="ch"><h2>Devoluções processadas</h2><button class="btn sm" onclick="csvDev()">⬇ CSV</button></div>
+        <div class="search-bar"><input id="dev-ds" placeholder="Pesquisar código de rastreio..." oninput="renderDevDone()"></div>
+        <div class="tw"><table>
+          <thead><tr>
+            <th>Rastreio</th><th>SKU</th><th>Data</th><th>Hora</th><th class="hm">Operação</th>
+            <th>Status</th><th>Motivo</th><th class="hm">Obs.</th>
+          </tr></thead>
+          <tbody id="dev-done-tb"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══ MODAL DEVOLUÇÃO ══ -->
+    <div class="overlay" id="m-dev">
+      <div class="modal" style="max-width:600px">
+        <h3 id="m-dev-titulo">↩️ Processar Devolução</h3>
+        <div id="m-dev-rastreio-info" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--muted)"></div>
+        <div class="fg">
+          <div class="ff"><label>Data <span class="req">*</span></label><input type="date" id="dv-data"><span class="hint">Automático</span></div>
+          <div class="ff"><label>Hora <span class="req">*</span></label><input type="time" id="dv-hora"><span class="hint">Automático</span></div>
+        </div>
+        <div class="fg g1"><div class="ff"><label>Colaborador</label><input type="text" id="dv-colab" readonly></div></div>
+        <div style="margin-bottom:1rem">
+          <label style="font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;display:block;margin-bottom:8px">SKUs no volume (máx. 5)</label>
+          <div id="dv-skus-list"></div>
+          <button class="btn sm" onclick="addDevSku()" id="dv-add-sku">+ Adicionar SKU</button>
+        </div>
+        <div class="fg">
+          <div class="ff">
+            <label>Operação <span class="req">*</span></label>
+            <div style="display:flex;gap:8px;margin-top:4px">
+              <button class="tbtn" id="dv-pro" onclick="setDevOp('pro')" style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px">PRO</button>
+              <button class="tbtn" id="dv-red" onclick="setDevOp('red')" style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px">RED</button>
+            </div>
+          </div>
+          <div class="ff">
+            <label>Status <span class="req">*</span></label>
+            <select id="dv-status">
+              <option value="">Selecione...</option>
+              <option>Republicado</option>
+              <option>Desativado</option>
+              <option>Vendido</option>
+              <option>Devolução solicitada</option>
+              <option>Rejeitado/removido</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <div class="ff">
+            <label>Motivo <span class="req">*</span></label>
+            <select id="dv-motivo">
+              <option value="">Selecione...</option>
+              <option>Autenticidade</option>
+              <option>Devolução solicitada</option>
+              <option>Avaria</option>
+              <option>Cancelado</option>
+              <option>Ao remetente</option>
+              <option>Troca</option>
+            </select>
+          </div>
+          <div class="ff"><label>Observações</label><input type="text" id="dv-obs" placeholder="Opcional"></div>
+        </div>
+        <input type="hidden" id="dv-rastreio-id">
+        <input type="hidden" id="dv-op" value="">
+        <div class="farow">
+          <button class="btn" onclick="closeM('m-dev')">Cancelar</button>
+          <button class="btn pri" onclick="salvarDev()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ══ DASHBOARD ══ -->
     <div id="p-dash" class="page">
       <div class="ph"><div><h1>📊 Dashboard</h1><p>Produção por área e por colaborador</p></div></div>
@@ -529,9 +662,11 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
         <div class="dash-card" style="margin-bottom:1.25rem"><h3>Produção por colaborador por área</h3><div id="dash-colab-area"></div></div>
 
-        <!-- Cards de área -->
-        <div style="margin-bottom:0.5rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
-        <div id="dash-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
+        <!-- Cards de área - apenas nível 4 -->
+        <div id="dash-det-section" style="display:none">
+          <div style="margin-bottom:0.5rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
+          <div id="dash-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
+        </div>
       </div>
     </div>
 
@@ -547,6 +682,15 @@ tbody tr:last-child td{border-bottom:none;}
         <div>Gestão de usuários disponível apenas para Nível 3</div>
       </div>
       <div id="usr-content">
+      <!-- Busca por nome -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12px;color:var(--muted);font-weight:500">🔍</span>
+            <input type="text" id="usr-busca" placeholder="Buscar por nome..." oninput="renderUsrTabela()" style="flex:1;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none">
+          </div>
+        </div>
+      </div>
         <div class="kg" id="kpi-usr"></div>
         <div class="card">
           <div class="ch"><h2>Colaboradores cadastrados</h2>
@@ -554,7 +698,7 @@ tbody tr:last-child td{border-bottom:none;}
           </div>
           <div class="tw"><table>
             <thead><tr>
-              <th>Nome</th><th>E-mail</th><th>Nível</th>
+              <th>Nome / Admissão</th><th>E-mail</th><th>Nível</th>
               <th class="hm">Último acesso</th><th>Ação</th>
             </tr></thead>
             <tbody id="usr-tb"><tr><td colspan="5"><div class="loading">Carregando...</div></td></tr></tbody>
@@ -591,10 +735,19 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="ff">
         <label>Nível de acesso <span class="req">*</span></label>
         <select id="nu-nivel">
+          <option value="0">Nível 0 — Somente visualização</option>
           <option value="1">Nível 1 — Lançamentos</option>
           <option value="2">Nível 2 — Lançamentos + Edição</option>
-          <option value="3">Nível 3 — Completo + Dashboard</option>
+          <option value="3">Nível 3 — Completo + Dashboard básico</option>
+          <option value="4">Nível 4 — Super Admin + Dashboard completo</option>
         </select>
+      </div>
+    </div>
+    <div class="fg g1">
+      <div class="ff">
+        <label>Data de admissão</label>
+        <input type="date" id="nu-admissao">
+        <span class="hint">Opcional</span>
       </div>
     </div>
     <div class="valmsg e" id="nu-msg" style="display:none;margin-top:8px"></div>
@@ -620,10 +773,19 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="ff">
         <label>Nível de acesso</label>
         <select id="eu-nivel">
+          <option value="0">Nível 0 — Somente visualização</option>
           <option value="1">Nível 1 — Lançamentos</option>
           <option value="2">Nível 2 — Lançamentos + Edição</option>
-          <option value="3">Nível 3 — Completo + Dashboard</option>
+          <option value="3">Nível 3 — Completo + Dashboard básico</option>
+          <option value="4">Nível 4 — Super Admin + Dashboard completo</option>
         </select>
+      </div>
+    </div>
+    <div class="fg g1">
+      <div class="ff">
+        <label>Data de admissão</label>
+        <input type="date" id="eu-admissao">
+        <span class="hint">Opcional</span>
       </div>
     </div>
     <div class="valmsg e" id="eu-msg" style="display:none;margin-top:8px"></div>
@@ -658,7 +820,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="fg g1"><div class="ff"><label>Colaborador <span class="req">*</span></label><input type="text" id="r-colab" readonly><span class="hint">Usuário logado</span></div></div>
     <div class="fg">
       <div class="ff"><label>Transportadora <span class="req">*</span></label>
-        <select id="r-transp"><option value="">Selecione...</option><option>Correios</option><option>Devolução</option><option>Venuxx</option></select>
+        <select id="r-transp"><option value="">Selecione...</option><option>Correios</option><option>Venuxx</option><option>Devolução Correios</option><option>Devolução Jadlog</option><option>Devolução Kangu Log</option></select>
       </div>
       <div class="ff"><label>Quantidade</label><input type="text" id="r-qtd" readonly style="font-family:'DM Mono',monospace;font-weight:700;font-size:16px"><span class="hint">Calculado pelos códigos</span></div>
     </div>
@@ -885,7 +1047,7 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 // Níveis: 1=lançamento, 2=lançamento+edição, 3=lançamento+edição+dashboard
 // Defina o nível em user_metadata.nivel no Supabase (padrão: 1)
-const NIVEL_LABELS = { 1: '🔵 Nível 1 · Lançamento', 2: '🟡 Nível 2 · Edição', 3: '🟣 Nível 3 · Completo' };
+const NIVEL_LABELS = { 0: '⚪ Nível 0 · Visualização', 1: '🔵 Nível 1 · Lançamento', 2: '🟡 Nível 2 · Edição', 3: '🟣 Nível 3 · Completo', 4: '🔴 Nível 4 · Super Admin' };
 
 let sb, CU, USER_NIVEL = 1;
 let REC = [], VOLS = [], TRIS = {}, LOTES = [];
@@ -1202,7 +1364,16 @@ function renderTriKPI(){
 }
 function renderTriPend(){
   const q=(document.getElementById('tri-s')?.value||'').toLowerCase();
-  const pend=VOLS.filter(v=>!v.triado&&(!q||v.codigo.toLowerCase().includes(q)));
+  // Apenas Correios e Venuxx, ordenados do mais antigo para o mais novo
+  const pend=VOLS.filter(v=>{
+    if(v.triado) return false;
+    const r=REC.find(x=>x.id===v.recebimento_id);
+    if(!r||!['Correios','Venuxx'].includes(r.transportadora)) return false;
+    return !q||v.codigo.toLowerCase().includes(q);
+  }).sort((a,b)=>{
+    const da=a.data_hora||'', db=b.data_hora||'';
+    return da>db?1:da<db?-1:0;
+  });
   const tb=document.getElementById('tri-pend-tb');
   if(!pend.length){tb.innerHTML=`<tr><td colspan="4"><div class="empty" style="padding:1.5rem">${q?'Nenhum código encontrado.':'<div class="ei" style="font-size:26px">✅</div>Todos os volumes triados!'}</div></td></tr>`;return;}
   tb.innerHTML=pend.map(v=>`<tr>
@@ -1325,12 +1496,22 @@ async function salvarTri(){
 
 // ═══════ LOTES ════════════════════════════════════
 function renderLotKPI(){
-  const total=LOTES.length,concl=LOTES.filter(l=>l.dob).length;
-  document.getElementById('kpi-lot').innerHTML=`
-    <div class="kpi a"><div class="kl">Total de lotes</div><div class="kv">${total}</div></div>
-    <div class="kpi g"><div class="kl">Concluídos</div><div class="kv">${concl}</div></div>
-    <div class="kpi w"><div class="kl">Em andamento</div><div class="kv">${total-concl}</div></div>
-    <div class="kpi p"><div class="kl">Total peças</div><div class="kv">${LOTES.reduce((s,l)=>s+(l.apr_tri||0),0)}</div></div>`;
+  const d1=document.getElementById('lot-d1')?.value||'';
+  const d2=document.getElementById('lot-d2')?.value||'';
+  // Volumes triados que ainda não têm lote
+  const volsSemLote=VOLS.filter(v=>{
+    if(!v.triado||!TRIS[v.id]) return false;
+    return !LOTES.find(l=>l.rastreio===v.codigo);
+  });
+  const pecasPend=volsSemLote.reduce((s,v)=>s+(TRIS[v.id]?.aprovadas||0),0);
+  const lotesF=LOTES.filter(l=>(!d1||l.data>=d1)&&(!d2||l.data<=d2));
+  const total=LOTES.length, concl=LOTES.filter(l=>l.dob).length;
+  const kpiEl=document.getElementById('kpi-lot');
+  if(kpiEl) kpiEl.innerHTML=`
+    <div class="kpi w"><div class="kl">Aguardando lote</div><div class="kv">${volsSemLote.length}</div></div>
+    <div class="kpi g"><div class="kl" style="color:var(--success)">✅ Peças aprovadas aguardando</div><div class="kv" style="color:var(--success)">${pecasPend}</div></div>
+    <div class="kpi a"><div class="kl">Total lotes</div><div class="kv">${total}</div></div>
+    <div class="kpi p"><div class="kl">Concluídos</div><div class="kv">${concl}</div></div>`;
 }
 
 function renderLotPend(){
@@ -1539,12 +1720,31 @@ function renderProcPage(tipo) {
   const innerId = `proc-inner-${tipo}`;
   const el = document.getElementById(innerId); if(!el) return;
 
+  // Filtro de datas
+  const pd1 = document.getElementById(`proc-d1-${tipo}`)?.value||'';
+  const pd2 = document.getElementById(`proc-d2-${tipo}`)?.value||'';
+
   const disponiveis = LOTES.filter(l => {
     if(tipo==='not') return l.fot && !l.not;
     if(!prev) return !l[tipo];
     return l[prev] && !l[tipo];
   });
-  const feitos = LOTES.filter(l => l[tipo]);
+  const feitos = LOTES.filter(l => {
+    if(!l[tipo]) return false;
+    const d = l[tipo].data||'';
+    if(pd1 && d < pd1) return false;
+    if(pd2 && d > pd2) return false;
+    return true;
+  });
+  
+  // KPIs do processo
+  const totalFeitos = LOTES.filter(l=>l[tipo]).length;
+  const totalPend = disponiveis.length;
+  const kpiHtml = `<div class="kg" style="margin-bottom:1rem">
+    <div class="kpi w"><div class="kl">Aguardando</div><div class="kv">${totalPend}</div></div>
+    <div class="kpi g"><div class="kl">Realizados</div><div class="kv">${totalFeitos}</div></div>
+    <div class="kpi a"><div class="kl">No período</div><div class="kv">${feitos.length}</div></div>
+  </div>`;
 
   // Pending card
   let pendHtml = '';
@@ -1603,7 +1803,20 @@ function renderProcPage(tipo) {
       </tbody></table></div></div>`;
   }
 
-  el.innerHTML = pendHtml + doneHtml;
+  // Gerar filtro de datas
+  const filtroHtml = `<div class="card" style="margin-bottom:1rem"><div class="cb" style="padding:.75rem 1.25rem">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:var(--muted);font-weight:500">PERÍODO:</span>
+      <input type="date" id="proc-d1-${tipo}" value="${pd1}" onchange="renderProcPage('${tipo}')" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 8px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+      <span style="color:var(--muted)">→</span>
+      <input type="date" id="proc-d2-${tipo}" value="${pd2}" onchange="renderProcPage('${tipo}')" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 8px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+      <button class="btn sm" onclick="setProcPeriodo('${tipo}',0)">Hoje</button>
+      <button class="btn sm" onclick="setProcPeriodo('${tipo}',7)">7d</button>
+      <button class="btn sm" onclick="setProcPeriodo('${tipo}',30)">30d</button>
+      <button class="btn sm" onclick="document.getElementById('proc-d1-${tipo}').value='';document.getElementById('proc-d2-${tipo}').value='';renderProcPage('${tipo}')">✕</button>
+    </div>
+  </div></div>`;
+  el.innerHTML = filtroHtml + kpiHtml + pendHtml + doneHtml;
 }
 
 function openProc(loteId, tipo){
@@ -1757,6 +1970,7 @@ function renderDash(){
   const dc=document.getElementById('dash-content'),da=document.getElementById('dash-acl');
   if(USER_NIVEL<3){dc.style.display='none';da.style.display='flex';return;}
   dc.style.display='block';da.style.display='none';
+  dc.style.display='block';da.style.display='none';
 
   const d1=document.getElementById('dash-d1')?.value||'';
   const d2=document.getElementById('dash-d2')?.value||'';
@@ -1837,6 +2051,9 @@ function renderDash(){
 
 // ═══════ DASHBOARD — CARDS DE ÁREA ════════════════
 function renderDashAreaCards(){
+  const detSection=document.getElementById('dash-det-section');
+  if(USER_NIVEL<4){if(detSection)detSection.style.display='none';return;}
+  if(detSection)detSection.style.display='block';
   const d1=document.getElementById('dash-d1')?.value||'';
   const d2=document.getElementById('dash-d2')?.value||'';
   const recF=filtraDash(REC,'data');
@@ -2026,6 +2243,214 @@ function openDashArea(key){
   openM('m-dash-area');
 }
 
+
+
+// ═══════ HELPERS DE PERÍODO ══════════════════════════
+function setTriPeriodo(dias){
+  const hoje=new Date(), d2=hoje.toISOString().split('T')[0];
+  const d1=new Date(hoje); d1.setDate(d1.getDate()-dias);
+  document.getElementById('tri-d1').value=d1.toISOString().split('T')[0];
+  document.getElementById('tri-d2').value=d2;
+  renderTriKPI();renderTriPend();renderTriDone();
+}
+function setLotPeriodo(dias){
+  const hoje=new Date(), d2=hoje.toISOString().split('T')[0];
+  const d1=new Date(hoje); d1.setDate(d1.getDate()-dias);
+  document.getElementById('lot-d1').value=d1.toISOString().split('T')[0];
+  document.getElementById('lot-d2').value=d2;
+  renderLotKPI();renderLotPend();renderLot();
+}
+function setProcPeriodo(tipo,dias){
+  const hoje=new Date(), d2=hoje.toISOString().split('T')[0];
+  const d1=new Date(hoje); d1.setDate(d1.getDate()-dias);
+  const el1=document.getElementById(`proc-d1-${tipo}`), el2=document.getElementById(`proc-d2-${tipo}`);
+  if(el1) el1.value=d1.toISOString().split('T')[0];
+  if(el2) el2.value=d2;
+  renderProcPage(tipo);
+}
+function setDevPeriodo(dias){
+  const hoje=new Date(), d2=hoje.toISOString().split('T')[0];
+  const d1=new Date(hoje); d1.setDate(d1.getDate()-dias);
+  document.getElementById('dev-d1').value=d1.toISOString().split('T')[0];
+  document.getElementById('dev-d2').value=d2;
+  renderDevKPI();renderDevPend();renderDevDone();
+}
+
+// ═══════ TRIAGEM — funções atualizadas ════════════════
+function getTriFiltroDatas(){
+  return {d1:document.getElementById('tri-d1')?.value||'', d2:document.getElementById('tri-d2')?.value||''};
+}
+
+
+
+function csvTriFiltrado(){
+  const {d1,d2}=getTriFiltroDatas();
+  const tris=Object.values(TRIS).filter(t=>(!d1||t.data>=d1)&&(!d2||t.data<=d2));
+  dlCsv([['Código','Data','Hora','Colaborador','Embalagem','N°Bag','Roupas','Sapatos','Bolsas','Acess.','Utens.','Total','Aprov.','Reprov.','Taxa%'],...tris.map(t=>[t.codigo,t.data,t.hora,t.colaborador,t.embalagem,t.bag||'',t.roupas,t.sapatos,t.bolsas,t.acessorios,t.utensilios,t.total,t.aprovadas,t.reprovadas,t.taxa])], 'triagens.csv');
+}
+
+// ═══════ LOTES — KPI com peças aprovadas aguardando ══
+
+
+// ═══════ DEVOLUÇÃO ════════════════════════════════════
+let DEVS = []; // cache de devoluções
+let devSkuCount = 0;
+let devOpSel = '';
+
+function renderDevKPI(){
+  const d1=document.getElementById('dev-d1')?.value||'';
+  const d2=document.getElementById('dev-d2')?.value||'';
+  const devsFilt=DEVS.filter(d=>(!d1||d.data>=d1)&&(!d2||d.data<=d2));
+  // Volumes de devolução ainda não processados
+  const volsDev=VOLS.filter(v=>{
+    const r=REC.find(x=>x.id===v.recebimento_id);
+    return r&&['Devolução Correios','Devolução Jadlog','Devolução Kangu Log'].includes(r.transportadora);
+  });
+  const pendDev=volsDev.filter(v=>!DEVS.find(d=>d.rastreio===v.codigo)).length;
+  const pros=devsFilt.filter(d=>d.operacao==='pro').length;
+  const reds=devsFilt.filter(d=>d.operacao==='red').length;
+  document.getElementById('kpi-dev').innerHTML=`
+    <div class="kpi w"><div class="kl">Aguardando</div><div class="kv">${pendDev}</div></div>
+    <div class="kpi g"><div class="kl">Processados</div><div class="kv">${devsFilt.length}</div></div>
+    <div class="kpi a"><div class="kl">PRO</div><div class="kv" style="color:var(--success)">${pros}</div></div>
+    <div class="kpi p"><div class="kl">RED</div><div class="kv" style="color:var(--danger)">${reds}</div></div>`;
+}
+function renderDevPend(){
+  const q=(document.getElementById('dev-s')?.value||'').toLowerCase();
+  const volsDev=VOLS.filter(v=>{
+    const r=REC.find(x=>x.id===v.recebimento_id);
+    return r&&['Devolução Correios','Devolução Jadlog','Devolução Kangu Log'].includes(r.transportadora)&&!DEVS.find(d=>d.rastreio===v.codigo);
+  }).filter(v=>!q||v.codigo.toLowerCase().includes(q));
+  const cont=document.getElementById('dev-pend-list');
+  if(!volsDev.length){cont.innerHTML='<div class="empty" style="padding:1.5rem">Nenhum volume aguardando.</div>';return;}
+  cont.innerHTML=`<div class="tw"><table><thead><tr><th>Código de rastreio</th><th class="hm">Transportadora</th><th class="hm">Recebido em</th><th>Ação</th></tr></thead><tbody>
+    ${volsDev.map(v=>{
+      const r=REC.find(x=>x.id===v.recebimento_id);
+      return `<tr>
+        <td class="mono" style="color:var(--at);font-weight:500">${v.codigo}</td>
+        <td class="hm"><span class="badge">${r?r.transportadora:'—'}</span></td>
+        <td class="hm" style="color:var(--muted)">${v.data_hora||'—'}</td>
+        <td><button class="btn xs pri" onclick="openDev('${v.id}')">↩️ Processar</button></td>
+      </tr>`;
+    }).join('')}
+  </tbody></table></div>`;
+}
+function renderDevDone(){
+  const q=(document.getElementById('dev-ds')?.value||'').toLowerCase();
+  const d1=document.getElementById('dev-d1')?.value||'';
+  const d2=document.getElementById('dev-d2')?.value||'';
+  const devsFilt=DEVS.filter(d=>{
+    if(d1&&d.data<d1) return false;
+    if(d2&&d.data>d2) return false;
+    return !q||d.rastreio.toLowerCase().includes(q)||(d.skus||[]).some(s=>s.toLowerCase().includes(q));
+  });
+  const tb=document.getElementById('dev-done-tb');
+  if(!devsFilt.length){tb.innerHTML='<tr><td colspan="8"><div class="empty" style="padding:1.5rem">Nenhuma devolução no período.</div></td></tr>';return;}
+  tb.innerHTML=devsFilt.map(d=>`<tr>
+    <td class="mono" style="color:var(--at)">${d.rastreio}</td>
+    <td style="font-size:12px">${(d.skus||[]).join(', ')||'—'}</td>
+    <td>${fmtDate(d.data)}</td><td class="mono">${d.hora}</td>
+    <td><span class="badge ${d.operacao==='pro'?'ok':'danger-btn'}" style="padding:2px 8px">${(d.operacao||'').toUpperCase()}</span></td>
+    <td><span style="font-size:12px">${d.status||'—'}</span></td>
+    <td><span style="font-size:12px;color:var(--muted)">${d.motivo||'—'}</span></td>
+    <td class="hm" style="font-size:12px;color:var(--muted)">${d.obs||'—'}</td>
+  </tr>`).join('');
+}
+function openDev(volId){
+  const v=VOLS.find(x=>x.id===volId); if(!v) return;
+  const r=REC.find(x=>x.id===v.recebimento_id);
+  document.getElementById('dv-rastreio-id').value=volId;
+  document.getElementById('m-dev-titulo').textContent='↩️ Processar: '+v.codigo;
+  document.getElementById('m-dev-rastreio-info').textContent=`Transportadora: ${r?r.transportadora:'—'} | Recebido: ${v.data_hora||'—'}`;
+  setNow('dv');
+  document.getElementById('dv-colab').value=getUserName();
+  devSkuCount=0; devOpSel='';
+  document.getElementById('dv-skus-list').innerHTML='';
+  document.getElementById('dv-status').value='';
+  document.getElementById('dv-motivo').value='';
+  document.getElementById('dv-obs').value='';
+  document.getElementById('dv-pro').style.background='var(--surface2)';
+  document.getElementById('dv-pro').style.color='var(--muted)';
+  document.getElementById('dv-red').style.background='var(--surface2)';
+  document.getElementById('dv-red').style.color='var(--muted)';
+  addDevSku();
+  openM('m-dev');
+}
+function addDevSku(){
+  if(devSkuCount>=5){toast('Máximo de 5 SKUs por volume.','er');return;}
+  devSkuCount++;
+  const div=document.createElement('div');
+  div.style='display:flex;gap:8px;margin-bottom:6px';
+  div.innerHTML=`<input type="text" placeholder="SKU ${devSkuCount}" style="flex:1;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 10px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit" class="dv-sku-inp">
+    <button onclick="this.parentElement.remove();devSkuCount--" style="background:var(--danger-light);color:var(--danger);border:none;border-radius:var(--rs);padding:0 10px;cursor:pointer">✕</button>`;
+  document.getElementById('dv-skus-list').appendChild(div);
+  if(devSkuCount>=5) document.getElementById('dv-add-sku').disabled=true;
+}
+function setDevOp(op){
+  devOpSel=op;
+  document.getElementById('dv-pro').style.background=op==='pro'?'var(--success)':'var(--surface2)';
+  document.getElementById('dv-pro').style.color=op==='pro'?'#fff':'var(--muted)';
+  document.getElementById('dv-red').style.background=op==='red'?'var(--danger)':'var(--surface2)';
+  document.getElementById('dv-red').style.color=op==='red'?'#fff':'var(--muted)';
+  document.getElementById('dv-op').value=op;
+}
+async function salvarDev(){
+  const volId=document.getElementById('dv-rastreio-id').value;
+  const data=document.getElementById('dv-data').value, hora=document.getElementById('dv-hora').value;
+  const colab=document.getElementById('dv-colab').value;
+  const status=document.getElementById('dv-status').value;
+  const motivo=document.getElementById('dv-motivo').value;
+  const obs=document.getElementById('dv-obs').value;
+  const op=document.getElementById('dv-op').value;
+  const skus=[...document.querySelectorAll('.dv-sku-inp')].map(i=>i.value.trim()).filter(Boolean);
+  if(!op){toast('Selecione a operação (PRO ou RED).','er');return;}
+  if(!status){toast('Selecione o status.','er');return;}
+  if(!motivo){toast('Selecione o motivo.','er');return;}
+  if(!data||!hora){toast('Informe data e hora.','er');return;}
+  const v=VOLS.find(x=>x.id===volId); if(!v) return;
+  const reg={rastreio:v.codigo, data, hora, colaborador:colab, operacao:op, status, motivo, obs, skus};
+  DEVS.push(reg);
+  renderDevKPI(); renderDevPend(); renderDevDone();
+  closeM('m-dev');
+  toast(`Devolução ${v.codigo} processada!`,'ok');
+}
+function csvDev(){
+  const d1=document.getElementById('dev-d1')?.value||'';
+  const d2=document.getElementById('dev-d2')?.value||'';
+  const devsFilt=DEVS.filter(d=>(!d1||d.data>=d1)&&(!d2||d.data<=d2));
+  dlCsv([['Rastreio','SKUs','Data','Hora','Colaborador','Operação','Status','Motivo','Obs.'],...devsFilt.map(d=>[d.rastreio,(d.skus||[]).join(' | '),d.data,d.hora,d.colaborador,d.operacao,d.status,d.motivo,d.obs])], 'devolucoes.csv');
+}
+
+// ═══════ USUÁRIOS — busca por nome + admissão ═════════
+function calcDiasEmpresa(admissao){
+  if(!admissao) return null;
+  const d=new Date(admissao), hoje=new Date();
+  const diff=Math.floor((hoje-d)/(1000*60*60*24));
+  return diff>=0?diff:null;
+}
+
+// ═══════ CONTROLE DE NÍVEL 0 E 4 ═══════════════
+function applyNivelControls(){
+  // Botão novo recebimento
+  const btnRec = document.getElementById('btn-novo-rec');
+  if(btnRec) btnRec.innerHTML = USER_NIVEL>=1 ? '<button class="btn pri" onclick="openRec()">+ Novo recebimento</button>' : '';
+  
+  // Botão criar lote
+  const btnLot = document.querySelector('#p-lot .ph button');
+  if(btnLot) btnLot.style.display = USER_NIVEL>=1 ? '' : 'none';
+
+  // Botão novo usuário
+  const btnUsr = document.querySelector('#p-usr .ph button');
+  if(btnUsr) btnUsr.style.display = USER_NIVEL>=3 ? '' : 'none';
+
+  // Sidebar - esconder itens de lançamento para nível 0
+  if(USER_NIVEL===0){
+    document.querySelectorAll('.nav-item').forEach(el=>{
+      // manter apenas visualização
+    });
+  }
+}
+
 // ═══════ BADGES ═══════════════════════════════════
 function updateBadges(){
   const pend=VOLS.filter(v=>!v.triado).length;
@@ -2037,6 +2462,8 @@ function updateBadges(){
   setNB('fot',LOTES.filter(l=>l.pas&&!l.fot).length,true);
   setNB('not',LOTES.filter(l=>l.fot&&!l.not).length,true);
   setNB('dob',LOTES.filter(l=>l.not&&!l.dob).length,true);
+  const volsDevPend=VOLS.filter(v=>{const r=REC.find(x=>x.id===v.recebimento_id);return r&&['Devolução Correios','Devolução Jadlog','Devolução Kangu Log'].includes(r.transportadora)&&!DEVS.find(d=>d.rastreio===v.codigo);});
+  setNB('dev',volsDevPend.length,volsDevPend.length>0);
 }
 function setNB(id,count,warn){
   const el=document.getElementById('nb-'+id);if(!el)return;
@@ -2107,6 +2534,7 @@ function go(n){
   const sb2=document.getElementById('sbar'),bg=document.getElementById('ovbg');
   if(sb2.classList.contains('on')){sb2.classList.remove('on');bg.classList.remove('on');}
   if(n==='dash')renderDash();
+  if(n==='dev'){renderDevKPI();renderDevPend();renderDevDone();}
   if(n==='usr')renderUsrPage();
 }
 function toggleSb(){document.getElementById('sbar').classList.toggle('on');document.getElementById('ovbg').classList.toggle('on');}
@@ -2118,67 +2546,65 @@ function toast(m,t='ok'){const el=document.getElementById('toast');el.textConten
 
 // ═══════ USUÁRIOS ═════════════════════════════════
 const NIVEL_COR = {
+  0: { bg:'rgba(122,154,184,.08)', clr:'var(--muted)', txt:'Nível 0 · Visualização' },
   1: { bg:'rgba(122,154,184,.15)', clr:'var(--muted)', txt:'Nível 1 · Lançamento' },
   2: { bg:'var(--wl)', clr:'var(--warn)', txt:'Nível 2 · Edição' },
   3: { bg:'var(--pl)', clr:'var(--purple)', txt:'Nível 3 · Completo' },
+  4: { bg:'rgba(248,113,113,.15)', clr:'var(--danger)', txt:'Nível 4 · Super Admin' },
 };
+
+let _allUsers = [];
+
+function renderUsrTabela() {
+  const busca = (document.getElementById('usr-busca')?.value||'').toLowerCase();
+  const users = busca ? _allUsers.filter(u=>(u.user_metadata?.name||u.email||'').toLowerCase().includes(busca)) : _allUsers;
+  const tb = document.getElementById('usr-tb');
+  const kpiEl = document.getElementById('kpi-usr');
+  if(kpiEl) {
+    const counts = {0:0,1:0,2:0,3:0,4:0};
+    _allUsers.forEach(u=>{ const n=u.user_metadata?.nivel||1; counts[n]=(counts[n]||0)+1; });
+    kpiEl.innerHTML = `<div class="kpi a"><div class="kl">Total</div><div class="kv">${_allUsers.length}</div></div><div class="kpi"><div class="kl">Nível 1</div><div class="kv" style="color:var(--muted)">${counts[1]}</div></div><div class="kpi w"><div class="kl">Nível 2</div><div class="kv">${counts[2]}</div></div><div class="kpi p"><div class="kl">Nível 3+</div><div class="kv">${counts[3]+counts[4]}</div></div>`;
+  }
+  if(!users.length){tb.innerHTML='<tr><td colspan="6"><div class="empty">Nenhum usuário encontrado.</div></td></tr>';return;}
+  tb.innerHTML = users.map(u => {
+    const nivel = u.user_metadata?.nivel||1;
+    const nome = u.user_metadata?.name||'(sem nome)';
+    const nc = NIVEL_COR[nivel]||NIVEL_COR[1];
+    const ultimo = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('pt-BR') : '—';
+    const ehEu = u.email === CU.email;
+    const admissao = u.user_metadata?.admissao||null;
+    const dias = calcDiasEmpresa(admissao);
+    return `<tr>
+      <td style="font-weight:500">${nome}${ehEu?' <span style="font-size:10px;color:var(--accent)">(você)</span>':''}<br>${admissao?`<span style="font-size:11px;color:var(--muted)">📅 ${fmtDate(admissao)} · <span style="color:var(--accent);font-weight:600">${dias}d</span> na empresa</span>`:''}</td>
+      <td class="mono" style="font-size:12px;color:var(--muted)">${u.email}</td>
+      <td><span style="display:inline-flex;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${nc.bg};color:${nc.clr}">${nc.txt}</span></td>
+      <td class="hm" style="color:var(--muted);font-size:12px">${ultimo}</td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn xs" onclick="abrirEditarUsuario('${u.id}','${nome.replace(/'/g,"\\'")  }','${u.email}',${nivel},'${admissao||''}')">✏️ Editar</button>
+        ${!ehEu?`<button class="btn xs danger-btn" onclick="resetSenhaUsuario('${u.email}')">🔑 Reset</button>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
 
 async function carregarUsuarios() {
   if(USER_NIVEL < 3) return;
   const tb = document.getElementById('usr-tb');
-  tb.innerHTML = '<tr><td colspan="5"><div class="loading">Carregando usuários...</div></td></tr>';
-
+  tb.innerHTML = '<tr><td colspan="6"><div class="loading">Carregando usuários...</div></td></tr>';
   try {
     const { data: { session } } = await sb.auth.getSession();
     const token = session?.access_token;
     const resp = await fetch(`${SB_URL}/functions/v1/listar_usuarios`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'apikey': SB_KEY
-      }
+      headers: { 'Authorization': `Bearer ${token}`, 'apikey': SB_KEY }
     });
     const text = await resp.text();
     let json;
     try { json = JSON.parse(text); } catch(e) { throw new Error('Resposta inválida: ' + text.slice(0,200)); }
     if (json.error) throw new Error(json.error);
-    // Supabase pode retornar em diferentes estruturas
-    const users = json.users || json.data?.users || (Array.isArray(json) ? json : []);
-
-    // KPIs
-    const n1 = users.filter(u => (u.user_metadata?.nivel||1) === 1).length;
-    const n2 = users.filter(u => (u.user_metadata?.nivel||1) === 2).length;
-    const n3 = users.filter(u => (u.user_metadata?.nivel||1) === 3).length;
-    document.getElementById('kpi-usr').innerHTML = `
-      <div class="kpi a"><div class="kl">Total usuários</div><div class="kv">${users.length}</div></div>
-      <div class="kpi"><div class="kl">Nível 1</div><div class="kv" style="color:var(--muted)">${n1}</div></div>
-      <div class="kpi w"><div class="kl">Nível 2</div><div class="kv">${n2}</div></div>
-      <div class="kpi p"><div class="kl">Nível 3</div><div class="kv">${n3}</div></div>`;
-
-    if (!users.length) {
-      tb.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhum usuário encontrado.</div></td></tr>';
-      return;
-    }
-
-    tb.innerHTML = users.map(u => {
-      const nivel = u.user_metadata?.nivel || 1;
-      const nome = u.user_metadata?.name || '(sem nome)';
-      const nc = NIVEL_COR[nivel] || NIVEL_COR[1];
-      const ultimo = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('pt-BR') : '—';
-      const ehEu = u.email === CU.email;
-      return `<tr>
-        <td style="font-weight:500">${nome}${ehEu ? ' <span style="font-size:10px;color:var(--accent)">(você)</span>' : ''}</td>
-        <td class="mono" style="font-size:12px;color:var(--muted)">${u.email}</td>
-        <td><span style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${nc.bg};color:${nc.clr}">${nc.txt}</span></td>
-        <td class="hm" style="color:var(--muted);font-size:12px">${ultimo}</td>
-        <td style="display:flex;gap:4px">
-          <button class="btn xs" onclick="abrirEditarUsuario('${u.id}','${nome.replace(/'/g,"\\'")}','${u.email}',${nivel})">✏️ Editar</button>
-          ${!ehEu ? `<button class="btn xs danger-btn" onclick="resetSenhaUsuario('${u.email}')">🔑 Reset senha</button>` : ''}
-        </td>
-      </tr>`;
-    }).join('');
-
+    _allUsers = json.users || json.data?.users || (Array.isArray(json) ? json : []);
+    renderUsrTabela();
   } catch(e) {
-    tb.innerHTML = `<tr><td colspan="5"><div class="empty" style="color:var(--danger)">Erro ao carregar usuários.<br><small>${e.message}</small></div></td></tr>`;
+    document.getElementById('usr-tb').innerHTML = `<tr><td colspan="6"><div class="empty" style="color:var(--danger)">Erro ao carregar.<br><small>${e.message}</small></div></td></tr>`;
   }
 }
 
@@ -2189,7 +2615,7 @@ function renderUsrPage() {
     acl.style.display = 'flex'; cnt.style.display = 'none'; return;
   }
   acl.style.display = 'none'; cnt.style.display = 'block';
-  carregarUsuarios();
+  if(_allUsers.length > 0) renderUsrTabela(); else carregarUsuarios();
 }
 
 function openNovoUsuario() {
@@ -2208,6 +2634,7 @@ async function criarUsuario() {
   const email = document.getElementById('nu-email').value.trim();
   const senha = document.getElementById('nu-senha').value;
   const nivel = +document.getElementById('nu-nivel').value;
+  const admissao = document.getElementById('nu-admissao')?.value||'';
   const msg = document.getElementById('nu-msg');
 
   if (!nome) { showUsrMsg(msg, 'Informe o nome completo.'); return; }
@@ -2234,7 +2661,7 @@ async function criarUsuario() {
         'apikey': SB_KEY,
         'x-client-info': 'inhaus-app'
       },
-      body: JSON.stringify({ nome, email, senha, nivel })
+      body: JSON.stringify({ nome, email, senha, nivel, admissao })
     });
 
     let json;
@@ -2254,12 +2681,13 @@ async function criarUsuario() {
   }
 }
 
-function abrirEditarUsuario(uid, nome, email, nivel) {
+function abrirEditarUsuario(uid, nome, email, nivel, admissao='') {
   document.getElementById('eu-uid').value = uid;
   document.getElementById('eu-titulo').textContent = '✏️ Editar usuário';
   document.getElementById('eu-info').textContent = `E-mail: ${email}`;
   document.getElementById('eu-nome').value = nome;
   document.getElementById('eu-nivel').value = String(nivel);
+  document.getElementById('eu-admissao').value = admissao||'';
   document.getElementById('eu-msg').style.display = 'none';
   openM('m-edit-usr');
 }
@@ -2268,6 +2696,7 @@ async function salvarEdicaoUsuario() {
   const uid = document.getElementById('eu-uid').value;
   const nome = document.getElementById('eu-nome').value.trim();
   const nivel = +document.getElementById('eu-nivel').value;
+  const admissao = document.getElementById('eu-admissao')?.value||'';
   const msg = document.getElementById('eu-msg');
 
   if (!nome) { showUsrMsg(msg, 'Informe o nome.'); return; }
@@ -2282,7 +2711,7 @@ async function salvarEdicaoUsuario() {
         'Authorization': `Bearer ${token}`,
         'apikey': SB_KEY
       },
-      body: JSON.stringify({ uid, nome, nivel })
+      body: JSON.stringify({ uid, nome, nivel, admissao })
     });
     const json = await resp.json();
     if (json.error) { showUsrMsg(msg, json.error); return; }
