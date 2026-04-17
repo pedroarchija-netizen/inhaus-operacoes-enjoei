@@ -249,6 +249,10 @@ tbody tr:last-child td{border-bottom:none;}
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:10px 18px;border-radius:var(--rs);font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:340px;}
 .toast.on{opacity:1;transform:translateY(0);}
+@keyframes pulseAlert {
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:.7;transform:scale(1.06);}
+}
 .toast.ok{background:var(--sl);border-color:rgba(45,212,160,.4);color:var(--success);}
 .toast.er{background:var(--dl);border-color:rgba(244,112,112,.4);color:var(--danger);}
 
@@ -337,6 +341,7 @@ tbody tr:last-child td{border-bottom:none;}
       <button class="ni"    id="ni-dev"  onclick="go('dev')"><span class="ic">↩️</span>Devolução<span class="nb" id="nb-dev"></span></button>
       <div class="ns">Análise</div>
       <button class="ni"    id="ni-dash" onclick="go('dash')"><span class="ic">📊</span>Dashboard</button>
+      <button class="ni"    id="ni-pcp"   onclick="go('pcp')"  style="display:none"><span class="ic">🏭</span>Dashboard PCP</button>
       <button class="ni"    id="ni-dash2" onclick="go('dash2')"><span class="ic">🔬</span>Análise Colaboradores</button>
       <button class="ni"    id="ni-cap"   onclick="go('cap')"><span class="ic">📋</span>Capacidade</button>
       <button class="ni"    id="ni-cal"   onclick="go('cal')"><span class="ic">📅</span>Calendário</button>
@@ -665,21 +670,10 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="ch"><h2>🔔 Prazo de Notificação</h2></div>
           <div class="cb"><div id="dash-prazo"></div></div>
         </div>
-        <!-- Tempo médio entre etapas -->
-        <div class="card" style="margin-bottom:1.25rem" id="dash-tempoetapa-card">
-          <div class="ch"><h2>⏱ Tempo Médio entre Etapas</h2></div>
-          <div class="cb"><div id="dash-tempoetapa"></div></div>
-        </div>
-        <!-- Lotes travados -->
-        <div class="card" style="margin-bottom:1.25rem" id="dash-travados-card">
-          <div class="ch"><h2>🚨 Lotes Travados</h2><span style="font-size:12px;color:var(--muted)">Sem avançar há mais de 3 dias</span></div>
-          <div class="cb"><div id="dash-travados"></div></div>
-        </div>
-
-        <!-- Cards de área - apenas nível 4 -->
-        <div id="dash-det-section" style="display:none">
-          <div style="margin-bottom:0.5rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
-          <div id="dash-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
+        <!-- Gráfico: % notificados por dia útil -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>📊 Notificações por Dia Útil</h2><span style="font-size:12px;color:var(--muted)">% notificados em cada dia útil do prazo</span></div>
+          <div class="cb"><div id="dash-notif-dias"></div></div>
         </div>
       </div>
     </div>
@@ -891,6 +885,48 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="farow" style="margin-top:1rem">
           <button class="btn" onclick="closeM('m-feriados')">Fechar</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD PCP ══ -->
+    <div id="p-pcp" class="page">
+      <div class="ph">
+        <div><h1>🏭 Dashboard PCP</h1><p>Planejamento e controle da produção — uso exclusivo</p></div>
+      </div>
+      <!-- Filtro período -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Filtrar período</h2><button class="btn sm" onclick="limparFiltroPCP()">✕ Limpar</button></div>
+        <div class="cb" style="padding:.9rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div class="ff" style="flex:none"><label>Data inicial</label>
+              <input type="date" id="pcp-d1" onchange="renderPCP()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);outline:none;font-family:inherit">
+            </div>
+            <div class="ff" style="flex:none"><label>Data final</label>
+              <input type="date" id="pcp-d2" onchange="renderPCP()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);outline:none;font-family:inherit">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">
+              <button class="btn sm" onclick="setPCPPeriodo(0)">Hoje</button>
+              <button class="btn sm" onclick="setPCPPeriodo(7)">7 dias</button>
+              <button class="btn sm" onclick="setPCPPeriodo(30)">30 dias</button>
+              <button class="btn sm" onclick="setPCPPeriodo(90)">90 dias</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Tempo médio entre etapas -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>⏱ Tempo Médio entre Etapas</h2></div>
+        <div class="cb"><div id="pcp-tempoetapa"></div></div>
+      </div>
+      <!-- Lotes travados -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>🚨 Lotes Travados</h2><span style="font-size:12px;color:var(--muted)">Sem avançar há mais de 3 dias</span></div>
+        <div class="cb"><div id="pcp-travados"></div></div>
+      </div>
+      <!-- Detalhamento por área -->
+      <div id="pcp-det-section">
+        <div style="margin-bottom:.75rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
+        <div id="pcp-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
       </div>
     </div>
 
@@ -1363,6 +1399,11 @@ let sb, CU, USER_NIVEL = 1;
 let FERIADOS_DB = [];
 let CAP_DB = []; // capacidade diária // feriados carregados do Supabase
 let REC = [], VOLS = [], TRIS = {}, LOTES = [];
+
+// Cache de dias úteis — escopo global para uso em loadData e renderDashIndicadoresExtra
+let _duCache = null;
+let _duCacheMin = '', _duCacheMax = '';
+function invalidateDuCache() { _duCache = null; _duCacheMin = ''; _duCacheMax = ''; }
 let scanCodes = [], codeReader = null;
 let repFlag = false, divFlag = false;
 
@@ -1443,22 +1484,23 @@ function showAuth(){document.getElementById('app').style.display='none';document
 
 // ─── LOAD DATA ────────────────────────────────────
 async function loadData() {
-  // Carregar feriados do Supabase em paralelo
-  const [r, v, t, l, fer] = await Promise.all([
+  // Carregar tudo em paralelo incluindo capacidade e feriados
+  const [r, v, t, l, fer, cap] = await Promise.all([
     sb.from('recebimentos').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('volumes_recebidos').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('triagens').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('lotes').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('feriados').select('*').order('data'),
+    sb.from('capacidade_diaria').select('*').order('data', { ascending: false }).limit(500),
   ]);
+
+  if (r.error) { toast('Erro ao carregar dados: ' + r.error.message, 'er'); return; }
+
   FERIADOS_DB = (fer.data || []).map(x => ({ id: x.id, data: x.data, nome: x.nome, tipo: x.tipo }));
   invalidateDuCache();
 
-  // Capacidade diária
-  const cap = await sb.from('capacidade_diaria').select('*').order('data', { ascending: false }).limit(500);
   CAP_DB = (cap.data || []);
-
-  if (r.error) { toast('Erro ao carregar dados: ' + r.error.message, 'er'); return; }
+  if (cap.error) console.warn('Erro ao carregar capacidade:', cap.error.message);
 
   REC = (r.data||[]).map(x => ({
     id: x.id, data: x.data, hora: x.hora,
@@ -1955,9 +1997,40 @@ function buscaRastreio(){
   document.getElementById('btn-lot-save').disabled=false;
   calcPrazo();
 }
+// Calcula prazo em dias úteis a partir de uma data (string YYYY-MM-DD)
+// Usa isDiaUtil global — feriados do Supabase ou fallback embutido
+function calcPrazoUtilGlobal(dataInicio, limiteDias) {
+  // isDiaUtil usa FERIADOS_DB se disponível
+  function _isUtil(ds) {
+    const [y, m, d] = ds.split('-').map(Number);
+    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
+    const yr = m < 3 ? y - 1 : y;
+    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
+    if (dow === 0 || dow === 6) return false;
+    if (typeof FERIADOS_DB !== 'undefined' && FERIADOS_DB.length > 0)
+      return !FERIADOS_DB.some(f => f.data === ds);
+    // fallback feriados fixos
+    const FIXOS = new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
+    const MOVEIS = new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04','2027-02-08','2027-02-09','2027-03-26','2027-05-27']);
+    if (FIXOS.has(ds.slice(5))) return false;
+    if (MOVEIS.has(ds)) return false;
+    return true;
+  }
+  const cur = new Date(dataInicio + 'T12:00:00');
+  let count = _isUtil(dataInicio) ? 1 : 0;
+  while (count < limiteDias) {
+    cur.setDate(cur.getDate() + 1);
+    if (_isUtil(cur.toISOString().split('T')[0])) count++;
+  }
+  return cur.toISOString().split('T')[0];
+}
+
 function calcPrazo(){
   const d=document.getElementById('l-data').value;
-  if(d){const p=new Date(d);p.setDate(p.getDate()+12);document.getElementById('l-prazo-d').textContent=fmtDate(p.toISOString().split('T')[0]);}
+  if(!d) return;
+  const prazo = calcPrazoUtilGlobal(d, 12);
+  const el = document.getElementById('l-prazo-d');
+  if(el) el.textContent = fmtDate(prazo);
 }
 async function salvarLot(){
   const rastreio=document.getElementById('l-rastreio').value.trim().toUpperCase();
@@ -1971,7 +2044,7 @@ async function salvarLot(){
   if(!email){toast('Informe o e-mail do cliente.','er');return;}
   if(!cliente){toast('Informe o nome do cliente.','er');return;}
   const tri=TRIS[volId];
-  const p=new Date(data);p.setDate(p.getDate()+12);const prazo=p.toISOString().split('T')[0];
+  const prazo = calcPrazoUtilGlobal(data, 12);
   const loteData={id:crypto.randomUUID(),lote:loteNum,rastreio,rastreio_vol_id:volId,data,hora,colaborador:colab,apr_tri:tri.aprovadas,email,cliente,prazo,cad:null,pas:null,fot:null,not:null,dob:null};
   if(sb){
     const tri2=TRIS[volId];
@@ -2305,7 +2378,7 @@ function renderDash(){
 
 // ═══════ DASHBOARD — CARDS DE ÁREA ════════════════
 function renderDashAreaCards(){
-  const detSection=document.getElementById('dash-det-section');
+  const detSection=document.getElementById('pcp-det-section')||document.getElementById('dash-det-section');
   if(USER_NIVEL<4){if(detSection)detSection.style.display='none';return;}
   if(detSection)detSection.style.display='block';
   const d1=document.getElementById('dash-d1')?.value||'';
@@ -2340,7 +2413,7 @@ function renderDashAreaCards(){
   const numColabs = a => Object.keys(a.colabs).length;
   const topColab = a => { const entries=Object.entries(a.colabs); if(!entries.length) return '—'; return entries.sort((x,y)=>y[1]-x[1])[0][0].split(' ')[0]; };
 
-  document.getElementById('dash-area-cards').innerHTML = areasDef.map(a => `
+  (document.getElementById('pcp-area-cards')||document.getElementById('dash-area-cards')).innerHTML = areasDef.map(a => `
     <div onclick="openDashArea('${a.key}')" style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:1rem 1.1rem;cursor:pointer;transition:all 0.15s;border-left:3px solid ${a.cor}" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <span style="font-size:13px;font-weight:600;color:var(--text)">${a.icon} ${a.label}</span>
@@ -2398,13 +2471,7 @@ function renderDashIndicadoresExtra(){
     return true;
   }
 
-  function invalidateDuCache() { _duCache = null; _duCacheMin = ''; _duCacheMax = ''; }
-
-  // Cache global: _duCache[dateStr] = dias úteis acumulados desde epoch
-  // Construído uma única vez por chamada a renderDashIndicadoresExtra
-  // e reaproveitado para todos os 800 lotes — O(range) em vez de O(range * n_lotes)
-  let _duCache = null;
-  let _duCacheMin = '', _duCacheMax = '';
+  // _duCache, _duCacheMin, _duCacheMax e invalidateDuCache declarados no escopo global
 
   function buildDuCache(datas) {
     // datas: array de strings YYYY-MM-DD
@@ -2527,14 +2594,21 @@ function renderDashIndicadoresExtra(){
           </thead>
           <tbody>${noPrazo.map(({l, p}) => {
             const etapa = l.dob ? '🗂️ Dobra (ag. not.)' : l.fot ? '📸 Foto' : l.pas ? '👕 Pass.' : l.cad ? '🏷️ Cad.' : '📦 Lote';
-            const urgente = p.diasRestantes <= 2;
-            return `<tr style="border-bottom:1px solid var(--border)">
+            // Escala de cores: 1-5 verde, 6-9 amarelo, 10-12 vermelho pulsante
+            const dr = p.diasRestantes;
+            const corDias = dr <= 5 ? 'var(--success)' : dr <= 9 ? 'var(--warn)' : 'var(--danger)';
+            const bgDias  = dr <= 5 ? 'var(--sl)' : dr <= 9 ? 'var(--wl)' : 'var(--dl)';
+            const icoDias = dr <= 5 ? '✅' : dr <= 9 ? '⚠️' : '🚨';
+            const bordaRow = dr >= 10 ? 'border-left:3px solid var(--danger);' : dr >= 6 ? 'border-left:3px solid var(--warn);' : '';
+            return `<tr style="border-bottom:1px solid var(--border);${bordaRow}">
               <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--at);font-weight:600">${l.lote}</td>
               <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${l.rastreio||'—'}</td>
               <td style="padding:9px 12px;font-size:12px">${fmtDate(l.data)}</td>
-              <td style="padding:9px 12px;font-weight:600;color:${urgente?'var(--warn)':'var(--success)'}">${fmtDate(p.prazoDate)}</td>
-              <td style="padding:9px 12px;font-weight:700;text-align:center;color:${urgente?'var(--warn)':'var(--success)'}">
-                ${urgente?'⚠️':'✅'} ${p.diasRestantes}d
+              <td style="padding:9px 12px;font-weight:600;color:${corDias}">${fmtDate(p.prazoDate)}</td>
+              <td style="padding:9px 12px;text-align:center">
+                <span style="display:inline-flex;align-items:center;gap:4px;background:${bgDias};color:${corDias};font-weight:700;padding:3px 10px;border-radius:20px;font-size:12px${dr>=10?';animation:pulseAlert 1.2s infinite':''}">
+                  ${icoDias} ${dr}d
+                </span>
               </td>
               <td style="padding:9px 12px">${etapa}</td>
             </tr>`;
@@ -2545,7 +2619,7 @@ function renderDashIndicadoresExtra(){
   }
 
   // ── TEMPO POR ÁREA: do recebimento até cada etapa + tempo que o lote ficou em cada área ──
-  const tempoEl=document.getElementById('dash-tempoetapa');
+  const tempoEl=document.getElementById('pcp-tempoetapa')||document.getElementById('dash-tempoetapa');
   if(tempoEl){
     // Definição das etapas com campo de data/hora e cor
     const etapasT=[
@@ -2669,7 +2743,7 @@ function renderDashIndicadoresExtra(){
   }
 
   // ── LOTES TRAVADOS ──
-  const travEl=document.getElementById('dash-travados');
+  const travEl=document.getElementById('pcp-travados')||document.getElementById('dash-travados');
   if(travEl){
     const DIAS_TRAV=3;
     const travados=[];
@@ -3179,6 +3253,7 @@ function go(n){
   const sb2=document.getElementById('sbar'),bg=document.getElementById('ovbg');
   if(sb2.classList.contains('on')){sb2.classList.remove('on');bg.classList.remove('on');}
   if(n==='dash')renderDash();
+  if(n==='pcp')renderPCP();
   if(n==='dash2')renderDash2();
   if(n==='cal'){initCalUtil();}
   if(n==='cap')renderCap();
@@ -3193,6 +3268,9 @@ let tT;
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast on '+t;clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('on'),3500);}
 
 function applyNivelControls(){
+  // PCP: visível apenas para nivel 4
+  const btnPCP = document.getElementById('ni-pcp');
+  if (btnPCP) btnPCP.style.display = USER_NIVEL >= 4 ? '' : 'none';
   const btnRec=document.querySelector('#p-rec .ph .btn.pri');
   if(btnRec) btnRec.style.display=USER_NIVEL>=1?'':'none';
   const btnLot=document.querySelector('#p-lot .ph button');
@@ -4264,6 +4342,135 @@ function csvCap() {
       Math.round((x.fixos||0)*(x.pecas_por_dia_fixos||0)+(x.em_treinamento||0)*(x.pecas_por_dia_treinamento||0))
     ])
   ], 'capacidade.csv');
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD PCP
+// ═══════════════════════════════════════════════════
+function setPCPPeriodo(dias) {
+  const hoje = new Date(), d2 = hoje.toISOString().split('T')[0];
+  const d1 = new Date(hoje); d1.setDate(d1.getDate() - dias);
+  document.getElementById('pcp-d1').value = d1.toISOString().split('T')[0];
+  document.getElementById('pcp-d2').value = d2;
+  renderPCP();
+}
+function limparFiltroPCP() {
+  document.getElementById('pcp-d1').value = '';
+  document.getElementById('pcp-d2').value = '';
+  renderPCP();
+}
+
+function renderPCP() {
+  if (USER_NIVEL < 4) return;
+  const d1 = document.getElementById('pcp-d1')?.value || '';
+  const d2 = document.getElementById('pcp-d2')?.value || '';
+  // Sync filtros com dash para reusar renderDashIndicadoresExtra
+  const dd1 = document.getElementById('dash-d1');
+  const dd2 = document.getElementById('dash-d2');
+  const _prev1 = dd1?.value, _prev2 = dd2?.value;
+  if (dd1) dd1.value = d1;
+  if (dd2) dd2.value = d2;
+
+  const lotesF = LOTES.filter(l => (!d1||l.data>=d1) && (!d2||l.data<=d2));
+  renderDashIndicadoresExtra(); // reutiliza, aponta para IDs do PCP
+  renderPCPAreaCards(lotesF);
+
+  // Restaurar filtros do dash
+  if (dd1) dd1.value = _prev1 || '';
+  if (dd2) dd2.value = _prev2 || '';
+}
+
+function renderPCPAreaCards(lotesF) {
+  const d1 = document.getElementById('pcp-d1')?.value || '';
+  const d2 = document.getElementById('pcp-d2')?.value || '';
+  const recF  = LOTES.length ? filtraDash(REC,'data') : [];
+  const trisF = Object.values(TRIS).filter(t=>(!d1||t.data>=d1)&&(!d2||t.data<=d2));
+  renderDashAreaCards();
+}
+
+// ── Gráfico de barras: % notificados por dia útil ──
+function renderNotifDias() {
+  const el = document.getElementById('dash-notif-dias'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+
+  // Apenas lotes que foram notificados no período
+  const notificados = LOTES.filter(l => l.not?.data && l.data && (!d1||l.data>=d1) && (!d2||l.data<=d2));
+
+  if (!notificados.length) {
+    el.innerHTML = '<div class="empty">Sem notificações no período.</div>';
+    return;
+  }
+
+  // Para cada lote notificado, calcular em quantos dias úteis foi notificado
+  const contagem = {}; // dia_util -> count
+  for (let i = 1; i <= 12; i++) contagem[i] = 0;
+  contagem['12+'] = 0;
+
+  notificados.forEach(l => {
+    const diasDec = diasUteisLote(l.data, l.not.data);
+    if (diasDec <= 12) contagem[diasDec] = (contagem[diasDec] || 0) + 1;
+    else contagem['12+']++;
+  });
+
+  const total = notificados.length;
+  const labels = [1,2,3,4,5,6,7,8,9,10,11,12,'12+'];
+  const maxPct = Math.max(...labels.map(k => Math.round(((contagem[k]||0)/total)*100)), 1);
+
+  // Cor por faixa
+  function corBarra(k) {
+    if (k === '12+') return 'var(--danger)';
+    if (k >= 10)    return 'var(--danger)';
+    if (k >= 6)     return 'var(--warn)';
+    return 'var(--success)';
+  }
+
+  el.innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">
+      Total no período: <b style="color:var(--text)">${total} lotes notificados</b> · 
+      🟢 1–5d úteis &nbsp; 🟡 6–9d úteis &nbsp; 🔴 10–12d+ úteis
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px;height:200px;padding-bottom:24px;position:relative;overflow-x:auto">
+      ${labels.map(k => {
+        const qtd = contagem[k] || 0;
+        const pct = Math.round((qtd / total) * 100);
+        const h = Math.round((pct / maxPct) * 160);
+        const cor = corBarra(k);
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:44px;flex:1">
+          <div style="font-size:11px;font-weight:700;color:${cor}">${pct}%</div>
+          <div style="font-size:10px;color:var(--muted)">${qtd}</div>
+          <div style="width:100%;background:${cor};border-radius:4px 4px 0 0;height:${Math.max(h,2)}px;transition:height .4s;opacity:.85;min-height:${qtd>0?4:2}px"></div>
+          <div style="font-size:11px;font-weight:600;color:${cor};white-space:nowrap">${k}d</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// Calcula dias úteis entre criação do lote e notificação (inclusive)
+function diasUteisLote(dataInicio, dataFim) {
+  function _isUtil(ds) {
+    const [y, m, d] = ds.split('-').map(Number);
+    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
+    const yr = m < 3 ? y - 1 : y;
+    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
+    if (dow === 0 || dow === 6) return false;
+    if (typeof FERIADOS_DB !== 'undefined' && FERIADOS_DB.length > 0)
+      return !FERIADOS_DB.some(f => f.data === ds);
+    const FIXOS = new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
+    const MOVEIS = new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04','2027-02-08','2027-02-09','2027-03-26','2027-05-27']);
+    if (FIXOS.has(ds.slice(5))) return false;
+    if (MOVEIS.has(ds)) return false;
+    return true;
+  }
+  let count = _isUtil(dataInicio) ? 1 : 0;
+  const cur = new Date(dataInicio + 'T12:00:00');
+  const end = new Date(dataFim   + 'T12:00:00');
+  while (cur < end) {
+    cur.setDate(cur.getDate() + 1);
+    const s = cur.toISOString().split('T')[0];
+    if (_isUtil(s)) count++;
+  }
+  return count;
 }
 
 init();
