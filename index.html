@@ -2374,6 +2374,7 @@ function renderDash(){
       <div class="bar-val">${v}</div>
     </div>`).join('');
   renderDashAreaCards();
+  renderNotifDias();
 }
 
 // ═══════ DASHBOARD — CARDS DE ÁREA ════════════════
@@ -2594,19 +2595,20 @@ function renderDashIndicadoresExtra(){
           </thead>
           <tbody>${noPrazo.map(({l, p}) => {
             const etapa = l.dob ? '🗂️ Dobra (ag. not.)' : l.fot ? '📸 Foto' : l.pas ? '👕 Pass.' : l.cad ? '🏷️ Cad.' : '📦 Lote';
-            // Escala de cores: 1-5 verde, 6-9 amarelo, 10-12 vermelho pulsante
+            // Escala de cores: menos dias = mais urgente
+            // 1-3d = vermelho pulsante, 4-7d = amarelo, 8-12d = verde
             const dr = p.diasRestantes;
-            const corDias = dr <= 5 ? 'var(--success)' : dr <= 9 ? 'var(--warn)' : 'var(--danger)';
-            const bgDias  = dr <= 5 ? 'var(--sl)' : dr <= 9 ? 'var(--wl)' : 'var(--dl)';
-            const icoDias = dr <= 5 ? '✅' : dr <= 9 ? '⚠️' : '🚨';
-            const bordaRow = dr >= 10 ? 'border-left:3px solid var(--danger);' : dr >= 6 ? 'border-left:3px solid var(--warn);' : '';
+            const corDias = dr <= 3 ? 'var(--danger)' : dr <= 7 ? 'var(--warn)' : 'var(--success)';
+            const bgDias  = dr <= 3 ? 'var(--dl)' : dr <= 7 ? 'var(--wl)' : 'var(--sl)';
+            const icoDias = dr <= 3 ? '🚨' : dr <= 7 ? '⚠️' : '✅';
+            const bordaRow = dr <= 3 ? 'border-left:3px solid var(--danger);' : dr <= 7 ? 'border-left:3px solid var(--warn);' : '';
             return `<tr style="border-bottom:1px solid var(--border);${bordaRow}">
               <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--at);font-weight:600">${l.lote}</td>
               <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${l.rastreio||'—'}</td>
               <td style="padding:9px 12px;font-size:12px">${fmtDate(l.data)}</td>
               <td style="padding:9px 12px;font-weight:600;color:${corDias}">${fmtDate(p.prazoDate)}</td>
               <td style="padding:9px 12px;text-align:center">
-                <span style="display:inline-flex;align-items:center;gap:4px;background:${bgDias};color:${corDias};font-weight:700;padding:3px 10px;border-radius:20px;font-size:12px${dr>=10?';animation:pulseAlert 1.2s infinite':''}">
+                <span style="display:inline-flex;align-items:center;gap:4px;background:${bgDias};color:${corDias};font-weight:700;padding:3px 10px;border-radius:20px;font-size:12px${dr<=3?';animation:pulseAlert 1.2s infinite':''}">
                   ${icoDias} ${dr}d
                 </span>
               </td>
