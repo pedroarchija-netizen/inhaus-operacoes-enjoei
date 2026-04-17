@@ -3268,9 +3268,11 @@ let tT;
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast on '+t;clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('on'),3500);}
 
 function applyNivelControls(){
-  // PCP: visível apenas para nivel 4
-  const btnPCP = document.getElementById('ni-pcp');
-  if (btnPCP) btnPCP.style.display = USER_NIVEL >= 4 ? '' : 'none';
+  // Nível 4 exclusivo: PCP, Calendário, Análise Colaboradores, Capacidade
+  ['ni-pcp','ni-cal','ni-dash2','ni-cap'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = USER_NIVEL >= 4 ? '' : 'none';
+  });
   const btnRec=document.querySelector('#p-rec .ph .btn.pri');
   if(btnRec) btnRec.style.display=USER_NIVEL>=1?'':'none';
   const btnLot=document.querySelector('#p-lot .ph button');
@@ -3864,6 +3866,9 @@ function renderCalUtil() {
   const totalFds  = diasMes.filter(d => d.tipo === 'fds').length;
   const totalFer  = diasMes.filter(d => d.tipo === 'feriado').length;
   const hoje = new Date().toISOString().split('T')[0];
+  // Dias úteis restantes: apenas dias > hoje no mesmo mês
+  const utilRestantes = diasMes.filter(d => d.tipo === 'util' && d.ds > hoje).length;
+  const ehMesAtual = ano === new Date().getFullYear() && mes === new Date().getMonth();
   const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
   // Offset do dia da semana
@@ -3881,9 +3886,12 @@ function renderCalUtil() {
     else { bg='var(--sl)'; cor='var(--success)'; }
     if (isHoje) borda = 'box-shadow:0 0 0 2px var(--accent);';
     const title = nome ? `title="${nome}"` : '';
-    cells += `<div ${title} style="background:${bg};border-radius:6px;padding:6px 4px;text-align:center;cursor:${nome?'help':'default'};${borda}">
+    const ferObj = FERIADOS_DB.find(f => f.data === ds);
+    const podeExcluir = tipo === 'feriado' && USER_NIVEL >= 4 && ferObj;
+    cells += `<div ${title} style="background:${bg};border-radius:6px;padding:6px 4px;text-align:center;cursor:${nome?'help':'default'};${borda};position:relative">
       <div style="font-size:13px;font-weight:${isHoje?'800':'600'};color:${cor}">${d}</div>
       ${nome ? `<div style="font-size:8px;color:${cor};line-height:1.1;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome.split(' ')[0]}</div>` : ''}
+      ${podeExcluir ? `<button onclick="excluirFeriado('${ferObj.id}','${ferObj.nome}')" title="Remover feriado" style="position:absolute;top:1px;right:1px;background:none;border:none;color:var(--danger);cursor:pointer;font-size:9px;padding:0;line-height:1;opacity:.7">✕</button>` : ''}
     </div>`;
   });
 
@@ -3904,6 +3912,9 @@ function renderCalUtil() {
       <div style="background:var(--al);border-radius:var(--rs);padding:8px 16px;font-size:13px;color:var(--at)">
         📅 ${meses[mes]} ${ano}
       </div>
+      ${ehMesAtual ? `<div style="background:var(--pl);border-radius:var(--rs);padding:8px 16px;font-size:13px;color:var(--purple);font-weight:600">
+        ⏳ <b>${utilRestantes}</b> dias úteis restantes no mês
+      </div>` : ''}
     </div>
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:.75rem">
       ${dias_semana.map(d => `<div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:4px 0">${d}</div>`).join('')}
@@ -4394,56 +4405,100 @@ function renderNotifDias() {
   const d1 = document.getElementById('dash-d1')?.value || '';
   const d2 = document.getElementById('dash-d2')?.value || '';
 
-  // Apenas lotes que foram notificados no período
   const notificados = LOTES.filter(l => l.not?.data && l.data && (!d1||l.data>=d1) && (!d2||l.data<=d2));
+  if (!notificados.length) { el.innerHTML = '<div class="empty">Sem notificações no período.</div>'; return; }
 
-  if (!notificados.length) {
-    el.innerHTML = '<div class="empty">Sem notificações no período.</div>';
-    return;
-  }
-
-  // Para cada lote notificado, calcular em quantos dias úteis foi notificado
-  const contagem = {}; // dia_util -> count
+  // Contar por dia útil
+  const contagem = {};
   for (let i = 1; i <= 12; i++) contagem[i] = 0;
   contagem['12+'] = 0;
-
   notificados.forEach(l => {
-    const diasDec = diasUteisLote(l.data, l.not.data);
-    if (diasDec <= 12) contagem[diasDec] = (contagem[diasDec] || 0) + 1;
+    const d = diasUteisLote(l.data, l.not.data);
+    if (d <= 12) contagem[d]++;
     else contagem['12+']++;
   });
 
   const total = notificados.length;
   const labels = [1,2,3,4,5,6,7,8,9,10,11,12,'12+'];
-  const maxPct = Math.max(...labels.map(k => Math.round(((contagem[k]||0)/total)*100)), 1);
 
-  // Cor por faixa
+  // Acumulado
+  let acum = 0;
+  const acumPct = labels.map(k => { acum += (contagem[k]||0); return parseFloat(((acum/total)*100).toFixed(2)); });
+
   function corBarra(k) {
-    if (k === '12+') return 'var(--danger)';
-    if (k >= 10)    return 'var(--danger)';
-    if (k >= 6)     return 'var(--warn)';
-    return 'var(--success)';
+    if (k === '12+' || k >= 10) return '#e05c5c';
+    if (k >= 6) return '#d4973c';
+    return '#2a7fd4';
   }
 
-  el.innerHTML = `
-    <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">
-      Total no período: <b style="color:var(--text)">${total} lotes notificados</b> · 
-      🟢 1–5d úteis &nbsp; 🟡 6–9d úteis &nbsp; 🔴 10–12d+ úteis
-    </div>
-    <div style="display:flex;align-items:flex-end;gap:8px;height:200px;padding-bottom:24px;position:relative;overflow-x:auto">
-      ${labels.map(k => {
-        const qtd = contagem[k] || 0;
-        const pct = Math.round((qtd / total) * 100);
-        const h = Math.round((pct / maxPct) * 160);
-        const cor = corBarra(k);
-        return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:44px;flex:1">
-          <div style="font-size:11px;font-weight:700;color:${cor}">${pct}%</div>
-          <div style="font-size:10px;color:var(--muted)">${qtd}</div>
-          <div style="width:100%;background:${cor};border-radius:4px 4px 0 0;height:${Math.max(h,2)}px;transition:height .4s;opacity:.85;min-height:${qtd>0?4:2}px"></div>
-          <div style="font-size:11px;font-weight:600;color:${cor};white-space:nowrap">${k}d</div>
-        </div>`;
-      }).join('')}
+  const CHART_H = 220; // altura útil das barras em px
+  const maxPct = Math.max(...labels.map(k => parseFloat(((contagem[k]||0)/total*100).toFixed(2))), 1);
+
+  // Legenda
+  const legendHtml = `
+    <div style="display:flex;gap:16px;margin-bottom:.75rem;font-size:12px;flex-wrap:wrap">
+      <span><span style="display:inline-block;width:12px;height:12px;background:#1a3a5c;border-radius:2px;margin-right:4px;vertical-align:middle"></span>% por dia (eixo esq.)</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#3a8fd4;opacity:.6;border-radius:2px;margin-right:4px;vertical-align:middle"></span>% acumulada (eixo dir.)</span>
+      <span style="color:var(--muted)">Total: <b style="color:var(--text)">${total}</b> lotes · 🔵 1–5d · 🟡 6–9d · 🔴 10–12d+</span>
     </div>`;
+
+  // SVG do gráfico
+  const barW = 36, gap = 16, paddingL = 48, paddingR = 48, paddingT = 30, paddingB = 36;
+  const totalW = labels.length * (barW + gap) + paddingL + paddingR;
+  const totalH = CHART_H + paddingT + paddingB;
+
+  // Linhas de grade Y
+  const grades = [0,25,50,75,100];
+  const gradeLines = grades.map(g => {
+    const y = paddingT + CHART_H - (g/100)*CHART_H;
+    return `<line x1="${paddingL}" y1="${y}" x2="${totalW-paddingR}" y2="${y}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+            <text x="${paddingL-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#7A9AB8">${g}%</text>
+            <text x="${totalW-paddingR+6}" y="${y+4}" text-anchor="start" font-size="10" fill="#3a8fd4">${g}%</text>`;
+  }).join('');
+
+  // Barras + linha acumulada
+  let barsHtml = '';
+  let linePoints = '';
+  labels.forEach((k, i) => {
+    const x = paddingL + i * (barW + gap);
+    const pct = parseFloat(((contagem[k]||0)/total*100).toFixed(2));
+    const h1 = Math.max((pct/100)*CHART_H, pct>0?2:0);
+    const y1 = paddingT + CHART_H - h1;
+    const cor = corBarra(k);
+    // Barra escura (% do dia)
+    barsHtml += `<rect x="${x}" y="${y1}" width="${barW}" height="${h1}" fill="${cor}" rx="2" opacity=".85"/>`;
+    // Label % acima da barra
+    if (pct > 0) barsHtml += `<text x="${x+barW/2}" y="${y1-5}" text-anchor="middle" font-size="9.5" fill="${cor}" font-weight="700">${pct.toFixed(2)}%</text>`;
+    // Barra clara (acumulado) — linha de pontos
+    const acP = acumPct[i];
+    const yAc = paddingT + CHART_H - (acP/100)*CHART_H;
+    const cx = x + barW/2;
+    linePoints += `${cx},${yAc} `;
+    // Ponto acumulado
+    barsHtml += `<circle cx="${cx}" cy="${yAc}" r="4" fill="#3a8fd4" opacity=".9"/>`;
+    if (acP > 0) barsHtml += `<text x="${cx}" y="${yAc-8}" text-anchor="middle" font-size="9" fill="#3a8fd4" font-weight="600">${acP.toFixed(2)}%</text>`;
+    // Label eixo X
+    barsHtml += `<text x="${x+barW/2}" y="${paddingT+CHART_H+18}" text-anchor="middle" font-size="11" fill="#7A9AB8" font-weight="600">${k}</text>`;
+  });
+
+  // Linha acumulada
+  const lineHtml = linePoints.trim()
+    ? `<polyline points="${linePoints.trim()}" fill="none" stroke="#3a8fd4" stroke-width="2" opacity=".7" stroke-dasharray="4,2"/>`
+    : '';
+
+  // Label eixo X
+  const xAxisLabel = `<text x="${(totalW)/2}" y="${totalH-2}" text-anchor="middle" font-size="11" fill="#7A9AB8">Dia útil (SLA)</text>`;
+
+  const svgHtml = `<div style="overflow-x:auto">
+    <svg width="${totalW}" height="${totalH}" style="display:block">
+      ${gradeLines}
+      ${lineHtml}
+      ${barsHtml}
+      ${xAxisLabel}
+    </svg>
+  </div>`;
+
+  el.innerHTML = legendHtml + svgHtml;
 }
 
 // Calcula dias úteis entre criação do lote e notificação (inclusive)
