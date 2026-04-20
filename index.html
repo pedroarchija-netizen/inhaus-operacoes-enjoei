@@ -253,6 +253,25 @@ tbody tr:last-child td{border-bottom:none;}
   0%,100%{opacity:1;transform:scale(1);}
   50%{opacity:.7;transform:scale(1.06);}
 }
+/* ── LOADING ── */
+.loading-overlay{position:fixed;inset:0;background:rgba(8,15,31,.85);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(4px);}
+.loading-overlay.hide{display:none;}
+.spinner{width:44px;height:44px;border:3px solid rgba(59,157,210,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-label{font-size:14px;color:var(--at);font-weight:500;letter-spacing:.04em;}
+.loading-sub{font-size:12px;color:var(--muted);}
+.progress-bar-wrap{width:220px;height:4px;background:rgba(59,157,210,.15);border-radius:4px;overflow:hidden;}
+.progress-bar-fill{height:4px;background:var(--accent);border-radius:4px;transition:width .3s;}
+.skel{background:linear-gradient(90deg,var(--surface2) 25%,rgba(59,157,210,.08) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skelAnim 1.4s infinite;}
+@keyframes skelAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-row{height:40px;border-radius:4px;margin-bottom:6px;}
+/* Paginação */
+.pag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);flex-wrap:wrap;gap:8px;}
+.pag-btns{display:flex;gap:4px;}
+.pag-btn{padding:4px 10px;border:1px solid var(--border2);border-radius:var(--rs);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.pag-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pag-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.pag-btn:disabled{opacity:.35;cursor:not-allowed;}
 .toast.ok{background:var(--sl);border-color:rgba(45,212,160,.4);color:var(--success);}
 .toast.er{background:var(--dl);border-color:rgba(244,112,112,.4);color:var(--danger);}
 
@@ -280,6 +299,12 @@ tbody tr:last-child td{border-bottom:none;}
 <body>
 
 <!-- ═══════════ AUTH ═══════════ -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-label" id="loading-label">Carregando IN·HAUS</div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="loading-bar" style="width:0%"></div></div>
+  <div class="loading-sub" id="loading-sub">Conectando ao banco de dados...</div>
+</div>
 <div id="auth">
   <div class="abox">
     <div class="alogo">
@@ -344,9 +369,12 @@ tbody tr:last-child td{border-bottom:none;}
       <button class="ni"    id="ni-pcp"   onclick="go('pcp')"  style="display:none"><span class="ic">🏭</span>Dashboard PCP</button>
       <button class="ni"    id="ni-dash2" onclick="go('dash2')"><span class="ic">🔬</span>Análise Colaboradores</button>
       <button class="ni"    id="ni-cap"   onclick="go('cap')"><span class="ic">📋</span>Capacidade</button>
+      <button class="ni"    id="ni-metas" onclick="go('metas')" style="display:none"><span class="ic">🎯</span>Metas</button>
+      <button class="ni"    id="ni-dashmetas" onclick="go('dashmetas')" style="display:none"><span class="ic">📈</span>Dashboard Metas</button>
       <button class="ni"    id="ni-cal"   onclick="go('cal')"><span class="ic">📅</span>Calendário</button>
       <div class="ns">Administração</div>
       <button class="ni"    id="ni-usr"  onclick="go('usr')"><span class="ic">👥</span>Usuários</button>
+      <button class="ni"    id="ni-log"  onclick="go('log')" style="display:none"><span class="ic">📋</span>Log de Atividades</button>
     </nav>
     <button class="sb-out" onclick="doLogout()">🚪 Sair</button>
     <div class="sb-credit">criado por Pedro Archija</div>
@@ -383,6 +411,7 @@ tbody tr:last-child td{border-bottom:none;}
           <thead><tr><th>Data</th><th>Hora</th><th>Colaborador</th><th>Transportadora</th><th class="nc">Qtd.</th><th class="hm">Obs.</th><th></th></tr></thead>
           <tbody id="rec-tb"></tbody>
         </table></div>
+        <div id="rec-pag" class="pag-bar" style="display:none"></div>
       </div>
     </div>
 
@@ -433,6 +462,7 @@ tbody tr:last-child td{border-bottom:none;}
           <thead><tr><th>Código rastreio</th><th>Data</th><th>Hora</th><th class="hm">Colaborador</th><th class="hm">Embalagem</th><th class="hm">N° Bag</th><th class="nc hm">👗</th><th class="nc hm">👟</th><th class="nc hm">👜</th><th class="nc hm">💍</th><th class="nc hm">🏠</th><th class="nc">Total</th><th class="nc">✅</th><th class="nc">❌</th><th>Taxa</th></tr></thead>
           <tbody id="tri-done-tb"></tbody>
         </table></div>
+        <div id="tri-pag" class="pag-bar" style="display:none"></div>
       </div>
     </div>
 
@@ -498,6 +528,7 @@ tbody tr:last-child td{border-bottom:none;}
           <thead><tr><th>Nº Lote</th><th>Rastreio</th><th>Data</th><th class="hm">Colaborador</th><th class="nc hm">✅ Peças</th><th class="hm">Prazo notif.</th><th>Status</th><th></th></tr></thead>
           <tbody id="lot-tb"></tbody>
         </table></div>
+        <div id="lot-pag" class="pag-bar" style="display:none"></div>
       </div>
     </div>
 
@@ -674,6 +705,62 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="card" style="margin-bottom:1.25rem">
           <div class="ch"><h2>📊 Notificações por Dia Útil</h2><span style="font-size:12px;color:var(--muted)">% notificados em cada dia útil do prazo</span></div>
           <div class="cb"><div id="dash-notif-dias"></div></div>
+        </div>
+        <!-- Histórico volumes por transportadora -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>🚚 Volumes por Transportadora</h2><span style="font-size:12px;color:var(--muted)">Tendência por período</span></div>
+          <div class="cb"><div id="dash-transp-trend"></div></div>
+        </div>
+        <!-- Alerta taxa de aprovação -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch">
+            <h2>⚠️ Alerta de Taxa de Aprovação</h2>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;color:var(--muted)">Limite mínimo:</span>
+              <input type="number" id="alerta-taxa-input" value="50" min="1" max="100" onchange="ALERTA_TAXA=+this.value;renderAlertaTaxa()" style="width:60px;border:1px solid var(--border2);border-radius:var(--rs);padding:4px 8px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <span style="font-size:12px;color:var(--muted)">%</span>
+            </div>
+          </div>
+          <div class="cb"><div id="dash-alerta-taxa"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ COMPARATIVO CAP x PRODUÇÃO ══ -->
+    <!-- Inserido na aba PCP via JS -->
+
+    <!-- ══ LOG DE ATIVIDADES ══ -->
+    <div id="p-log" class="page">
+      <div class="ph"><div><h1>📋 Log de Atividades</h1><p>Registro completo de ações — visível apenas para você</p></div>
+        <button class="btn sm" onclick="exportLogCSV()">⬇ CSV</button>
+      </div>
+      <!-- Filtros -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <input type="text" id="log-busca" placeholder="Buscar usuário ou ação..." oninput="renderLog()" style="flex:1;min-width:180px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none">
+            <input type="date" id="log-d1" onchange="renderLog()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <input type="date" id="log-d2" onchange="renderLog()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <button class="btn sm" onclick="document.getElementById('log-d1').value='';document.getElementById('log-d2').value='';renderLog()">✕</button>
+            <button class="btn sm" onclick="loadData().then(renderLog)">↻</button>
+          </div>
+        </div>
+      </div>
+      <div class="kg" id="kpi-log" style="margin-bottom:1rem"></div>
+      <div class="card">
+        <div style="max-height:600px;overflow-y:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead style="position:sticky;top:0;background:var(--surface2);z-index:1">
+              <tr>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Data/Hora</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Usuário</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Ação</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Detalhe</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Página</th>
+              </tr>
+            </thead>
+            <tbody id="log-tb"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -913,6 +1000,14 @@ tbody tr:last-child td{border-bottom:none;}
           </div>
         </div>
       </div>
+      <!-- Comparativo Capacidade x Produção -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch">
+          <h2>📊 Capacidade x Produção Real</h2>
+          <input type="date" id="pcp-comp-data" onchange="renderComparativo(this.value)" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+        </div>
+        <div class="cb"><div id="pcp-comparativo"></div></div>
+      </div>
       <!-- Tempo médio entre etapas -->
       <div class="card" style="margin-bottom:1.25rem">
         <div class="ch"><h2>⏱ Tempo Médio entre Etapas</h2></div>
@@ -965,6 +1060,61 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="tw"><div id="cap-tb"></div></div>
         </div>
       </div>
+    </div>
+
+    <!-- ══ METAS MENSAIS ══ -->
+    <div id="p-metas" class="page">
+      <div class="ph">
+        <div><h1>🎯 Metas Mensais</h1><p>Defina a meta de produção por área e mês</p></div>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Selecionar período</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="meta-mes" onchange="renderMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="meta-ano" onchange="renderMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+            <button class="btn sm" onclick="copiarMetaMesAnterior()">📋 Copiar mês anterior</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><h2>Metas por área</h2><button class="btn pri sm" onclick="salvarTodasMetas()">💾 Salvar todas</button></div>
+        <div id="metas-form"></div>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD METAS ══ -->
+    <div id="p-dashmetas" class="page">
+      <div class="ph"><div><h1>📈 Dashboard de Metas</h1><p>Análise de desempenho vs meta por área</p></div></div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Período de análise</h2></div>
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="dm-mes" onchange="renderDashMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="dm-ano" onchange="renderDashMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="kg" id="kpi-dashmetas" style="margin-bottom:1.25rem"></div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>🏆 Ranking — % atingido da meta</h2></div>
+        <div class="cb"><div id="dm-ranking"></div></div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem">Detalhamento por área</div>
+      <div id="dm-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem"></div>
     </div>
 
   </main>
@@ -1397,7 +1547,11 @@ const NIVEL_LABELS = { 0: '⚪ Nível 0 · Visualização', 1: '🔵 Nível 1 ·
 
 let sb, CU, USER_NIVEL = 1;
 let FERIADOS_DB = [];
-let CAP_DB = []; // capacidade diária // feriados carregados do Supabase
+let CAP_DB = [];
+let PROD_MANUAL_DB = [];
+let LOG_DB = [];
+let METAS_DB = [];
+let ALERTA_TAXA = 50; // % mínimo de aprovação
 let REC = [], VOLS = [], TRIS = {}, LOTES = [];
 
 // Cache de dias úteis — escopo global para uso em loadData e renderDashIndicadoresExtra
@@ -1405,6 +1559,9 @@ let _duCache = null;
 let _duCacheMin = '', _duCacheMax = '';
 function invalidateDuCache() { _duCache = null; _duCacheMin = ''; _duCacheMax = ''; }
 let scanCodes = [], codeReader = null;
+// Paginação
+const PAG = { rec:1, tri:1, lot:1 };
+const PAG_SIZE = 50;
 let repFlag = false, divFlag = false;
 
 const PROC_SEQ = ['cad','pas','fot','not','dob'];
@@ -1412,6 +1569,34 @@ const PROC_PREV = { cad: null, pas: 'cad', fot: 'pas', not: 'fot', dob: 'fot' };
 const PROC_LABEL = { cad:'🏷️ Cadastro', pas:'👕 Passadoria', fot:'📸 Fotografia', not:'🔔 Notificação', dob:'🗂️ Dobra' };
 
 // ─── INIT ─────────────────────────────────────────
+// ── LOADING HELPERS ──────────────────────────────
+function showLoading(label='Carregando...', sub='', pct=0) {
+  const el = document.getElementById('loading-overlay');
+  if (el) el.classList.remove('hide');
+  const lb = document.getElementById('loading-label');
+  const sb = document.getElementById('loading-sub');
+  const bar = document.getElementById('loading-bar');
+  if (lb) lb.textContent = label;
+  if (sb) sb.textContent = sub;
+  if (bar) bar.style.width = pct + '%';
+}
+function setLoadingProgress(pct, sub='') {
+  const bar = document.getElementById('loading-bar');
+  const sb  = document.getElementById('loading-sub');
+  if (bar) bar.style.width = pct + '%';
+  if (sb && sub) sb.textContent = sub;
+}
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  if (el) { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>{ el.classList.add('hide'); el.style.opacity=''; el.style.transition=''; },300); }
+}
+
+// ── SKELETON LOADER para tabelas ──────────────────
+function skelTable(tbId, cols=7, rows=5) {
+  const tb = document.getElementById(tbId); if (!tb) return;
+  tb.innerHTML = Array(rows).fill(0).map(()=>`<tr>${Array(cols).fill(0).map(()=>`<td><div class="skel skel-row"></div></td>`).join('')}</tr>`).join('');
+}
+
 function init() {
   if (SB_URL === 'COLE_SUA_URL_AQUI') {
     seedDemo(); return;
@@ -1450,8 +1635,9 @@ function showFg(s=true) {
 async function doLogin() {
   const e=document.getElementById('le').value.trim(), p=document.getElementById('lp').value;
   if(!e||!p){setAM('Preencha e-mail e senha.','e');return;}
+  showLoading('Autenticando...','Verificando credenciais...',20);
   const{error}=await sb.auth.signInWithPassword({email:e,password:p});
-  if(error) setAM('E-mail ou senha incorretos.','e');
+  if(error){hideLoading();setAM('E-mail ou senha incorretos.','e');}
 }
 async function doReg() {
   const n=document.getElementById('rn').value.trim(), e=document.getElementById('re').value.trim(), p=document.getElementById('rp').value;
@@ -1467,7 +1653,7 @@ async function doFg() {
   if(error) setAM('Erro ao enviar.','e');
   else{setAM('Link enviado!','s');setTimeout(()=>showFg(false),3500);}
 }
-async function doLogout(){if(sb)await sb.auth.signOut();else{document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}}
+async function doLogout(){await logAction('LOGOUT','Saiu do sistema','—');if(sb)await sb.auth.signOut();else{document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}}
 function setAM(m,t){const el=document.getElementById('amsg');el.textContent=m;el.className='amsg '+t;}
 function showApp(){
   document.getElementById('auth').style.display='none';
@@ -1476,7 +1662,7 @@ function showApp(){
   const name=(CU.user_metadata?.name||CU.email).toUpperCase();
   document.getElementById('sb-name').textContent=name;
   document.getElementById('sb-nivel-lbl').textContent=NIVEL_LABELS[USER_NIVEL]||'';
-  if(sb) loadData(); else {setNow();renderAll();}
+  if(sb) loadData().then(()=>logAction('LOGIN','Acesso ao sistema','Dashboard')); else {setNow();renderAll();}
   applyNivelControls();
   showBtnGerFeriados();
 }
@@ -1484,23 +1670,39 @@ function showAuth(){document.getElementById('app').style.display='none';document
 
 // ─── LOAD DATA ────────────────────────────────────
 async function loadData() {
+  showLoading('Carregando dados', 'Conectando ao Supabase...', 10);
+  // Mostrar skeletons nas tabelas principais
+  skelTable('rec-tb', 7, 4);
+  skelTable('lot-tb', 8, 4);
+  skelTable('tri-done-tb', 15, 4);
   // Carregar tudo em paralelo incluindo capacidade e feriados
-  const [r, v, t, l, fer, cap] = await Promise.all([
+  const [r, v, t, l, fer, cap, pm, log, met] = await Promise.all([
     sb.from('recebimentos').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('volumes_recebidos').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('triagens').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('lotes').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('feriados').select('*').order('data'),
     sb.from('capacidade_diaria').select('*').order('data', { ascending: false }).limit(500),
+    sb.from('producao_manual').select('*').order('data', { ascending: false }).limit(500),
+    sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(200),
+    sb.from('metas_mensais').select('*').order('ano', { ascending: false }),
   ]);
 
-  if (r.error) { toast('Erro ao carregar dados: ' + r.error.message, 'er'); return; }
+  setLoadingProgress(60, 'Processando dados...');
+  if (r.error) { hideLoading(); toast('Erro ao carregar dados: ' + r.error.message, 'er'); return; }
 
   FERIADOS_DB = (fer.data || []).map(x => ({ id: x.id, data: x.data, nome: x.nome, tipo: x.tipo }));
   invalidateDuCache();
 
   CAP_DB = (cap.data || []);
-  if (cap.error) console.warn('Erro ao carregar capacidade:', cap.error.message);
+  PROD_MANUAL_DB = (pm.data || []);
+  LOG_DB = (log.data || []);
+  METAS_DB = (met.data || []);
+  // Limpar automaticamente logs com mais de 90 dias (roda 1x por sessão)
+  if (sb && LOG_DB.length > 0) {
+    const limite90 = new Date(); limite90.setDate(limite90.getDate()-90);
+    sb.from('activity_log').delete().lt('created_at', limite90.toISOString()).then(()=>{});
+  }
 
   REC = (r.data||[]).map(x => ({
     id: x.id, data: x.data, hora: x.hora,
@@ -1551,7 +1753,9 @@ async function loadData() {
     dob: x.dob_data ? { data:x.dob_data, hora:x.dob_hora, colab:x.dob_colab, apr:x.dob_apr||0, rep:x.dob_rep||0, obs:x.dob_obs } : null,
   }));
 
-  setNow(); renderAll();
+  setNow();
+  setLoadingProgress(90, 'Renderizando interface...');
+  setTimeout(()=>{ renderAll(); hideLoading(); }, 50);
 }
 
 // ─── RENDER ALL ───────────────────────────────────
@@ -1577,12 +1781,16 @@ function renderRecKPI(){
     <div class="kpi"><div class="kl">Total recebimentos</div><div class="kv">${REC.length}</div></div>
     <div class="kpi p"><div class="kl">Total volumes</div><div class="kv">${volsTotal}</div></div>`;
 }
-function renderRec(){
+function renderRec(pg){
+  if(pg!==undefined) PAG.rec=pg;
   const t=document.getElementById('rf-t').value, d=document.getElementById('rf-d').value;
   const list=REC.filter(r=>(!t||r.transportadora===t)&&(!d||r.data===d));
   const tb=document.getElementById('rec-tb');
-  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">📭</div>Nenhum recebimento.</div></td></tr>';return;}
-  tb.innerHTML=list.map(r=>`<tr>
+  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">📭</div>Nenhum recebimento.</div></td></tr>';pagBar('rec-pag',0,0,0);return;}
+  const total=list.length, pages=Math.ceil(total/PAG_SIZE);
+  PAG.rec=Math.min(PAG.rec,pages);
+  const slice=list.slice((PAG.rec-1)*PAG_SIZE, PAG.rec*PAG_SIZE);
+  tb.innerHTML=slice.map(r=>`<tr>
     <td>${fmtDate(r.data)}</td><td class="mono">${r.hora}</td><td>${r.colaborador}</td>
     <td><span class="badge ${r.transportadora.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}">${r.transportadora}</span></td>
     <td class="nc" style="font-weight:700">${r.qtd}</td>
@@ -1593,6 +1801,7 @@ function renderRec(){
       ${USER_NIVEL>=3?`<button class="btn xs danger-btn" onclick="excluirRec('${r.id}')" title="Excluir">🗑️</button>`:''}
     </td>
   </tr>`).join('');
+  pagBar('rec-pag', PAG.rec, pages, total, 'renderRec');
 }
 function verCod(id){const r=REC.find(x=>x.id===id);if(r)alert(`${r.transportadora} — ${fmtDate(r.data)}\n\n${(r.rastreios||[]).join('\n')||'(nenhum)'}`);}
 
@@ -1641,7 +1850,7 @@ async function salvarRec(){
     scanCodes.forEach((c,i)=>VOLS.push({id:nid+i+1,codigo:c,id_bip:rHex(),data_hora:data+' '+hora,triado:false}));
     renderAll();
   }
-  scanCodes=[];closeM('m-rec');toast('Recebimento registrado!','ok');
+  scanCodes=[];closeM('m-rec');toast('Recebimento registrado!','ok');logAction('RECEBIMENTO','Registrou recebimento: '+transp+' ('+scanCodes.length+' vols)','Recebimento');
 }
 
 async function atualizarRec(id){
@@ -1701,7 +1910,7 @@ async function excluirRec(id){
     REC=REC.filter(x=>String(x.id)!==String(id));
     renderAll();
   }
-  toast('Recebimento excluído.','ok');
+  toast('Recebimento excluído.','ok');logAction('EXCLUIR','Excluiu recebimento','Recebimento');
 }
 
 // ═══════ TRIAGEM ══════════════════════════════════
@@ -1740,12 +1949,16 @@ function renderTriPend(){
     <td><button class="btn xs pri" onclick="openTri('${v.id}')">🔍 Triar</button></td>
   </tr>`).join('');
 }
-function renderTriDone(){
+function renderTriDone(pg){
+  if(pg!==undefined) PAG.tri=pg;
   const q=(document.getElementById('tri-ds')?.value||'').toLowerCase();
   const done=VOLS.filter(v=>v.triado&&TRIS[v.id]&&(!q||v.codigo.toLowerCase().includes(q)));
   const tb=document.getElementById('tri-done-tb');
-  if(!done.length){tb.innerHTML='<tr><td colspan="15"><div class="empty" style="padding:1.5rem">Nenhuma triagem registrada.</div></td></tr>';return;}
-  tb.innerHTML=done.map(v=>{
+  if(!done.length){tb.innerHTML='<tr><td colspan="15"><div class="empty" style="padding:1.5rem">Nenhuma triagem registrada.</div></td></tr>';pagBar('tri-pag',0,0,0);return;}
+  const total=done.length, pages=Math.ceil(total/PAG_SIZE);
+  PAG.tri=Math.min(PAG.tri,pages);
+  const slice=done.slice((PAG.tri-1)*PAG_SIZE, PAG.tri*PAG_SIZE);
+  tb.innerHTML=slice.map(v=>{
     const t=TRIS[v.id];
     const c=t.taxa>=80?'var(--success)':t.taxa>=50?'var(--warn)':'var(--danger)';
     return `<tr>
@@ -1760,6 +1973,7 @@ function renderTriDone(){
       <td>${USER_NIVEL>=2?`<button class="btn xs" onclick="editTri('${v.id}')" title="Editar triagem">✏️</button>`:''}</td>
     </tr>`;
   }).join('');
+  pagBar('tri-pag', PAG.tri, pages, total, 'renderTriDone');
 }
 
 function editTri(volId){
@@ -1844,7 +2058,7 @@ async function salvarTri(){
     const idx=VOLS.findIndex(v=>v.id===vid);if(idx>=0)VOLS[idx].triado=true;
     renderAll();
   }
-  closeM('m-tri');toast(`Triagem registrada! Taxa: ${taxa}%`,'ok');
+  closeM('m-tri');toast(`Triagem registrada! Taxa: ${taxa}%`,'ok');logAction('TRIAGEM',`Triagem registrada: ${taxa}% aprovação`,'Triagem');
 }
 
 // ═══════ LOTES ════════════════════════════════════
@@ -1900,14 +2114,17 @@ function renderLotPend(){
     </tr>`;
   }).join('');
 }
-function renderLot(){
+function renderLot(pg){
+  if(pg!==undefined) PAG.lot=pg;
   const q=(document.getElementById('lot-s')?.value||'').toLowerCase();
   const list=LOTES.filter(l=>!q||l.lote.toLowerCase().includes(q)||(l.rastreio||'').toLowerCase().includes(q));
   const tb=document.getElementById('lot-tb');
-  if(!list.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="ei">📭</div>Nenhum lote criado.</div></td></tr>';return;}
-  tb.innerHTML=list.map(l=>{
+  if(!list.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="ei">📭</div>Nenhum lote criado.</div></td></tr>';pagBar('lot-pag',0,0,0);return;}
+  const total=list.length, pages=Math.ceil(total/PAG_SIZE);
+  PAG.lot=Math.min(PAG.lot,pages);
+  const slice=list.slice((PAG.lot-1)*PAG_SIZE, PAG.lot*PAG_SIZE);
+  tb.innerHTML=slice.map(l=>{
     const _temDob=l.dob, _temNot=l.not;
-    // Concluído = tem dob E not (em qualquer ordem)
     const _concluido=_temDob&&_temNot;
     const status=_concluido?'<span class="spill ok">✓ Concluído</span>':_temDob&&!_temNot?'<span class="spill dob">🗂️ Aguarda Not.</span>':_temNot&&!_temDob?'<span class="spill not">🗂️ Dobra</span>':l.fot?'<span class="spill fot">🔔 Notificação</span>':l.pas?'<span class="spill pas">📸 Fotografia</span>':l.cad?'<span class="spill cad">👕 Passadoria</span>':'<span class="spill lot">🏷️ Cadastro</span>';
     const prazoOk=l.prazo&&new Date(l.prazo)>new Date();
@@ -1925,6 +2142,7 @@ function renderLot(){
       </td>
     </tr>`;
   }).join('');
+  pagBar('lot-pag', PAG.lot, pages, total, 'renderLot');
 }
 
 function openLotComRastreio(codigo){
@@ -2059,7 +2277,7 @@ async function salvarLot(){
   } else {
     LOTES.unshift(loteData);renderAll();
   }
-  closeM('m-lot');toast(`Lote ${loteNum} criado!`,'ok');
+  closeM('m-lot');toast(`Lote ${loteNum} criado!`,'ok');logAction('LOTE','Criou lote: '+loteNum,'Lotes');
 }
 
 // ═══════ ETIQUETA ═════════════════════════════════
@@ -2256,7 +2474,7 @@ async function salvarProc(){
     if(idx>=0)LOTES[idx][tipo]=reg;
     renderAll();
   }
-  closeM('m-proc');toast(`${PROC_LABEL[tipo]} do lote ${l.lote} registrada!`,'ok');
+  closeM('m-proc');toast(`${PROC_LABEL[tipo]} do lote ${l.lote} registrada!`,'ok');logAction('PROCESSO',`${PROC_LABEL[tipo]} lote ${l.lote}`,tipo);
 }
 
 // ═══════ NOTIFICAÇÃO ══════════════════════════════
@@ -2313,7 +2531,7 @@ async function salvarNot(){
     if(idx>=0)LOTES[idx].not=reg;
     renderAll();
   }
-  closeM('m-not');toast(`Notificação do lote ${l.lote} registrada!`,'ok');
+  closeM('m-not');toast(`Notificação do lote ${l.lote} registrada!`,'ok');logAction('NOTIFICAÇÃO',`Notificou lote ${l.lote}`,'Notificação');
 }
 
 // ═══════ DASHBOARD ════════════════════════════════
@@ -2375,6 +2593,8 @@ function renderDash(){
     </div>`).join('');
   renderDashAreaCards();
   renderNotifDias();
+  renderTranspTrend();
+  renderAlertaTaxa();
 }
 
 // ═══════ DASHBOARD — CARDS DE ÁREA ════════════════
@@ -3252,10 +3472,14 @@ function go(n){
   document.getElementById('p-'+n).classList.add('on');
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
   document.getElementById('ni-'+n)?.classList.add('on');
+  // navegação não logada para economizar espaço
   const sb2=document.getElementById('sbar'),bg=document.getElementById('ovbg');
   if(sb2.classList.contains('on')){sb2.classList.remove('on');bg.classList.remove('on');}
   if(n==='dash')renderDash();
   if(n==='pcp')renderPCP();
+  if(n==='log')renderLog();
+  if(n==='metas'){initMetas();}
+  if(n==='dashmetas'){renderDashMetas();}
   if(n==='dash2')renderDash2();
   if(n==='cal'){initCalUtil();}
   if(n==='cap')renderCap();
@@ -3271,7 +3495,7 @@ function toast(m,t='ok'){const el=document.getElementById('toast');el.textConten
 
 function applyNivelControls(){
   // Nível 4 exclusivo: PCP, Calendário, Análise Colaboradores, Capacidade
-  ['ni-pcp','ni-cal','ni-dash2','ni-cap'].forEach(id => {
+  ['ni-pcp','ni-cal','ni-dash2','ni-cap','ni-log','ni-metas','ni-dashmetas'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = USER_NIVEL >= 4 ? '' : 'none';
   });
@@ -4375,6 +4599,10 @@ function limparFiltroPCP() {
 
 function renderPCP() {
   if (USER_NIVEL < 4) return;
+  // Inicializar data comparativo
+  const compData = document.getElementById('pcp-comp-data');
+  if (compData && !compData.value) compData.value = new Date().toISOString().slice(0,10);
+  renderComparativo(document.getElementById('pcp-comp-data')?.value);
   const d1 = document.getElementById('pcp-d1')?.value || '';
   const d2 = document.getElementById('pcp-d2')?.value || '';
   // Sync filtros com dash para reusar renderDashIndicadoresExtra
@@ -4528,6 +4756,895 @@ function diasUteisLote(dataInicio, dataFim) {
     if (_isUtil(s)) count++;
   }
   return count;
+}
+
+// ═══════════════════════════════════════════════════
+// LOG DE ATIVIDADES
+// ═══════════════════════════════════════════════════
+async function logAction(acao, detalhe='', pagina='') {
+  if (!sb || !CU) return;
+  try {
+    await sb.from('activity_log').insert({
+      usuario: getUserName(),
+      email: CU.email,
+      acao,
+      detalhe,
+      pagina: pagina || document.querySelector('.ni.on span:last-child')?.textContent || '',
+    });
+  } catch(e) { console.warn('Log error:', e); }
+}
+
+function renderLog() {
+  if (USER_NIVEL < 4) return;
+  const busca = (document.getElementById('log-busca')?.value || '').toLowerCase();
+  const d1 = document.getElementById('log-d1')?.value || '';
+  const d2 = document.getElementById('log-d2')?.value || '';
+
+  const dados = LOG_DB.filter(x => {
+    const data = x.created_at?.slice(0,10) || '';
+    if (d1 && data < d1) return false;
+    if (d2 && data > d2) return false;
+    if (busca && !((x.usuario||'').toLowerCase().includes(busca) || (x.acao||'').toLowerCase().includes(busca) || (x.detalhe||'').toLowerCase().includes(busca))) return false;
+    return true;
+  });
+
+  // KPIs
+  const usuarios = [...new Set(LOG_DB.map(x=>x.usuario))].length;
+  const hoje = new Date().toISOString().slice(0,10);
+  const hoje_count = LOG_DB.filter(x=>x.created_at?.slice(0,10)===hoje).length;
+  document.getElementById('kpi-log').innerHTML = `
+    <div class="kpi a"><div class="kl">Total registros</div><div class="kv">${LOG_DB.length}</div></div>
+    <div class="kpi g"><div class="kl">Ações hoje</div><div class="kv">${hoje_count}</div></div>
+    <div class="kpi p"><div class="kl">Usuários ativos</div><div class="kv">${usuarios}</div></div>
+    <div class="kpi"><div class="kl">No filtro</div><div class="kv">${dados.length}</div></div>`;
+
+  const ACT_COR = {
+    'LOGIN':'var(--success)', 'LOGOUT':'var(--muted)',
+    'RECEBIMENTO':'var(--accent)', 'TRIAGEM':'var(--purple)',
+    'LOTE':'var(--teal)', 'PROCESSO':'var(--warn)',
+    'NOTIFICAÇÃO':'var(--danger)', 'DEVOLUÇÃO':'var(--pink)',
+    'USUÁRIO':'var(--warn)', 'FERIADO':'var(--accent)',
+    'CAPACIDADE':'var(--teal)', 'EXCLUIR':'var(--danger)',
+  };
+  function corAcao(acao) {
+    for (const [k,v] of Object.entries(ACT_COR)) if (acao.toUpperCase().includes(k)) return v;
+    return 'var(--muted)';
+  }
+
+  const tb = document.getElementById('log-tb');
+  if (!dados.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhum registro encontrado.</div></td></tr>'; return; }
+
+  tb.innerHTML = dados.map(x => {
+    const dt = x.created_at ? new Date(x.created_at) : null;
+    const dtStr = dt ? dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '—';
+    const cor = corAcao(x.acao||'');
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 12px;font-size:11px;color:var(--muted);white-space:nowrap">${dtStr}</td>
+      <td style="padding:8px 12px;font-size:12px;font-weight:500">${x.usuario||'—'}</td>
+      <td style="padding:8px 12px"><span style="background:rgba(0,0,0,.2);color:${cor};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">${x.acao||'—'}</span></td>
+      <td style="padding:8px 12px;font-size:12px;color:var(--muted)">${x.detalhe||'—'}</td>
+      <td style="padding:8px 12px;font-size:11px;color:var(--muted)">${x.pagina||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportLogCSV() {
+  dlCsv([
+    ['Data/Hora','Usuário','Email','Ação','Detalhe','Página'],
+    ...LOG_DB.map(x=>[x.created_at,x.usuario,x.email,x.acao,x.detalhe,x.pagina])
+  ], 'log_atividades.csv');
+}
+
+// ═══════════════════════════════════════════════════
+// HISTÓRICO VOLUMES POR TRANSPORTADORA
+// ═══════════════════════════════════════════════════
+function renderTranspTrend() {
+  const el = document.getElementById('dash-transp-trend'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+
+  const recF = REC.filter(r => (!d1||r.data>=d1) && (!d2||r.data<=d2));
+  if (!recF.length) { el.innerHTML = '<div class="empty">Sem dados no período.</div>'; return; }
+
+  // Agrupar por data + transportadora
+  const transportadoras = [...new Set(recF.map(r => r.transportadora))].sort();
+  const diasSet = [...new Set(recF.map(r => r.data))].sort();
+
+  // Só mostrar os últimos 30 dias para não ficar poluído
+  const dias = diasSet.slice(-30);
+
+  const CORES_TRANSP = {
+    'Correios':'var(--accent)', 'Venuxx':'var(--purple)',
+    'Devolução Correios':'var(--warn)', 'Devolução Jadlog':'var(--teal)',
+    'Devolução Kangu Log':'var(--pink)',
+  };
+
+  // Dados por transportadora por dia
+  const serie = {};
+  transportadoras.forEach(tr => { serie[tr] = {}; dias.forEach(d => { serie[tr][d] = 0; }); });
+  recF.filter(r => dias.includes(r.data)).forEach(r => { if(serie[r.transportadora]) serie[r.transportadora][r.data] += (r.qtd||0); });
+
+  // Tabela + mini gráfico SVG por transportadora
+  const totalGeral = recF.reduce((s,r)=>s+(r.qtd||0),0);
+
+  // Resumo por transportadora
+  const resumo = transportadoras.map(tr => ({
+    tr, total: recF.filter(r=>r.transportadora===tr).reduce((s,r)=>s+(r.qtd||0),0),
+    count: recF.filter(r=>r.transportadora===tr).length,
+    cor: CORES_TRANSP[tr]||'var(--accent)'
+  })).sort((a,b)=>b.total-a.total);
+
+  // SVG sparkline para cada transportadora
+  function sparkline(tr, cor) {
+    const vals = dias.map(d => serie[tr][d]||0);
+    const maxV = Math.max(...vals, 1);
+    const W=120, H=32, pts = vals.map((v,i) => `${Math.round(i*(W/(vals.length-1||1)))},${Math.round(H - (v/maxV)*H)}`).join(' ');
+    return `<svg width="${W}" height="${H}" style="display:block"><polyline points="${pts}" fill="none" stroke="${cor}" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  }
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:1rem">
+      ${resumo.map(r => `
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:${r.cor};margin-bottom:2px">${r.tr}</div>
+            <div style="font-size:20px;font-weight:700;color:var(--text)">${r.total.toLocaleString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--muted)">${r.count} receb. · ${Math.round((r.total/totalGeral)*100)}% do total</div>
+          </div>
+          <div>${sparkline(r.tr, r.cor)}</div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:.5rem">Linha do tempo: últimos ${dias.length} dias com recebimentos no período</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// ALERTA TAXA DE APROVAÇÃO
+// ═══════════════════════════════════════════════════
+function renderAlertaTaxa() {
+  const el = document.getElementById('dash-alerta-taxa'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+  const limite = ALERTA_TAXA;
+
+  const trisF = Object.values(TRIS).filter(t => (!d1||t.data>=d1) && (!d2||t.data<=d2));
+  if (!trisF.length) { el.innerHTML = '<div class="empty">Sem triagens no período.</div>'; return; }
+
+  // Taxa média por colaborador
+  const porColab = {};
+  trisF.forEach(t => {
+    if (!porColab[t.colaborador]) porColab[t.colaborador] = { total:0, apr:0, rep:0, count:0 };
+    porColab[t.colaborador].total  += t.total || 0;
+    porColab[t.colaborador].apr    += t.aprovadas || 0;
+    porColab[t.colaborador].rep    += t.reprovadas || 0;
+    porColab[t.colaborador].count  += 1;
+  });
+
+  const colabs = Object.entries(porColab).map(([c,d]) => ({
+    c, taxa: d.total > 0 ? Math.round((d.apr/d.total)*100) : 0,
+    apr: d.apr, rep: d.rep, total: d.total, count: d.count
+  })).sort((a,b) => a.taxa - b.taxa);
+
+  const abaixo = colabs.filter(x => x.taxa < limite);
+  const ok     = colabs.filter(x => x.taxa >= limite);
+  const taxaMedia = colabs.length ? Math.round(colabs.reduce((s,x)=>s+x.taxa,0)/colabs.length) : 0;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="background:${abaixo.length?'var(--dl)':'var(--sl)'};border-radius:var(--rs);padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:${abaixo.length?'var(--danger)':'var(--success)'}">⚠️ Abaixo de ${limite}%</div>
+        <div style="font-size:26px;font-weight:700;color:${abaixo.length?'var(--danger)':'var(--success)'}">${abaixo.length}</div>
+        <div style="font-size:11px;color:var(--muted)">colaborador(es)</div>
+      </div>
+      <div style="background:var(--sl);border-radius:var(--rs);padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:var(--success)">✅ Dentro do limite</div>
+        <div style="font-size:26px;font-weight:700;color:var(--success)">${ok.length}</div>
+        <div style="font-size:11px;color:var(--muted)">colaborador(es)</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--rs);padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:var(--muted)">Taxa média geral</div>
+        <div style="font-size:26px;font-weight:700;color:${taxaMedia<limite?'var(--danger)':taxaMedia<80?'var(--warn)':'var(--success)'}">${taxaMedia}%</div>
+      </div>
+    </div>
+    ${abaixo.length ? `
+    <div style="font-size:11px;font-weight:600;color:var(--danger);text-transform:uppercase;margin-bottom:.5rem">🚨 Colaboradores com alerta</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
+      ${abaixo.map(x => `<div style="background:var(--dl);border:1px solid rgba(244,112,112,.3);border-radius:var(--rs);padding:8px 14px">
+        <div style="font-size:12px;font-weight:600;color:var(--danger)">${x.c.split(' ').slice(0,2).join(' ')}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--danger)">${x.taxa}%</div>
+        <div style="font-size:11px;color:var(--muted)">✅${x.apr} ❌${x.rep} · ${x.count} triagens</div>
+      </div>`).join('')}
+    </div>` : '<div style="color:var(--success);font-size:13px;margin-bottom:1rem">✅ Todos os colaboradores acima do limite!</div>'}
+    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem">Todos os colaboradores</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${colabs.map(x => {
+        const cor = x.taxa < limite ? 'var(--danger)' : x.taxa < 80 ? 'var(--warn)' : 'var(--success)';
+        return `<div style="display:flex;align-items:center;gap:10px">
+          <div style="width:150px;font-size:12px;font-weight:500;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.c}">${x.c.split(' ').slice(0,2).join(' ')}</div>
+          <div style="flex:1;background:var(--surface2);border-radius:4px;height:8px"><div style="width:${x.taxa}%;height:8px;border-radius:4px;background:${cor}"></div></div>
+          <div style="font-size:12px;font-weight:700;color:${cor};width:40px;text-align:right">${x.taxa}%</div>
+          <div style="font-size:11px;color:var(--muted);width:80px">✅${x.apr} ❌${x.rep}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// COMPARATIVO CAPACIDADE x PRODUÇÃO — no Dashboard PCP
+// ═══════════════════════════════════════════════════
+// Chamado dentro de renderPCP via HTML injetado
+function renderComparativo(d1, d2) {
+  const el = document.getElementById('pcp-comparativo'); if (!el) return;
+  const hoje = new Date().toISOString().slice(0,10);
+  const data = d1 || hoje;
+
+  // Produção real do app por área para a data
+  const trisF = Object.values(TRIS).filter(t => t.data === data);
+  const lotesF = LOTES.filter(l => l.data === data);
+
+  const prodApp = {
+    'TRIAGEM':      trisF.reduce((s,t)=>s+(t.aprovadas||0),0),
+    'CADASTRO':     lotesF.filter(l=>l.cad?.data===data).reduce((s,l)=>s+(l.cad?.apr||0),0),
+    'PASSADORIA':   lotesF.filter(l=>l.pas?.data===data).reduce((s,l)=>s+(l.pas?.apr||0),0),
+    'FOTOGRAFIA':   lotesF.filter(l=>l.fot?.data===data).reduce((s,l)=>s+(l.fot?.apr||0),0),
+    'DOBRA':        lotesF.filter(l=>l.dob?.data===data).reduce((s,l)=>s+(l.dob?.apr||0),0),
+    'CRIAÇÃO DE LOTES': lotesF.length,
+  };
+
+  // Produção manual para a data
+  const prodManual = {};
+  PROD_MANUAL_DB.filter(x=>x.data===data).forEach(x=>{ prodManual[x.area] = x.pecas; });
+
+  // Capacidade planejada para a data
+  const capDia = CAP_DB.filter(x=>x.data===data);
+  const capPlan = {};
+  capDia.forEach(x=>{
+    capPlan[x.area] = Math.round((x.fixos||0)*(x.pecas_por_dia_fixos||0) + (x.em_treinamento||0)*(x.pecas_por_dia_treinamento||0));
+  });
+
+  // Áreas manuais
+  const AREAS_MANUAL = ['PICKING','CONFERENCIA','EXPEDIÇÃO','CHECK IN','ARMAZENAGEM','CADASTRO RED','FOTOGRAFIA RED'];
+  const AREAS_APP = ['CRIAÇÃO DE LOTES','TRIAGEM','CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA'];
+  const TODAS = [...AREAS_APP, ...AREAS_MANUAL];
+
+  const rows = TODAS.map(area => {
+    const plan = capPlan[area] || 0;
+    const real = AREAS_APP.includes(area) ? (prodApp[area]||0) : (prodManual[area]||0);
+    const pct = plan > 0 ? Math.round((real/plan)*100) : null;
+    const isManual = AREAS_MANUAL.includes(area);
+    return { area, plan, real, pct, isManual };
+  });
+
+  el.innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">
+      Referência: <b style="color:var(--at)">${fmtDate(data)}</b>
+      ${AREAS_MANUAL.map(a=>`
+        <span style="margin-left:12px">${a}:
+          <input type="number" min="0" value="${prodManual[a]||0}" oninput="salvarProdManual('${data}','${a}',this.value)"
+            style="width:70px;border:1px solid var(--border2);border-radius:4px;padding:3px 6px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit;margin-left:4px">
+        </span>`).join('')}
+    </div>
+    <div class="tw"><table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr>
+        <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Área</th>
+        <th style="text-align:center;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Capacidade</th>
+        <th style="text-align:center;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Produção Real</th>
+        <th style="text-align:center;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">% Atingido</th>
+        <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Barra</th>
+      </tr></thead>
+      <tbody>${rows.map(r => {
+        const pctV = r.pct !== null ? r.pct : 0;
+        const cor = r.pct === null ? 'var(--muted)' : r.pct >= 90 ? 'var(--success)' : r.pct >= 60 ? 'var(--warn)' : 'var(--danger)';
+        const pctStr = r.pct !== null ? r.pct+'%' : '—';
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 10px;font-weight:500">${r.area} ${r.isManual?'<span style="font-size:10px;color:var(--muted);margin-left:4px">manual</span>':''}</td>
+          <td style="text-align:center;padding:8px 10px;color:var(--muted)">${r.plan?r.plan.toLocaleString('pt-BR'):'—'}</td>
+          <td style="text-align:center;padding:8px 10px;font-weight:600;color:var(--text)">${r.real.toLocaleString('pt-BR')}</td>
+          <td style="text-align:center;padding:8px 10px;font-weight:700;color:${cor}">${pctStr}</td>
+          <td style="padding:8px 10px;min-width:100px"><div style="background:var(--surface2);border-radius:4px;height:8px">
+            <div style="width:${Math.min(pctV,100)}%;height:8px;border-radius:4px;background:${cor}"></div>
+          </div></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+}
+
+async function salvarProdManual(data, area, valor) {
+  const pecas = parseInt(valor)||0;
+  if (!sb) { PROD_MANUAL_DB = PROD_MANUAL_DB.filter(x=>!(x.data===data&&x.area===area)); if(pecas>0) PROD_MANUAL_DB.push({data,area,pecas}); return; }
+  await sb.from('producao_manual').upsert({data, area, pecas, created_by:getUserName()},{onConflict:'data,area'});
+  const {data:pm} = await sb.from('producao_manual').select('*').order('data',{ascending:false}).limit(500);
+  PROD_MANUAL_DB = pm||[];
+  // Não rerenderiza tudo para não perder foco
+}
+
+// ── PAGINAÇÃO ─────────────────────────────────────
+function pagBar(elId, current, pages, total, fnName) {
+  const el = document.getElementById(elId); if (!el) return;
+  if (pages <= 1) { el.style.display='none'; return; }
+  el.style.display = 'flex';
+  const inicio = (current-1)*PAG_SIZE+1, fim = Math.min(current*PAG_SIZE, total);
+  let btns = '';
+  // Botão anterior
+  btns += `<button class="pag-btn" onclick="${fnName}(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  // Páginas
+  const range = [];
+  if (pages <= 7) { for(let i=1;i<=pages;i++) range.push(i); }
+  else {
+    range.push(1);
+    if (current > 3) range.push('...');
+    for (let i=Math.max(2,current-1); i<=Math.min(pages-1,current+1); i++) range.push(i);
+    if (current < pages-2) range.push('...');
+    range.push(pages);
+  }
+  range.forEach(p => {
+    if (p==='...') btns += `<span style="padding:4px 6px;color:var(--muted)">…</span>`;
+    else btns += `<button class="pag-btn ${p===current?'on':''}" onclick="${fnName}(${p})">${p}</button>`;
+  });
+  // Botão próximo
+  btns += `<button class="pag-btn" onclick="${fnName}(${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  el.innerHTML = `<span>${inicio}–${fim} de ${total}</span><div class="pag-btns">${btns}</div>`;
+}
+
+
+// ═══════════════════════════════════════════════════
+// METAS MENSAIS
+// ═══════════════════════════════════════════════════
+
+const METAS_AREAS = [
+  { grupo:'inbound',    areas:['CRIAÇÃO DE LOTES','TRIAGEM','CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA','CHECK IN','ARMAZENAGEM'] },
+  { grupo:'outbound',   areas:['PICKING','CONFERENCIA','EXPEDIÇÃO','DEVOLUÇÃO'] },
+  { grupo:'red_carpet', areas:['CADASTRO RED','FOTOGRAFIA RED'] },
+];
+const MESES_NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function initMetasSel() {
+  const hoje = new Date();
+  const sm = document.getElementById('meta-mes');
+  const sa = document.getElementById('meta-ano');
+  const dm = document.getElementById('dm-mes');
+  const da = document.getElementById('dm-ano');
+  if (sm && !sm.value) sm.value = String(hoje.getMonth()+1);
+  if (sa && !sa.value) sa.value = String(hoje.getFullYear());
+  if (dm && !dm.value) dm.value = String(hoje.getMonth()+1);
+  if (da && !da.value) da.value = String(hoje.getFullYear());
+}
+
+function getMeta(ano, mes, area) {
+  const m = METAS_DB.find(x => x.ano===ano && x.mes===mes && x.area===area);
+  return m ? m.meta : 0;
+}
+
+function renderMetas() {
+  initMetasSel();
+  const mes = parseInt(document.getElementById('meta-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('meta-ano')?.value || new Date().getFullYear());
+  const el = document.getElementById('metas-form'); if (!el) return;
+
+  const GRUPO_COR = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
+  const GRUPO_LABEL = { inbound:'📦 INBOUND', outbound:'🚚 OUTBOUND', red_carpet:'🎯 RED CARPET' };
+
+  el.innerHTML = METAS_AREAS.map(g => `
+    <div style="margin-bottom:1.25rem">
+      <div style="font-size:11px;font-weight:700;color:${GRUPO_COR[g.grupo]};text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1.25rem;border-bottom:1px solid var(--border);background:var(--surface2)">
+        ${GRUPO_LABEL[g.grupo]}
+      </div>
+      ${g.areas.map(a => {
+        const val = getMeta(ano, mes, a);
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 1.25rem;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:500">${a}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" min="0" id="meta-inp-${a.replace(/\s/g,'_')}"
+              value="${val}" placeholder="0"
+              style="width:110px;text-align:center;border:1px solid var(--border2);border-radius:var(--rs);padding:7px 10px;font-size:14px;background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-weight:600">
+            <span style="font-size:11px;color:var(--muted)">peças</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+async function salvarTodasMetas() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value);
+  const ano = parseInt(document.getElementById('meta-ano')?.value);
+  if (!mes || !ano) { toast('Selecione mês e ano.','er'); return; }
+
+  const rows = [];
+  METAS_AREAS.forEach(g => {
+    g.areas.forEach(a => {
+      const inp = document.getElementById(`meta-inp-${a.replace(/\s/g,'_')}`);
+      const meta = parseInt(inp?.value)||0;
+      rows.push({ ano, mes, area:a, grupo:g.grupo, meta, created_by:getUserName() });
+    });
+  });
+
+  if (sb) {
+    const { error } = await sb.from('metas_mensais').upsert(rows, { onConflict:'ano,mes,area' });
+    if (error) { toast('Erro ao salvar: '+error.message,'er'); return; }
+    const { data } = await sb.from('metas_mensais').select('*').order('ano',{ascending:false});
+    METAS_DB = data || [];
+  } else {
+    rows.forEach(r => {
+      const idx = METAS_DB.findIndex(x=>x.ano===r.ano&&x.mes===r.mes&&x.area===r.area);
+      if (idx>=0) METAS_DB[idx]=r; else METAS_DB.push(r);
+    });
+  }
+  toast(`Metas de ${MESES_NOMES[mes]} ${ano} salvas!`,'ok');
+  logAction('METAS',`Salvou metas de ${MESES_NOMES[mes]}/${ano}`,'Metas');
+}
+
+async function copiarMetaMesAnterior() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value);
+  const ano = parseInt(document.getElementById('meta-ano')?.value);
+  let mesPrev = mes-1, anoPrev = ano;
+  if (mesPrev < 1) { mesPrev=12; anoPrev=ano-1; }
+
+  const prev = METAS_DB.filter(x=>x.mes===mesPrev&&x.ano===anoPrev);
+  if (!prev.length) { toast(`Sem metas cadastradas em ${MESES_NOMES[mesPrev]}/${anoPrev}.`,'er'); return; }
+
+  prev.forEach(m => {
+    const inp = document.getElementById(`meta-inp-${m.area.replace(/\s/g,'_')}`);
+    if (inp) inp.value = m.meta;
+  });
+  toast(`Metas de ${MESES_NOMES[mesPrev]}/${anoPrev} copiadas! Clique em Salvar para confirmar.`,'ok');
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD DE METAS
+// ═══════════════════════════════════════════════════
+function getProdReal(area, ano, mes) {
+  // Datas do mês
+  const d1 = `${ano}-${String(mes).padStart(2,'0')}-01`;
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  const d2 = `${ano}-${String(mes).padStart(2,'0')}-${String(ultimoDia).padStart(2,'0')}`;
+
+  // Áreas do app
+  const APP_MAP = {
+    'TRIAGEM':        () => Object.values(TRIS).filter(t=>t.data>=d1&&t.data<=d2).reduce((s,t)=>s+(t.aprovadas||0),0),
+    'CADASTRO':       () => LOTES.filter(l=>l.cad?.data>=d1&&l.cad?.data<=d2).reduce((s,l)=>s+(l.cad?.apr||0),0),
+    'PASSADORIA':     () => LOTES.filter(l=>l.pas?.data>=d1&&l.pas?.data<=d2).reduce((s,l)=>s+(l.pas?.apr||0),0),
+    'FOTOGRAFIA':     () => LOTES.filter(l=>l.fot?.data>=d1&&l.fot?.data<=d2).reduce((s,l)=>s+(l.fot?.apr||0),0),
+    'DOBRA':          () => LOTES.filter(l=>l.dob?.data>=d1&&l.dob?.data<=d2).reduce((s,l)=>s+(l.dob?.apr||0),0),
+    'CRIAÇÃO DE LOTES':()=> LOTES.filter(l=>l.data>=d1&&l.data<=d2).length,
+  };
+  if (APP_MAP[area]) return APP_MAP[area]();
+  // Áreas manuais
+  const m = PROD_MANUAL_DB.filter(x=>x.area===area&&x.data>=d1&&x.data<=d2).reduce((s,x)=>s+(x.pecas||0),0);
+  return m;
+}
+
+function renderDashMetas() {
+  initMetasSel();
+  const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
+
+  const hoje = new Date();
+  const d1 = `${ano}-${String(mes).padStart(2,'0')}-01`;
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  const d2 = `${ano}-${String(mes).padStart(2,'0')}-${String(ultimoDia).padStart(2,'0')}`;
+  const dHoje = hoje.toISOString().slice(0,10);
+  const ehMesAtual = ano===hoje.getFullYear() && mes===hoje.getMonth()+1;
+
+  // Dias úteis do mês e decorridos
+  let duMes=0, duDecorridos=0;
+  for (let d=1; d<=ultimoDia; d++) {
+    const ds = `${ano}-${String(mes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const util = isDiaUtil ? isDiaUtil(ds) : true;
+    if (util) {
+      duMes++;
+      if (ds <= dHoje) duDecorridos++;
+    }
+  }
+  const duRestantes = duMes - duDecorridos;
+
+  // Montar dados por área
+  const todasAreas = METAS_AREAS.flatMap(g => g.areas.map(a => ({
+    area: a, grupo: g.grupo,
+    meta: getMeta(ano, mes, a),
+    real: getProdReal(a, ano, mes),
+  }))).filter(x => x.meta > 0); // só áreas com meta definida
+
+  if (!todasAreas.length) {
+    document.getElementById('kpi-dashmetas').innerHTML = `<div class="empty" style="grid-column:1/-1">Nenhuma meta cadastrada para ${MESES_NOMES[mes]}/${ano}. <button class="btn sm" onclick="go('metas')" style="margin-left:8px">Cadastrar metas →</button></div>`;
+    document.getElementById('dm-ranking').innerHTML = '';
+    document.getElementById('dm-cards').innerHTML = '';
+    return;
+  }
+
+  todasAreas.forEach(x => {
+    x.pct = x.meta > 0 ? Math.round((x.real/x.meta)*100) : 0;
+    x.deficit = Math.max(0, x.meta - x.real);
+    x.superavit = Math.max(0, x.real - x.meta);
+    x.mediaAtual = duDecorridos > 0 ? Math.round(x.real/duDecorridos) : 0;
+    x.mediaNecessaria = duRestantes > 0 ? Math.round(x.deficit/duRestantes) : 0;
+    x.projecao = duDecorridos > 0 ? Math.round((x.real/duDecorridos)*duMes) : 0;
+    x.vatMeta = x.meta > 0 ? Math.round((x.projecao/x.meta)*100) : 0;
+    x.bateraMeta = x.projecao >= x.meta;
+  });
+
+  // KPIs globais
+  const batendo = todasAreas.filter(x=>x.pct>=100).length;
+  const emRisco = todasAreas.filter(x=>!x.bateraMeta&&x.pct<100).length;
+  const mediaGeral = Math.round(todasAreas.reduce((s,x)=>s+x.pct,0)/todasAreas.length);
+  const totalReal = todasAreas.reduce((s,x)=>s+x.real,0);
+  const totalMeta = todasAreas.reduce((s,x)=>s+x.meta,0);
+
+  document.getElementById('kpi-dashmetas').innerHTML = `
+    <div class="kpi g"><div class="kl">✅ Já bateram a meta</div><div class="kv">${batendo}</div><div class="ks">de ${todasAreas.length} áreas</div></div>
+    <div class="kpi ${emRisco>0?'d':'g'}"><div class="kl">⚠️ Em risco</div><div class="kv">${emRisco}</div><div class="ks">áreas abaixo do ritmo</div></div>
+    <div class="kpi a"><div class="kl">% Médio geral</div><div class="kv">${mediaGeral}%</div></div>
+    <div class="kpi p"><div class="kl">Produção total</div><div class="kv">${totalReal.toLocaleString('pt-BR')}</div><div class="ks">meta: ${totalMeta.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi"><div class="kl">⏳ Dias úteis</div><div class="kv">${duDecorridos}/${duMes}</div><div class="ks">${duRestantes} restantes</div></div>`;
+
+  // Ranking
+  const sorted = [...todasAreas].sort((a,b)=>b.pct-a.pct);
+  const maxPct = Math.max(...sorted.map(x=>x.pct),100);
+  document.getElementById('dm-ranking').innerHTML = sorted.map((x,i) => {
+    const cor = x.pct>=100?'var(--success)':x.bateraMeta?'var(--warn)':'var(--danger)';
+    const ico = x.pct>=100?'✅':x.bateraMeta?'⚠️':'🚨';
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+      <div style="width:24px;height:24px;border-radius:50%;background:${cor};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${i+1}</div>
+      <div style="width:160px;font-size:12px;font-weight:500;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.area}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:4px;height:10px;min-width:80px;position:relative">
+        <div style="width:${Math.min(x.pct,100)}%;height:10px;border-radius:4px;background:${cor};opacity:.85"></div>
+        ${x.pct>100?`<div style="position:absolute;top:0;left:100%;width:2px;height:10px;background:var(--success)"></div>`:''}
+      </div>
+      <div style="font-size:13px;font-weight:700;color:${cor};width:50px;text-align:right">${x.pct}%</div>
+      <div style="font-size:11px;color:var(--muted);white-space:nowrap">${ico} ${x.real.toLocaleString('pt-BR')} / ${x.meta.toLocaleString('pt-BR')}</div>
+    </div>`;
+  }).join('');
+
+  // Cards detalhados
+  const GRUPO_COR = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
+  document.getElementById('dm-cards').innerHTML = sorted.map(x => {
+    const cor = x.pct>=100?'var(--success)':x.bateraMeta?'var(--warn)':'var(--danger)';
+    const gcor = GRUPO_COR[x.grupo]||'var(--accent)';
+    return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:1.1rem;border-top:3px solid ${cor}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+        <div>
+          <div style="font-size:13px;font-weight:700">${x.area}</div>
+          <div style="font-size:10px;color:${gcor};text-transform:uppercase;font-weight:600;margin-top:2px">${x.grupo.replace('_',' ')}</div>
+        </div>
+        <div style="font-size:22px;font-weight:800;color:${cor}">${x.pct}%</div>
+      </div>
+      <!-- Barra de progresso -->
+      <div style="background:var(--surface2);border-radius:4px;height:8px;margin-bottom:.75rem">
+        <div style="width:${Math.min(x.pct,100)}%;height:8px;border-radius:4px;background:${cor}"></div>
+      </div>
+      <!-- Dados -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="color:var(--muted)">Produção atual</div>
+          <div style="font-weight:700;font-size:14px;color:var(--text)">${x.real.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="color:var(--muted)">Meta do mês</div>
+          <div style="font-weight:700;font-size:14px;color:var(--text)">${x.meta.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="color:var(--muted)">Média atual/dia</div>
+          <div style="font-weight:600;color:var(--text)">${x.mediaAtual.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="color:var(--muted)">Necessário/dia</div>
+          <div style="font-weight:600;color:${x.mediaNecessaria>x.mediaAtual?'var(--danger)':'var(--success)'}">${x.mediaNecessaria.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
+          <div style="color:var(--muted)">${x.deficit>0?'Déficit':'Superávit'}</div>
+          <div style="font-weight:700;color:${x.deficit>0?'var(--danger)':'var(--success)'}">
+            ${x.deficit>0?'-'+x.deficit.toLocaleString('pt-BR'):'+'+x.superavit.toLocaleString('pt-BR')}
+          </div>
+        </div>
+        <div style="background:${x.bateraMeta?'var(--sl)':'var(--dl)'};border-radius:var(--rs);padding:6px 8px">
+          <div style="color:var(--muted)">Projeção fim do mês</div>
+          <div style="font-weight:700;color:${x.bateraMeta?'var(--success)':'var(--danger)'}">
+            ${x.bateraMeta?'✅':'🚨'} ${x.projecao.toLocaleString('pt-BR')} (${x.vatMeta}%)
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Função auxiliar isDiaUtil global para renderDashMetas
+function isDiaUtil(ds) {
+  const [y,m,d] = ds.split('-').map(Number);
+  const t2=[0,3,2,5,0,3,5,1,4,6,2,4];
+  const yr=m<3?y-1:y;
+  const dow=(yr+Math.floor(yr/4)-Math.floor(yr/100)+Math.floor(yr/400)+t2[m-1]+d)%7;
+  if(dow===0||dow===6) return false;
+  if(typeof FERIADOS_DB!=='undefined'&&FERIADOS_DB.length>0) return !FERIADOS_DB.some(f=>f.data===ds);
+  const FIXOS=new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
+  const MOVEIS=new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04']);
+  if(FIXOS.has(ds.slice(5))) return false;
+  if(MOVEIS.has(ds)) return false;
+  return true;
+}
+
+// ═══════════════════════════════════════════════════
+// METAS MENSAIS
+// ═══════════════════════════════════════════════════
+const TODAS_AREAS_META = [
+  {area:'CRIAÇÃO DE LOTES', grupo:'inbound',     icon:'📦'},
+  {area:'TRIAGEM',          grupo:'inbound',     icon:'🔍'},
+  {area:'CADASTRO',         grupo:'inbound',     icon:'🏷️'},
+  {area:'PASSADORIA',       grupo:'inbound',     icon:'👕'},
+  {area:'FOTOGRAFIA',       grupo:'inbound',     icon:'📸'},
+  {area:'DOBRA',            grupo:'inbound',     icon:'🗂️'},
+  {area:'CHECK IN',         grupo:'inbound',     icon:'✅'},
+  {area:'ARMAZENAGEM',      grupo:'inbound',     icon:'📦'},
+  {area:'PICKING',          grupo:'outbound',    icon:'🔎'},
+  {area:'CONFERENCIA',      grupo:'outbound',    icon:'📋'},
+  {area:'EXPEDIÇÃO',        grupo:'outbound',    icon:'🚚'},
+  {area:'DEVOLUÇÃO',        grupo:'outbound',    icon:'↩️'},
+  {area:'CADASTRO RED',     grupo:'red_carpet',  icon:'🏷️'},
+  {area:'FOTOGRAFIA RED',   grupo:'red_carpet',  icon:'📸'},
+];
+
+const GRUPO_LABEL = { inbound:'📥 INBOUND', outbound:'📤 OUTBOUND', red_carpet:'🔴 RED CARPET' };
+const GRUPO_COR   = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
+
+function initMetas() {
+  const hoje = new Date();
+  const sm = document.getElementById('meta-mes');
+  const sa = document.getElementById('meta-ano');
+  const dm = document.getElementById('dm-mes');
+  const da = document.getElementById('dm-ano');
+  if (sm) sm.value = String(hoje.getMonth()+1);
+  if (sa) sa.value = String(hoje.getFullYear());
+  if (dm) dm.value = String(hoje.getMonth()+1);
+  if (da) da.value = String(hoje.getFullYear());
+  renderMetas();
+}
+
+function renderMetas() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('meta-ano')?.value || new Date().getFullYear());
+  const el  = document.getElementById('metas-form'); if (!el) return;
+
+  // Buscar metas salvas para este mês/ano
+  const metasSalvas = {};
+  METAS_DB.filter(m => m.mes === mes && m.ano === ano).forEach(m => { metasSalvas[m.area] = m.meta; });
+
+  // Agrupar por grupo
+  const grupos = [...new Set(TODAS_AREAS_META.map(a => a.grupo))];
+
+  el.innerHTML = grupos.map(g => {
+    const areas = TODAS_AREAS_META.filter(a => a.grupo === g);
+    const cor   = GRUPO_COR[g];
+    return `
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:11px;font-weight:700;color:${cor};text-transform:uppercase;letter-spacing:.08em;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border)">${GRUPO_LABEL[g]}</div>
+        ${areas.map(a => `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border)">
+            <div style="width:200px;font-size:13px;font-weight:500">${a.icon} ${a.area}</div>
+            <input type="number" min="0" id="meta-inp-${a.area.replace(/\s/g,'_')}"
+              value="${metasSalvas[a.area] || ''}"
+              placeholder="Meta em peças"
+              style="width:160px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:14px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'">
+            <span style="font-size:12px;color:var(--muted)">peças/mês</span>
+            ${metasSalvas[a.area] ? `<span style="font-size:11px;color:var(--success)">✓ salvo</span>` : ''}
+          </div>`).join('')}
+      </div>`;
+  }).join('');
+}
+
+async function salvarTodasMetas() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value);
+  const ano = parseInt(document.getElementById('meta-ano')?.value);
+
+  const rows = TODAS_AREAS_META.map(a => {
+    const val = parseInt(document.getElementById(`meta-inp-${a.area.replace(/\s/g,'_')}`)?.value) || 0;
+    return { ano, mes, area: a.area, grupo: a.grupo, meta: val, created_by: getUserName() };
+  }).filter(r => r.meta > 0);
+
+  if (!rows.length) { toast('Informe pelo menos uma meta.', 'er'); return; }
+
+  const btnSave = document.querySelector('#p-metas .btn.pri.sm');
+  if (btnSave) btnSave.disabled = true;
+
+  if (sb) {
+    const { error } = await sb.from('metas_mensais').upsert(rows, { onConflict: 'ano,mes,area' });
+    if (error) { toast('Erro: '+error.message, 'er'); if(btnSave) btnSave.disabled=false; return; }
+    // Recarregar metas
+    const { data: met } = await sb.from('metas_mensais').select('*').order('ano', { ascending: false });
+    METAS_DB = met || [];
+  } else {
+    METAS_DB = METAS_DB.filter(m => !(m.mes===mes && m.ano===ano));
+    rows.forEach(r => METAS_DB.push(r));
+  }
+
+  if (btnSave) btnSave.disabled = false;
+  logAction('METAS', `Salvou metas de ${mes}/${ano}`, 'Metas');
+  renderMetas();
+  toast(`Metas de ${mes}/${ano} salvas!`, 'ok');
+}
+
+async function copiarMetaMesAnterior() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value);
+  const ano = parseInt(document.getElementById('meta-ano')?.value);
+  let mesPrev = mes - 1, anoPrev = ano;
+  if (mesPrev < 1) { mesPrev = 12; anoPrev--; }
+
+  const metasPrev = METAS_DB.filter(m => m.mes === mesPrev && m.ano === anoPrev);
+  if (!metasPrev.length) { toast(`Nenhuma meta encontrada em ${mesPrev}/${anoPrev}.`, 'er'); return; }
+
+  metasPrev.forEach(m => {
+    const el = document.getElementById(`meta-inp-${m.area.replace(/\s/g,'_')}`);
+    if (el) el.value = m.meta;
+  });
+  toast(`Metas de ${mesPrev}/${anoPrev} copiadas! Clique em Salvar todas para confirmar.`, 'ok');
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD METAS
+// ═══════════════════════════════════════════════════
+function renderDashMetas() {
+  const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
+  const hoje = new Date();
+  const ehMesAtual = mes === hoje.getMonth()+1 && ano === hoje.getFullYear();
+
+  // Metas do período
+  const metas = {};
+  METAS_DB.filter(m => m.mes === mes && m.ano === ano).forEach(m => { metas[m.area] = m.meta; });
+
+  if (!Object.keys(metas).length) {
+    document.getElementById('kpi-dashmetas').innerHTML = '<div class="empty" style="grid-column:1/-1">Nenhuma meta cadastrada para este mês. Acesse a aba 🎯 Metas para definir.</div>';
+    document.getElementById('dm-ranking').innerHTML = '';
+    document.getElementById('dm-cards').innerHTML = '';
+    return;
+  }
+
+  // Calcular dias úteis do mês (usando isDiaUtil global)
+  function _isUtil(ds) {
+    const [y, m, d] = ds.split('-').map(Number);
+    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
+    const yr = m < 3 ? y - 1 : y;
+    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
+    if (dow === 0 || dow === 6) return false;
+    if (typeof FERIADOS_DB !== 'undefined' && FERIADOS_DB.length > 0)
+      return !FERIADOS_DB.some(f => f.data === ds);
+    const FIXOS = new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
+    const MOVEIS = new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04']);
+    return !FIXOS.has(ds.slice(5)) && !MOVEIS.has(ds);
+  }
+
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  let diasUteisTotal = 0, diasUteisPassados = 0, diasUteisRestantes = 0;
+  for (let d = 1; d <= ultimoDia; d++) {
+    const ds = `${ano}-${String(mes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const util = _isUtil(ds);
+    if (util) {
+      diasUteisTotal++;
+      if (ds <= hoje.toISOString().slice(0,10)) diasUteisPassados++;
+      else diasUteisRestantes++;
+    }
+  }
+  if (ehMesAtual && diasUteisPassados === 0) diasUteisPassados = 1;
+
+  // Produção real por área no mês
+  const prefixoData = `${ano}-${String(mes).padStart(2,'0')}`;
+  const prodReal = {};
+
+  // App: Triagem = aprovadas, outros = aprovadas por etapa
+  Object.values(TRIS).filter(t => t.data?.startsWith(prefixoData)).forEach(t => {
+    prodReal['TRIAGEM'] = (prodReal['TRIAGEM']||0) + (t.aprovadas||0);
+  });
+  LOTES.filter(l => l.data?.startsWith(prefixoData)).forEach(l => {
+    prodReal['CRIAÇÃO DE LOTES'] = (prodReal['CRIAÇÃO DE LOTES']||0) + 1;
+  });
+  LOTES.forEach(l => {
+    ['CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA'].forEach((area, i) => {
+      const k = ['cad','pas','fot','dob'][i];
+      if (l[k]?.data?.startsWith(prefixoData)) prodReal[area] = (prodReal[area]||0) + (l[k].apr||0);
+    });
+  });
+  // Manual: Check In, Armazenagem, Picking, Conferência, Expedição, Devolução, Cadastro Red, Fotografia Red
+  PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixoData)).forEach(x => {
+    prodReal[x.area] = (prodReal[x.area]||0) + (x.pecas||0);
+  });
+
+  // Calcular indicadores por área
+  const dadosAreas = TODAS_AREAS_META.filter(a => metas[a.area]).map(a => {
+    const meta   = metas[a.area] || 0;
+    const real   = prodReal[a.area] || 0;
+    const pct    = meta > 0 ? Math.round((real/meta)*100) : 0;
+    const deficit = Math.max(0, meta - real);
+    // Média diária atual
+    const mediaDiariaAtual = diasUteisPassados > 0 ? real / diasUteisPassados : 0;
+    // Média diária necessária para bater a meta
+    const mediaDiariaNec = diasUteisRestantes > 0 ? deficit / diasUteisRestantes : 0;
+    // Projeção: se continuar no ritmo atual
+    const projecao = Math.round(mediaDiariaAtual * diasUteisTotal);
+    const vaiCumprirMeta = projecao >= meta;
+    return { ...a, meta, real, pct, deficit, mediaDiariaAtual, mediaDiariaNec, projecao, vaiCumprirMeta };
+  });
+
+  // KPIs globais
+  const totalMeta = dadosAreas.reduce((s,a)=>s+a.meta, 0);
+  const totalReal = dadosAreas.reduce((s,a)=>s+a.real, 0);
+  const pctGeral  = totalMeta > 0 ? Math.round((totalReal/totalMeta)*100) : 0;
+  const areasOk   = dadosAreas.filter(a=>a.vaiCumprirMeta).length;
+  const areasRisco= dadosAreas.filter(a=>!a.vaiCumprirMeta).length;
+
+  document.getElementById('kpi-dashmetas').innerHTML = `
+    <div class="kpi a"><div class="kl">Meta total do mês</div><div class="kv">${totalMeta.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi g"><div class="kl">Produção real</div><div class="kv">${totalReal.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi ${pctGeral>=100?'g':pctGeral>=70?'w':'d'}"><div class="kl">% Atingido</div><div class="kv">${pctGeral}%</div></div>
+    <div class="kpi g"><div class="kl">Áreas no caminho</div><div class="kv" style="color:var(--success)">${areasOk}</div></div>
+    <div class="kpi ${areasRisco>0?'d':'g'}"><div class="kl">Áreas em risco</div><div class="kv" style="color:${areasRisco>0?'var(--danger)':'var(--success)'}">${areasRisco}</div></div>
+    <div class="kpi"><div class="kl">Dias úteis restantes</div><div class="kv" style="color:var(--purple)">${diasUteisRestantes}</div></div>`;
+
+  // Ranking
+  const ranking = [...dadosAreas].sort((a,b) => b.pct - a.pct);
+  const maxPct   = Math.max(...ranking.map(a=>a.pct), 1);
+  document.getElementById('dm-ranking').innerHTML = ranking.map((a,i) => {
+    const cor = a.pct >= 100 ? 'var(--success)' : a.pct >= 70 ? 'var(--warn)' : 'var(--danger)';
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:28px;text-align:center;font-size:12px;font-weight:700;color:var(--muted)">#${i+1}</div>
+      <div style="width:180px;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.icon} ${a.area}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:4px;height:10px">
+        <div style="width:${Math.min(Math.round((a.pct/maxPct)*100),100)}%;height:10px;border-radius:4px;background:${cor}"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:${cor};width:50px;text-align:right">${a.pct}%</div>
+      <div style="font-size:11px;color:var(--muted);width:120px">${a.real.toLocaleString('pt-BR')} / ${a.meta.toLocaleString('pt-BR')}</div>
+      <div style="font-size:11px;font-weight:600;color:${a.vaiCumprirMeta?'var(--success)':'var(--danger)'}">${a.vaiCumprirMeta?'✅ Na meta':'⚠️ Risco'}</div>
+    </div>`;
+  }).join('');
+
+  // Cards por área
+  document.getElementById('dm-cards').innerHTML = dadosAreas.map(a => {
+    const cor       = a.pct >= 100 ? 'var(--success)' : a.pct >= 70 ? 'var(--warn)' : 'var(--danger)';
+    const bgCor     = a.pct >= 100 ? 'var(--sl)' : a.pct >= 70 ? 'var(--wl)' : 'var(--dl)';
+    const grupoCor  = GRUPO_COR[a.grupo];
+    const barW      = Math.min(a.pct, 100);
+    return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:1.1rem;border-top:3px solid ${grupoCor}">
+      <!-- Cabeçalho -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+        <div>
+          <div style="font-size:13px;font-weight:700">${a.icon} ${a.area}</div>
+          <div style="font-size:10px;color:${grupoCor};font-weight:600;text-transform:uppercase;margin-top:2px">${GRUPO_LABEL[a.grupo]}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:700;color:${cor}">${a.pct}%</div>
+          <div style="font-size:10px;color:var(--muted)">da meta</div>
+        </div>
+      </div>
+      <!-- Barra de progresso -->
+      <div style="background:var(--surface2);border-radius:4px;height:8px;margin-bottom:.75rem;overflow:hidden">
+        <div style="width:${barW}%;height:8px;background:${cor};border-radius:4px;transition:width .5s"></div>
+      </div>
+      <!-- Dados -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:.6rem">
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Meta</div>
+          <div style="font-weight:700;color:var(--text)">${a.meta.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Realizado</div>
+          <div style="font-weight:700;color:${cor}">${a.real.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Média atual/dia</div>
+          <div style="font-weight:700;color:var(--at)">${Math.round(a.mediaDiariaAtual).toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:${a.mediaDiariaNec>a.mediaDiariaAtual?'var(--dl)':'var(--sl)'};border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Necessário/dia</div>
+          <div style="font-weight:700;color:${a.mediaDiariaNec>a.mediaDiariaAtual?'var(--danger)':'var(--success)'}">${Math.round(a.mediaDiariaNec).toLocaleString('pt-BR')}</div>
+        </div>
+      </div>
+      <!-- Déficit / Projeção -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:${bgCor};border-radius:var(--rs);font-size:12px">
+        <span style="color:var(--muted)">Déficit: <b style="color:${a.deficit>0?'var(--danger)':'var(--success)'}">${a.deficit>0?'-'+a.deficit.toLocaleString('pt-BR'):'✓ Concluído'}</b></span>
+        <span style="color:var(--muted)">Projeção: <b style="color:${a.vaiCumprirMeta?'var(--success)':'var(--danger)'}">${a.projecao.toLocaleString('pt-BR')}</b></span>
+      </div>
+      <!-- Badge projeção -->
+      <div style="margin-top:8px;text-align:center;font-size:12px;font-weight:600;color:${a.vaiCumprirMeta?'var(--success)':'var(--danger)'}">
+        ${a.vaiCumprirMeta ? '✅ No ritmo atual vai bater a meta!' : `⚠️ Vai ficar ${(a.meta-a.projecao).toLocaleString('pt-BR')} peças abaixo da meta`}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 init();
