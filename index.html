@@ -1665,7 +1665,11 @@ function showApp(){
   const name=(CU.user_metadata?.name||CU.email).toUpperCase();
   document.getElementById('sb-name').textContent=name;
   document.getElementById('sb-nivel-lbl').textContent=NIVEL_LABELS[USER_NIVEL]||'';
-  if(sb) loadData().then(()=>logAction('LOGIN','Acesso ao sistema','Dashboard')); else {setNow();renderAll();}
+  if(sb) {
+    loadData().then(()=>logAction('LOGIN','Acesso ao sistema','Dashboard'));
+    // Fallback: garantir que o loading suma após 10s no máximo
+    setTimeout(()=>hideLoading(), 10000);
+  } else {setNow();renderAll();hideLoading();}
   applyNivelControls();
   showBtnGerFeriados();
 }
@@ -1758,7 +1762,10 @@ async function loadData() {
 
   setNow();
   setLoadingProgress(90, 'Renderizando interface...');
-  setTimeout(()=>{ renderAll(); hideLoading(); }, 50);
+  setTimeout(()=>{
+    try { renderAll(); } catch(e) { console.error('Erro em renderAll:', e); }
+    hideLoading();
+  }, 50);
 }
 
 // ─── RENDER ALL ───────────────────────────────────
