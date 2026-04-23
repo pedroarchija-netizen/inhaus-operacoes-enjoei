@@ -11,7 +11,7 @@
 <title>IN-HAUS — Operações</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <style>
 :root{
@@ -483,6 +483,14 @@ tbody tr:last-child td{border-bottom:none;}
 input:focus,select:focus,textarea:focus,button:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px;
 }
+
+/* ── HTML5-QRCODE dark theme override ── */
+#cam-reader video { border-radius: var(--rs) !important; }
+#cam-reader img { display:none !important; }
+#cam-reader__scan_region { border-radius: var(--rs); }
+#cam-reader__dashboard { display:none !important; }
+#cam-reader__status_span { display:none !important; }
+#cam-reader__filescan_input { display:none !important; }
 </style>
 </head>
 <body style="scroll-behavior:smooth;">
@@ -1796,27 +1804,12 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
       <h3 style="margin:0">📷 Escanear código de barras</h3>
       <button class="btn xs" onclick="closeCam()" aria-label="Fechar câmera" style="padding:4px 10px;font-size:18px;line-height:1">✕</button>
     </div>
-    <!-- Viewfinder overlay -->
-    <div style="position:relative;border-radius:var(--rs);overflow:hidden;background:#000">
-      <video id="camprev" autoplay muted playsinline style="width:100%;display:block;max-height:320px;object-fit:cover;border-radius:var(--rs)"></video>
-      <canvas id="cam-canvas" style="display:none"></canvas>
-      <!-- Mira de scanner -->
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
-        <div style="width:65%;height:45%;border:2px solid rgba(59,157,210,.8);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)">
-          <!-- Cantos animados -->
-          <div style="position:absolute;top:-2px;left:-2px;width:20px;height:20px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:4px 0 0 0"></div>
-          <div style="position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 4px 0 0"></div>
-          <div style="position:absolute;bottom:-2px;left:-2px;width:20px;height:20px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 4px"></div>
-          <div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 4px 0"></div>
-          <!-- Linha de scan animada -->
-          <div id="cam-scanline" style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanline 2s ease-in-out infinite"></div>
-        </div>
-      </div>
-    </div>
-    <div class="camst" id="camst" style="margin-top:.75rem">Iniciando câmera...</div>
+    <!-- Container do html5-qrcode -->
+    <div id="cam-reader" style="width:100%;border-radius:var(--rs);overflow:hidden;background:#000;min-height:200px"></div>
+    <div class="camst" id="camst" style="margin-top:.75rem;text-align:center">Iniciando câmera...</div>
     <div style="margin-top:.75rem">
       <div style="display:flex;gap:6px;margin-bottom:.5rem">
-        <input type="text" id="cam-manual-input" placeholder="Ou digite o código manualmente..." 
+        <input type="text" id="cam-manual-input" placeholder="Ou digite o código manualmente..."
           style="flex:1;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none"
           onkeydown="if(event.key==='Enter')camManualAdd()">
         <button class="btn" onclick="camManualAdd()">✓</button>
@@ -3740,121 +3733,137 @@ function renderSL(){
 }
 
 // ═══════ CAMERA ═══════════════════════════════════
+let html5QrScanner = null;
+
 async function openCam(){
   openM('m-cam');
-  const stEl=document.getElementById('camst');
-  const setStatus=(msg,cls='')=>{if(stEl){stEl.textContent=msg;stEl.className='camst'+(cls?' '+cls:'');}};
+  const stEl = document.getElementById('camst');
+  const setStatus = (msg, cls='') => {
+    if(stEl){ stEl.textContent = msg; stEl.className = 'camst' + (cls ? ' '+cls : ''); }
+  };
   setStatus('Iniciando câmera...');
 
-  // ── Estratégia 1: getUserMedia direto com facingMode (melhor para tablet/mobile) ──
-  const video=document.getElementById('camprev');
-  if(!video){setStatus('Elemento de vídeo não encontrado.','er');return;}
-
-  // Fechar stream anterior se existir
-  if(video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
-  if(codeReader){try{codeReader.reset();}catch(e){}codeReader=null;}
-
-  // Verificar suporte à câmera
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    setStatus('Câmera não suportada neste dispositivo.','er');return;
+  // Limpar instância anterior
+  if(html5QrScanner){
+    try{ await html5QrScanner.stop(); } catch(e){}
+    try{ html5QrScanner.clear(); } catch(e){}
+    html5QrScanner = null;
   }
 
-  // Tentar câmera traseira primeiro (environment), depois qualquer uma
-  const constraints=[
-    {video:{facingMode:{exact:'environment'},width:{ideal:1280},height:{ideal:720}}},
-    {video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},
-    {video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}},
-    {video:true}
-  ];
-
-  let stream=null;
-  for(const c of constraints){
-    try{stream=await navigator.mediaDevices.getUserMedia(c);break;}catch(e){
-      if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
-        setStatus('Permissão de câmera negada. Verifique as configurações do navegador.','er');return;
-      }
-      // Tentar próxima configuração
-    }
-  }
-
-  if(!stream){setStatus('Não foi possível acessar a câmera.','er');return;}
-
-  // Conectar stream ao vídeo
-  video.srcObject=stream;
-  try{await video.play();}catch(e){/* autoplay já cuidado */}
-
-  // ── Estratégia 2: ZXing para decodificação ──
-  if(typeof ZXing==='undefined'){
-    // Fallback: usar o stream sem ZXing (só mostrar câmera)
-    setStatus('Aponte para o código e escaneie manualmente.','');
+  if(typeof Html5Qrcode === 'undefined'){
+    setStatus('Biblioteca não carregada. Tente recarregar a página.', 'er');
     return;
   }
 
+  // html5-qrcode usa um div como container, não um <video> diretamente
+  // Garantir que o container existe
+  let container = document.getElementById('cam-reader');
+  if(!container){
+    container = document.createElement('div');
+    container.id = 'cam-reader';
+    const videoEl = document.getElementById('camprev');
+    if(videoEl) videoEl.parentNode.replaceChild(container, videoEl);
+    else document.querySelector('.cambox').appendChild(container);
+  }
+  container.style.width = '100%';
+  container.innerHTML = '';
+
   try{
-    // ZXing 0.18.6 — API correta: decodeFromStream ou decodeFromVideoDevice
-    const hints=new Map();
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-    // Formatos suportados: CODE_128 (Correios/Venuxx), CODE_39, EAN_13, QR_CODE etc.
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-      ZXing.BarcodeFormat.CODE_128,
-      ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.EAN_13,
-      ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.QR_CODE,
-      ZXing.BarcodeFormat.DATA_MATRIX,
-    ]);
-    codeReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+    html5QrScanner = new Html5Qrcode('cam-reader', {
+      verbose: false,
+      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+    });
+
+    const config = {
+      fps: 10,
+      qrbox: { width: 250, height: 150 },
+      aspectRatio: 1.7,
+      supportedScanTypes: [
+        Html5QrcodeScanType.SCAN_TYPE_CAMERA
+      ],
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.CODE_93,
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.QR_CODE,
+        Html5QrcodeSupportedFormats.DATA_MATRIX,
+      ]
+    };
+
+    // Tentar câmera traseira primeiro
+    let cameraId;
+    try{
+      const devices = await Html5Qrcode.getCameras();
+      if(devices && devices.length){
+        // Preferir câmera traseira
+        const back = devices.find(d => /back|rear|environment/i.test(d.label));
+        cameraId = back ? back.id : devices[devices.length - 1].id;
+      }
+    } catch(e){ /* usar environment como fallback */ }
+
+    const onSuccess = (decodedText) => {
+      const code = decodedText.trim().toUpperCase();
+      if(!scanCodes.includes(code)){
+        scanCodes.push(code);
+        renderSL();
+        setStatus('✓ ' + code, 'ok');
+        if(navigator.vibrate) navigator.vibrate([80,40,80]);
+        setTimeout(() => setStatus('Aponte para o próximo...'), 1800);
+      }
+    };
+
+    const onError = () => { /* silenciar erros de leitura entre frames */ };
+
+    if(cameraId){
+      await html5QrScanner.start(cameraId, config, onSuccess, onError);
+    } else {
+      // Fallback: usar facingMode environment
+      await html5QrScanner.start(
+        { facingMode: 'environment' },
+        config, onSuccess, onError
+      );
+    }
 
     setStatus('Aponte para o código de barras...');
 
-    const onResult = (result, err) => {
-      if(result){
-        const code = result.getText().trim().toUpperCase();
-        if(!scanCodes.includes(code)){
-          scanCodes.push(code); renderSL();
-          setStatus('✓ ' + code, 'ok');
-          if(navigator.vibrate) navigator.vibrate([80,40,80]);
-          setTimeout(()=>setStatus('Aponte para o próximo...'), 1800);
-        }
-      }
-      // err é normal entre frames — ignorar NotFoundException
-    };
-
-    // Usar stream já ativo com decodeFromStream (API estável no 0.18.6)
-    if(typeof codeReader.decodeFromStream === 'function'){
-      codeReader.decodeFromStream(stream, video, onResult);
+  } catch(err){
+    console.error('Câmera erro:', err);
+    if(err.name === 'NotAllowedError' || (err.message||'').includes('permission')){
+      setStatus('Permissão negada. Habilite a câmera nas configurações do navegador.', 'er');
+    } else if((err.message||'').includes('not found')){
+      setStatus('Nenhuma câmera encontrada neste dispositivo.', 'er');
     } else {
-      // Fallback: decodeFromVideoDevice com null usa qualquer câmera
-      await codeReader.decodeFromVideoDevice(null, 'camprev', onResult);
+      setStatus('Erro ao iniciar câmera: ' + (err.message||err), 'er');
     }
-
-  }catch(err){
-    console.error('ZXing erro:', err);
-    setStatus('Câmera ativa — posicione bem o código de barras.','');
   }
-}
-
-function camManualAdd(){
-  const inp=document.getElementById('cam-manual-input');
-  if(!inp||!inp.value.trim())return;
-  const code=inp.value.trim().toUpperCase();
-  const v=validarCodigo(code);
-  if(!v.ok){toast(v.msg,'er');inp.select();return;}
-  if(!scanCodes.includes(code)){
-    scanCodes.push(code);renderSL();
-    document.getElementById('camst').textContent='✓ '+code;
-    document.getElementById('camst').className='camst ok';
-  }
-  inp.value='';inp.focus();
 }
 
 function closeCam(){
-  const video=document.getElementById('camprev');
-  if(video?.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
-  if(codeReader){try{codeReader.reset();}catch(e){}codeReader=null;}
-  const inp=document.getElementById('cam-manual-input');
-  if(inp)inp.value='';
+  if(html5QrScanner){
+    html5QrScanner.stop().then(()=>{
+      try{ html5QrScanner.clear(); } catch(e){}
+      html5QrScanner = null;
+    }).catch(()=>{ html5QrScanner = null; });
+  }
+  const inp = document.getElementById('cam-manual-input');
+  if(inp) inp.value = '';
   closeM('m-cam');
+}
+
+function camManualAdd(){
+  const inp = document.getElementById('cam-manual-input');
+  if(!inp || !inp.value.trim()) return;
+  const code = inp.value.trim().toUpperCase();
+  const v = validarCodigo(code);
+  if(!v.ok){ toast(v.msg, 'er'); inp.select(); return; }
+  if(!scanCodes.includes(code)){
+    scanCodes.push(code); renderSL();
+    document.getElementById('camst').textContent = '✓ ' + code;
+    document.getElementById('camst').className = 'camst ok';
+  }
+  inp.value = ''; inp.focus();
 }
 
 // ═══════ HELPERS ══════════════════════════════════
