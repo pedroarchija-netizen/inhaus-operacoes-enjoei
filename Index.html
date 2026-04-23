@@ -249,6 +249,21 @@ tbody tr:last-child td{border-bottom:none;}
 /* TOAST */
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:10px 18px;border-radius:var(--rs);font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;max-width:340px;}
 .toast.on{opacity:1;transform:translateY(0);}
+@keyframes pulseAlert {
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:.7;transform:scale(1.06);}
+}
+/* loading overlay removido */
+.skel{background:linear-gradient(90deg,var(--surface2) 25%,rgba(59,157,210,.08) 50%,var(--surface2) 75%);background-size:200% 100%;animation:skelAnim 1.4s infinite;}
+@keyframes skelAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-row{height:40px;border-radius:4px;margin-bottom:6px;}
+/* Paginação */
+.pag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);flex-wrap:wrap;gap:8px;}
+.pag-btns{display:flex;gap:4px;}
+.pag-btn{padding:4px 10px;border:1px solid var(--border2);border-radius:var(--rs);background:var(--surface2);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.pag-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pag-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.pag-btn:disabled{opacity:.35;cursor:not-allowed;}
 .toast.ok{background:var(--sl);border-color:rgba(45,212,160,.4);color:var(--success);}
 .toast.er{background:var(--dl);border-color:rgba(244,112,112,.4);color:var(--danger);}
 
@@ -276,6 +291,7 @@ tbody tr:last-child td{border-bottom:none;}
 <body>
 
 <!-- ═══════════ AUTH ═══════════ -->
+
 <div id="auth">
   <div class="abox">
     <div class="alogo">
@@ -337,11 +353,16 @@ tbody tr:last-child td{border-bottom:none;}
       <button class="ni"    id="ni-dev"  onclick="go('dev')"><span class="ic">↩️</span>Devolução<span class="nb" id="nb-dev"></span></button>
       <div class="ns">Análise</div>
       <button class="ni"    id="ni-dash" onclick="go('dash')"><span class="ic">📊</span>Dashboard</button>
+      <button class="ni"    id="ni-pcp"   onclick="go('pcp')"  style="display:none"><span class="ic">🏭</span>Dashboard PCP</button>
       <button class="ni"    id="ni-dash2" onclick="go('dash2')"><span class="ic">🔬</span>Análise Colaboradores</button>
       <button class="ni"    id="ni-cap"   onclick="go('cap')"><span class="ic">📋</span>Capacidade</button>
+      <button class="ni"    id="ni-prodmanual" onclick="go('prodmanual')" style="display:none"><span class="ic">✏️</span>Produção Manual</button>
+      <button class="ni"    id="ni-metas" onclick="go('metas')" style="display:none"><span class="ic">🎯</span>Metas</button>
+      <button class="ni"    id="ni-dashmetas" onclick="go('dashmetas')" style="display:none"><span class="ic">📈</span>Dashboard Metas</button>
       <button class="ni"    id="ni-cal"   onclick="go('cal')"><span class="ic">📅</span>Calendário</button>
       <div class="ns">Administração</div>
       <button class="ni"    id="ni-usr"  onclick="go('usr')"><span class="ic">👥</span>Usuários</button>
+      <button class="ni"    id="ni-log"  onclick="go('log')" style="display:none"><span class="ic">📋</span>Log de Atividades</button>
     </nav>
     <button class="sb-out" onclick="doLogout()">🚪 Sair</button>
     <div class="sb-credit">criado por Pedro Archija</div>
@@ -378,6 +399,7 @@ tbody tr:last-child td{border-bottom:none;}
           <thead><tr><th>Data</th><th>Hora</th><th>Colaborador</th><th>Transportadora</th><th class="nc">Qtd.</th><th class="hm">Obs.</th><th></th></tr></thead>
           <tbody id="rec-tb"></tbody>
         </table></div>
+        <div id="rec-pag" class="pag-bar" style="display:none"></div>
       </div>
     </div>
 
@@ -428,6 +450,7 @@ tbody tr:last-child td{border-bottom:none;}
           <thead><tr><th>Código rastreio</th><th>Data</th><th>Hora</th><th class="hm">Colaborador</th><th class="hm">Embalagem</th><th class="hm">N° Bag</th><th class="nc hm">👗</th><th class="nc hm">👟</th><th class="nc hm">👜</th><th class="nc hm">💍</th><th class="nc hm">🏠</th><th class="nc">Total</th><th class="nc">✅</th><th class="nc">❌</th><th>Taxa</th></tr></thead>
           <tbody id="tri-done-tb"></tbody>
         </table></div>
+        <div id="tri-pag" class="pag-bar" style="display:none"></div>
       </div>
     </div>
 
@@ -493,6 +516,7 @@ tbody tr:last-child td{border-bottom:none;}
           <thead><tr><th>Nº Lote</th><th>Rastreio</th><th>Data</th><th class="hm">Colaborador</th><th class="nc hm">✅ Peças</th><th class="hm">Prazo notif.</th><th>Status</th><th></th></tr></thead>
           <tbody id="lot-tb"></tbody>
         </table></div>
+        <div id="lot-pag" class="pag-bar" style="display:none"></div>
       </div>
     </div>
 
@@ -665,24 +689,73 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="ch"><h2>🔔 Prazo de Notificação</h2></div>
           <div class="cb"><div id="dash-prazo"></div></div>
         </div>
-        <!-- Tempo médio entre etapas -->
-        <div class="card" style="margin-bottom:1.25rem" id="dash-tempoetapa-card">
-          <div class="ch"><h2>⏱ Tempo Médio entre Etapas</h2></div>
-          <div class="cb"><div id="dash-tempoetapa"></div></div>
+        <!-- Gráfico: % notificados por dia útil -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>📊 Notificações por Dia Útil</h2><span style="font-size:12px;color:var(--muted)">% notificados em cada dia útil do prazo</span></div>
+          <div class="cb"><div id="dash-notif-dias"></div></div>
         </div>
-        <!-- Lotes travados -->
-        <div class="card" style="margin-bottom:1.25rem" id="dash-travados-card">
-          <div class="ch"><h2>🚨 Lotes Travados</h2><span style="font-size:12px;color:var(--muted)">Sem avançar há mais de 3 dias</span></div>
-          <div class="cb"><div id="dash-travados"></div></div>
+        <!-- Histórico volumes por transportadora -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>🚚 Volumes por Transportadora</h2><span style="font-size:12px;color:var(--muted)">Tendência por período</span></div>
+          <div class="cb"><div id="dash-transp-trend"></div></div>
         </div>
-
-        <!-- Cards de área - apenas nível 4 -->
-        <div id="dash-det-section" style="display:none">
-          <div style="margin-bottom:0.5rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
-          <div id="dash-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
+        <!-- Alerta taxa de aprovação -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch">
+            <h2>⚠️ Alerta de Taxa de Aprovação</h2>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;color:var(--muted)">Limite mínimo:</span>
+              <input type="number" id="alerta-taxa-input" value="50" min="1" max="100" onchange="ALERTA_TAXA=+this.value;renderAlertaTaxa()" style="width:60px;border:1px solid var(--border2);border-radius:var(--rs);padding:4px 8px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <span style="font-size:12px;color:var(--muted)">%</span>
+            </div>
+          </div>
+          <div class="cb"><div id="dash-alerta-taxa"></div></div>
         </div>
       </div>
     </div>
+
+    <!-- ══ COMPARATIVO CAP x PRODUÇÃO ══ -->
+    <!-- Inserido na aba PCP via JS -->
+
+    <!-- ══ LOG DE ATIVIDADES ══ -->
+    <div id="p-log" class="page">
+      <div class="ph"><div><h1>📋 Log de Atividades</h1><p>Registro completo de ações — visível apenas para você</p></div>
+        <button class="btn sm" onclick="exportLogCSV()">⬇ CSV</button>
+      </div>
+      <!-- Filtros -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <input type="text" id="log-busca" placeholder="Buscar usuário ou ação..." oninput="renderLog()" style="flex:1;min-width:180px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none">
+            <input type="date" id="log-d1" onchange="renderLog()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <input type="date" id="log-d2" onchange="renderLog()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+            <button class="btn sm" onclick="document.getElementById('log-d1').value='';document.getElementById('log-d2').value='';renderLog()">✕</button>
+            <button class="btn sm" onclick="loadData().then(renderLog)">↻</button>
+          </div>
+        </div>
+      </div>
+      <div class="kg" id="kpi-log" style="margin-bottom:1rem"></div>
+      <div class="card">
+        <div style="max-height:600px;overflow-y:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead style="position:sticky;top:0;background:var(--surface2);z-index:1">
+              <tr>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Data/Hora</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Usuário</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Ação</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Detalhe</th>
+                <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Página</th>
+              </tr>
+            </thead>
+            <tbody id="log-tb"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Aliases para IDs migrados para PCP (fallbacks) -->
+    <div id="dash-tempoetapa" style="display:none"></div>
+    <div id="dash-travados" style="display:none"></div>
+    <div id="dash-det-section" style="display:none"><div id="dash-area-cards"></div></div>
 
     <!-- ══ USUÁRIOS ══ -->
     <div id="p-usr" class="page">
@@ -894,6 +967,56 @@ tbody tr:last-child td{border-bottom:none;}
       </div>
     </div>
 
+    <!-- ══ DASHBOARD PCP ══ -->
+    <div id="p-pcp" class="page">
+      <div class="ph">
+        <div><h1>🏭 Dashboard PCP</h1><p>Planejamento e controle da produção — uso exclusivo</p></div>
+      </div>
+      <!-- Filtro período -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Filtrar período</h2><button class="btn sm" onclick="limparFiltroPCP()">✕ Limpar</button></div>
+        <div class="cb" style="padding:.9rem 1.25rem">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div class="ff" style="flex:none"><label>Data inicial</label>
+              <input type="date" id="pcp-d1" onchange="renderPCP()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);outline:none;font-family:inherit">
+            </div>
+            <div class="ff" style="flex:none"><label>Data final</label>
+              <input type="date" id="pcp-d2" onchange="renderPCP()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);outline:none;font-family:inherit">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">
+              <button class="btn sm" onclick="setPCPPeriodo(0)">Hoje</button>
+              <button class="btn sm" onclick="setPCPPeriodo(7)">7 dias</button>
+              <button class="btn sm" onclick="setPCPPeriodo(30)">30 dias</button>
+              <button class="btn sm" onclick="setPCPPeriodo(90)">90 dias</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Comparativo Capacidade x Produção -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch">
+          <h2>📊 Capacidade x Produção Real</h2>
+          <input type="date" id="pcp-comp-data" onchange="renderComparativo(this.value)" style="border:1px solid var(--border2);border-radius:var(--rs);padding:6px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+        </div>
+        <div class="cb"><div id="pcp-comparativo"></div></div>
+      </div>
+      <!-- Tempo médio entre etapas -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>⏱ Tempo Médio entre Etapas</h2></div>
+        <div class="cb"><div id="pcp-tempoetapa"></div></div>
+      </div>
+      <!-- Lotes travados -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>🚨 Lotes Travados</h2><span style="font-size:12px;color:var(--muted)">Sem avançar há mais de 3 dias</span></div>
+        <div class="cb"><div id="pcp-travados"></div></div>
+      </div>
+      <!-- Detalhamento por área -->
+      <div id="pcp-det-section">
+        <div style="margin-bottom:.75rem;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">Detalhamento por área</div>
+        <div id="pcp-area-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:1.5rem"></div>
+      </div>
+    </div>
+
     <!-- ══ CAPACIDADE DIÁRIA ══ -->
     <div id="p-cap" class="page">
       <div class="ph">
@@ -929,6 +1052,135 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="tw"><div id="cap-tb"></div></div>
         </div>
       </div>
+    </div>
+
+    <!-- ══ METAS MENSAIS ══ -->
+    <!-- ══ PRODUÇÃO MANUAL ══ -->
+    <div id="p-prodmanual" class="page">
+      <div class="ph">
+        <div><h1>✏️ Produção Manual</h1><p>Lançamento diário das áreas fora do app</p></div>
+      </div>
+      <!-- Seletor de data e área -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Lançar produção do dia</h2></div>
+        <div class="cb" style="padding:1rem 1.25rem">
+          <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+            <div class="ff" style="flex:none">
+              <label>Data <span class="req">*</span></label>
+              <input type="date" id="pm-data" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none">
+            </div>
+            <button class="btn sm" onclick="setPMHoje()">Hoje</button>
+          </div>
+          <div id="pm-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:1rem"></div>
+          <div style="margin-top:1rem;display:flex;gap:8px;align-items:center">
+            <button class="btn pri" id="btn-pm-salvar" onclick="salvarProdManualDia()">💾 Salvar dia</button>
+            <span id="pm-msg" style="font-size:12px;color:var(--success);display:none">✓ Salvo!</span>
+          </div>
+        </div>
+      </div>
+      <!-- Acumulado do mês -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch">
+          <h2>📊 Acumulado do mês</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="pm-mes" onchange="renderProdManual()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="pm-ano" onchange="renderProdManual()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+            <button class="btn sm" onclick="csvProdManual()">⬇ CSV</button>
+          </div>
+        </div>
+        <!-- KPIs acumulado -->
+        <div class="kg" id="pm-kpi" style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)"></div>
+        <!-- Tabela por dia -->
+        <div class="tw">
+          <table style="width:100%;border-collapse:collapse;font-size:12px" id="pm-tabela">
+            <thead id="pm-thead"></thead>
+            <tbody id="pm-tbody"></tbody>
+            <tfoot id="pm-tfoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="p-metas" class="page">
+      <div class="ph">
+        <div><h1>🎯 Metas Mensais</h1><p>Defina a meta de produção por área e mês</p></div>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Selecionar período</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="meta-mes" onchange="renderMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="meta-ano" onchange="renderMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+            <button class="btn sm" onclick="copiarMetaMesAnterior()">📋 Copiar mês anterior</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><h2>Metas por área</h2><button class="btn pri sm" onclick="salvarTodasMetas()">💾 Salvar todas</button></div>
+        <div id="metas-form"></div>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD METAS ══ -->
+    <div id="p-dashmetas" class="page">
+      <div class="ph"><div><h1>📈 Dashboard de Metas</h1><p>Análise de desempenho vs meta por área</p></div></div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Período de análise</h2></div>
+        <div class="cb" style="padding:.75rem 1.25rem">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="dm-mes" onchange="renderDashMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="dm-ano" onchange="renderDashMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:7px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="kg" id="kpi-dashmetas" style="margin-bottom:1.25rem"></div>
+      <!-- Link para aba de produção manual -->
+      <div id="dm-manual-card" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 16px;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:13px;font-weight:600">✏️ Produção Real Manual</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Check In · Armazenagem · Picking · Conferência · Expedição · Cadastro Red · Fotografia Red</div>
+        </div>
+        <button class="btn sm" onclick="go('prodmanual')">Lançar produção →</button>
+      </div>
+      <div id="dm-manual-form" style="display:none"></div>
+      <!-- Gráfico acumulado por área -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch">
+          <h2>📈 Acumulado: Realizado vs Meta Diluída</h2>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select id="dm-area-graf" onchange="renderGrafMeta()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="">Selecione uma área...</option>
+            </select>
+          </div>
+        </div>
+        <div class="cb"><div id="dm-grafico-acum"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>🏆 Ranking — % atingido da meta</h2></div>
+        <div class="cb"><div id="dm-ranking"></div></div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem">Detalhamento por área</div>
+      <div id="dm-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem"></div>
     </div>
 
   </main>
@@ -1361,7 +1613,11 @@ const NIVEL_LABELS = { 0: '⚪ Nível 0 · Visualização', 1: '🔵 Nível 1 ·
 
 let sb, CU, USER_NIVEL = 1;
 let FERIADOS_DB = [];
-let CAP_DB = []; // capacidade diária // feriados carregados do Supabase
+let CAP_DB = [];
+let PROD_MANUAL_DB = [];
+let LOG_DB = [];
+let METAS_DB = [];
+let ALERTA_TAXA = 50; // % mínimo de aprovação
 let REC = [], VOLS = [], TRIS = {}, LOTES = [];
 
 // Cache de dias úteis — escopo global para uso em loadData e renderDashIndicadoresExtra
@@ -1369,6 +1625,9 @@ let _duCache = null;
 let _duCacheMin = '', _duCacheMax = '';
 function invalidateDuCache() { _duCache = null; _duCacheMin = ''; _duCacheMax = ''; }
 let scanCodes = [], codeReader = null;
+// Paginação
+const PAG = { rec:1, tri:1, lot:1 };
+const PAG_SIZE = 50;
 let repFlag = false, divFlag = false;
 
 const PROC_SEQ = ['cad','pas','fot','not','dob'];
@@ -1376,12 +1635,39 @@ const PROC_PREV = { cad: null, pas: 'cad', fot: 'pas', not: 'fot', dob: 'fot' };
 const PROC_LABEL = { cad:'🏷️ Cadastro', pas:'👕 Passadoria', fot:'📸 Fotografia', not:'🔔 Notificação', dob:'🗂️ Dobra' };
 
 // ─── INIT ─────────────────────────────────────────
+// ── LOADING HELPERS ──────────────────────────────
+function showLoading(label, sub, pct) { /* removido — sem overlay */ }
+function setLoadingProgress(pct, sub) { /* removido — sem overlay */ }
+function hideLoading() { /* removido — sem overlay */ }
+
+// ── SKELETON LOADER para tabelas ──────────────────
+function skelTable(tbId, cols=7, rows=5) {
+  const tb = document.getElementById(tbId); if (!tb) return;
+  tb.innerHTML = Array(rows).fill(0).map(()=>`<tr>${Array(cols).fill(0).map(()=>`<td><div class="skel skel-row"></div></td>`).join('')}</tr>`).join('');
+}
+
+// ── isDiaUtil GLOBAL — única definição, usada em todo o app ──────────
+function isDiaUtil(ds) {
+  const [y,m,d] = ds.split('-').map(Number);
+  const t2=[0,3,2,5,0,3,5,1,4,6,2,4];
+  const yr=m<3?y-1:y;
+  const dow=(yr+Math.floor(yr/4)-Math.floor(yr/100)+Math.floor(yr/400)+t2[m-1]+d)%7;
+  if(dow===0||dow===6) return false;
+  if(typeof FERIADOS_DB!=='undefined'&&FERIADOS_DB.length>0)
+    return !FERIADOS_DB.some(f=>f.data===ds);
+  const FIXOS=new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
+  const MOVEIS=new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04','2027-02-08','2027-02-09','2027-03-26','2027-05-27']);
+  return !FIXOS.has(ds.slice(5))&&!MOVEIS.has(ds);
+}
+
 function init() {
   if (SB_URL === 'COLE_SUA_URL_AQUI') {
     seedDemo(); return;
   }
   sb = supabase.createClient(SB_URL, SB_KEY);
-  sb.auth.getSession().then(({ data }) => { if (data.session) { CU = data.session.user; showApp(); } });
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session) { CU = data.session.user; showApp(); }
+  });
   sb.auth.onAuthStateChange((ev, s) => {
     if (ev === 'SIGNED_IN') { CU = s.user; showApp(); }
     if (ev === 'SIGNED_OUT') { showAuth(); }
@@ -1415,7 +1701,7 @@ async function doLogin() {
   const e=document.getElementById('le').value.trim(), p=document.getElementById('lp').value;
   if(!e||!p){setAM('Preencha e-mail e senha.','e');return;}
   const{error}=await sb.auth.signInWithPassword({email:e,password:p});
-  if(error) setAM('E-mail ou senha incorretos.','e');
+  if(error){setAM('E-mail ou senha incorretos.','e');}
 }
 async function doReg() {
   const n=document.getElementById('rn').value.trim(), e=document.getElementById('re').value.trim(), p=document.getElementById('rp').value;
@@ -1431,7 +1717,7 @@ async function doFg() {
   if(error) setAM('Erro ao enviar.','e');
   else{setAM('Link enviado!','s');setTimeout(()=>showFg(false),3500);}
 }
-async function doLogout(){if(sb)await sb.auth.signOut();else{document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}}
+async function doLogout(){await logAction('LOGOUT','Saiu do sistema','—');if(sb)await sb.auth.signOut();else{document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}}
 function setAM(m,t){const el=document.getElementById('amsg');el.textContent=m;el.className='amsg '+t;}
 function showApp(){
   document.getElementById('auth').style.display='none';
@@ -1440,7 +1726,9 @@ function showApp(){
   const name=(CU.user_metadata?.name||CU.email).toUpperCase();
   document.getElementById('sb-name').textContent=name;
   document.getElementById('sb-nivel-lbl').textContent=NIVEL_LABELS[USER_NIVEL]||'';
-  if(sb) loadData(); else {setNow();renderAll();}
+  if(sb) {
+    loadData().then(()=>logAction('LOGIN','Acesso ao sistema','Dashboard'));
+  } else {setNow();renderAll();}
   applyNivelControls();
   showBtnGerFeriados();
 }
@@ -1448,23 +1736,43 @@ function showAuth(){document.getElementById('app').style.display='none';document
 
 // ─── LOAD DATA ────────────────────────────────────
 async function loadData() {
+  // Mostrar skeletons nas tabelas principais
+  skelTable('rec-tb', 7, 4);
+  skelTable('lot-tb', 8, 4);
+  skelTable('tri-done-tb', 15, 4);
   // Carregar tudo em paralelo incluindo capacidade e feriados
-  const [r, v, t, l, fer, cap] = await Promise.all([
+  const [r, v, t, l, fer, cap, pm, log, met] = await Promise.all([
     sb.from('recebimentos').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('volumes_recebidos').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('triagens').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('lotes').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('feriados').select('*').order('data'),
     sb.from('capacidade_diaria').select('*').order('data', { ascending: false }).limit(500),
+    sb.from('producao_manual').select('*').order('data', { ascending: false }).limit(500),
+    sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(200),
+    sb.from('metas_mensais').select('*').order('ano', { ascending: false }),
   ]);
 
-  if (r.error) { toast('Erro ao carregar dados: ' + r.error.message, 'er'); return; }
+  setLoadingProgress(60, 'Processando dados...');
+  // Verificar erros em todas as tabelas
+  const erros = [r,v,t,l,fer,cap,pm,log,met]
+    .map((res,i)=>res.error?['recebimentos','volumes','triagens','lotes','feriados','capacidade','producao_manual','activity_log','metas_mensais'][i]+': '+res.error.message:null)
+    .filter(Boolean);
+  if (r.error) { toast('Erro crítico ao carregar: ' + r.error.message, 'er'); return; }
+  if (erros.length) erros.forEach(e => console.warn('loadData:', e));
 
   FERIADOS_DB = (fer.data || []).map(x => ({ id: x.id, data: x.data, nome: x.nome, tipo: x.tipo }));
   invalidateDuCache();
 
   CAP_DB = (cap.data || []);
-  if (cap.error) console.warn('Erro ao carregar capacidade:', cap.error.message);
+  PROD_MANUAL_DB = (pm.data || []);
+  LOG_DB = (log.data || []);
+  METAS_DB = (met.data || []);
+  // Limpar automaticamente logs com mais de 90 dias (roda 1x por sessão)
+  if (sb && LOG_DB.length > 0) {
+    const limite90 = new Date(); limite90.setDate(limite90.getDate()-90);
+    sb.from('activity_log').delete().lt('created_at', limite90.toISOString()).then(()=>{});
+  }
 
   REC = (r.data||[]).map(x => ({
     id: x.id, data: x.data, hora: x.hora,
@@ -1515,17 +1823,23 @@ async function loadData() {
     dob: x.dob_data ? { data:x.dob_data, hora:x.dob_hora, colab:x.dob_colab, apr:x.dob_apr||0, rep:x.dob_rep||0, obs:x.dob_obs } : null,
   }));
 
-  setNow(); renderAll();
+  setNow();
+  setLoadingProgress(90, 'Renderizando interface...');
+  setTimeout(()=>{
+    try { renderAll(); } catch(e) { console.error('Erro em renderAll:', e); }
+  }, 50);
 }
 
 // ─── RENDER ALL ───────────────────────────────────
 function renderAll(){
-  renderRecKPI();renderRec();
-  renderTriKPI();renderTriPend();renderTriDone();
-  renderLotKPI();renderLotPend();renderLot();
-  ['cad','pas','fot','not','dob'].forEach(k=>renderProcPage(k));
-  renderDash();
-  updateBadges();
+  const fns = [
+    ()=>renderRecKPI(), ()=>renderRec(),
+    ()=>renderTriKPI(), ()=>renderTriPend(), ()=>renderTriDone(),
+    ()=>renderLotKPI(), ()=>renderLotPend(), ()=>renderLot(),
+    ()=>['cad','pas','fot','not','dob'].forEach(k=>renderProcPage(k)),
+    ()=>renderDash(), ()=>updateBadges()
+  ];
+  fns.forEach(fn => { try { fn(); } catch(e) { console.error('renderAll:', e); } });
 }
 
 // ═══════ RECEBIMENTO ══════════════════════════════
@@ -1541,12 +1855,16 @@ function renderRecKPI(){
     <div class="kpi"><div class="kl">Total recebimentos</div><div class="kv">${REC.length}</div></div>
     <div class="kpi p"><div class="kl">Total volumes</div><div class="kv">${volsTotal}</div></div>`;
 }
-function renderRec(){
+function renderRec(pg){
+  if(pg!==undefined) PAG.rec=pg;
   const t=document.getElementById('rf-t').value, d=document.getElementById('rf-d').value;
   const list=REC.filter(r=>(!t||r.transportadora===t)&&(!d||r.data===d));
   const tb=document.getElementById('rec-tb');
-  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">📭</div>Nenhum recebimento.</div></td></tr>';return;}
-  tb.innerHTML=list.map(r=>`<tr>
+  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">📭</div>Nenhum recebimento.</div></td></tr>';pagBar('rec-pag',0,0,0);return;}
+  const total=list.length, pages=Math.ceil(total/PAG_SIZE);
+  PAG.rec=Math.min(PAG.rec,pages);
+  const slice=list.slice((PAG.rec-1)*PAG_SIZE, PAG.rec*PAG_SIZE);
+  tb.innerHTML=slice.map(r=>`<tr>
     <td>${fmtDate(r.data)}</td><td class="mono">${r.hora}</td><td>${r.colaborador}</td>
     <td><span class="badge ${r.transportadora.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}">${r.transportadora}</span></td>
     <td class="nc" style="font-weight:700">${r.qtd}</td>
@@ -1557,6 +1875,7 @@ function renderRec(){
       ${USER_NIVEL>=3?`<button class="btn xs danger-btn" onclick="excluirRec('${r.id}')" title="Excluir">🗑️</button>`:''}
     </td>
   </tr>`).join('');
+  pagBar('rec-pag', PAG.rec, pages, total, 'renderRec');
 }
 function verCod(id){const r=REC.find(x=>x.id===id);if(r)alert(`${r.transportadora} — ${fmtDate(r.data)}\n\n${(r.rastreios||[]).join('\n')||'(nenhum)'}`);}
 
@@ -1605,7 +1924,7 @@ async function salvarRec(){
     scanCodes.forEach((c,i)=>VOLS.push({id:nid+i+1,codigo:c,id_bip:rHex(),data_hora:data+' '+hora,triado:false}));
     renderAll();
   }
-  scanCodes=[];closeM('m-rec');toast('Recebimento registrado!','ok');
+  scanCodes=[];closeM('m-rec');toast('Recebimento registrado!','ok');logAction('RECEBIMENTO','Registrou recebimento: '+transp+' ('+scanCodes.length+' vols)','Recebimento');
 }
 
 async function atualizarRec(id){
@@ -1665,7 +1984,7 @@ async function excluirRec(id){
     REC=REC.filter(x=>String(x.id)!==String(id));
     renderAll();
   }
-  toast('Recebimento excluído.','ok');
+  toast('Recebimento excluído.','ok');logAction('EXCLUIR','Excluiu recebimento','Recebimento');
 }
 
 // ═══════ TRIAGEM ══════════════════════════════════
@@ -1704,12 +2023,16 @@ function renderTriPend(){
     <td><button class="btn xs pri" onclick="openTri('${v.id}')">🔍 Triar</button></td>
   </tr>`).join('');
 }
-function renderTriDone(){
+function renderTriDone(pg){
+  if(pg!==undefined) PAG.tri=pg;
   const q=(document.getElementById('tri-ds')?.value||'').toLowerCase();
   const done=VOLS.filter(v=>v.triado&&TRIS[v.id]&&(!q||v.codigo.toLowerCase().includes(q)));
   const tb=document.getElementById('tri-done-tb');
-  if(!done.length){tb.innerHTML='<tr><td colspan="15"><div class="empty" style="padding:1.5rem">Nenhuma triagem registrada.</div></td></tr>';return;}
-  tb.innerHTML=done.map(v=>{
+  if(!done.length){tb.innerHTML='<tr><td colspan="15"><div class="empty" style="padding:1.5rem">Nenhuma triagem registrada.</div></td></tr>';pagBar('tri-pag',0,0,0);return;}
+  const total=done.length, pages=Math.ceil(total/PAG_SIZE);
+  PAG.tri=Math.min(PAG.tri,pages);
+  const slice=done.slice((PAG.tri-1)*PAG_SIZE, PAG.tri*PAG_SIZE);
+  tb.innerHTML=slice.map(v=>{
     const t=TRIS[v.id];
     const c=t.taxa>=80?'var(--success)':t.taxa>=50?'var(--warn)':'var(--danger)';
     return `<tr>
@@ -1724,6 +2047,7 @@ function renderTriDone(){
       <td>${USER_NIVEL>=2?`<button class="btn xs" onclick="editTri('${v.id}')" title="Editar triagem">✏️</button>`:''}</td>
     </tr>`;
   }).join('');
+  pagBar('tri-pag', PAG.tri, pages, total, 'renderTriDone');
 }
 
 function editTri(volId){
@@ -1808,7 +2132,7 @@ async function salvarTri(){
     const idx=VOLS.findIndex(v=>v.id===vid);if(idx>=0)VOLS[idx].triado=true;
     renderAll();
   }
-  closeM('m-tri');toast(`Triagem registrada! Taxa: ${taxa}%`,'ok');
+  closeM('m-tri');toast(`Triagem registrada! Taxa: ${taxa}%`,'ok');logAction('TRIAGEM',`Triagem registrada: ${taxa}% aprovação`,'Triagem');
 }
 
 // ═══════ LOTES ════════════════════════════════════
@@ -1864,14 +2188,17 @@ function renderLotPend(){
     </tr>`;
   }).join('');
 }
-function renderLot(){
+function renderLot(pg){
+  if(pg!==undefined) PAG.lot=pg;
   const q=(document.getElementById('lot-s')?.value||'').toLowerCase();
   const list=LOTES.filter(l=>!q||l.lote.toLowerCase().includes(q)||(l.rastreio||'').toLowerCase().includes(q));
   const tb=document.getElementById('lot-tb');
-  if(!list.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="ei">📭</div>Nenhum lote criado.</div></td></tr>';return;}
-  tb.innerHTML=list.map(l=>{
+  if(!list.length){tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="ei">📭</div>Nenhum lote criado.</div></td></tr>';pagBar('lot-pag',0,0,0);return;}
+  const total=list.length, pages=Math.ceil(total/PAG_SIZE);
+  PAG.lot=Math.min(PAG.lot,pages);
+  const slice=list.slice((PAG.lot-1)*PAG_SIZE, PAG.lot*PAG_SIZE);
+  tb.innerHTML=slice.map(l=>{
     const _temDob=l.dob, _temNot=l.not;
-    // Concluído = tem dob E not (em qualquer ordem)
     const _concluido=_temDob&&_temNot;
     const status=_concluido?'<span class="spill ok">✓ Concluído</span>':_temDob&&!_temNot?'<span class="spill dob">🗂️ Aguarda Not.</span>':_temNot&&!_temDob?'<span class="spill not">🗂️ Dobra</span>':l.fot?'<span class="spill fot">🔔 Notificação</span>':l.pas?'<span class="spill pas">📸 Fotografia</span>':l.cad?'<span class="spill cad">👕 Passadoria</span>':'<span class="spill lot">🏷️ Cadastro</span>';
     const prazoOk=l.prazo&&new Date(l.prazo)>new Date();
@@ -1889,6 +2216,7 @@ function renderLot(){
       </td>
     </tr>`;
   }).join('');
+  pagBar('lot-pag', PAG.lot, pages, total, 'renderLot');
 }
 
 function openLotComRastreio(codigo){
@@ -1961,9 +2289,25 @@ function buscaRastreio(){
   document.getElementById('btn-lot-save').disabled=false;
   calcPrazo();
 }
+// Calcula prazo em dias úteis a partir de uma data (string YYYY-MM-DD)
+// Usa isDiaUtil global — feriados do Supabase ou fallback embutido
+function calcPrazoUtilGlobal(dataInicio, limiteDias) {
+  // isDiaUtil usa FERIADOS_DB se disponível
+  const cur = new Date(dataInicio + 'T12:00:00');
+  let count = isDiaUtil(dataInicio) ? 1 : 0;
+  while (count < limiteDias) {
+    cur.setDate(cur.getDate() + 1);
+    if (isDiaUtil(cur.toISOString().split('T')[0])) count++;
+  }
+  return cur.toISOString().split('T')[0];
+}
+
 function calcPrazo(){
   const d=document.getElementById('l-data').value;
-  if(d){const p=new Date(d);p.setDate(p.getDate()+12);document.getElementById('l-prazo-d').textContent=fmtDate(p.toISOString().split('T')[0]);}
+  if(!d) return;
+  const prazo = calcPrazoUtilGlobal(d, 12);
+  const el = document.getElementById('l-prazo-d');
+  if(el) el.textContent = fmtDate(prazo);
 }
 async function salvarLot(){
   const rastreio=document.getElementById('l-rastreio').value.trim().toUpperCase();
@@ -1977,7 +2321,7 @@ async function salvarLot(){
   if(!email){toast('Informe o e-mail do cliente.','er');return;}
   if(!cliente){toast('Informe o nome do cliente.','er');return;}
   const tri=TRIS[volId];
-  const p=new Date(data);p.setDate(p.getDate()+12);const prazo=p.toISOString().split('T')[0];
+  const prazo = calcPrazoUtilGlobal(data, 12);
   const loteData={id:crypto.randomUUID(),lote:loteNum,rastreio,rastreio_vol_id:volId,data,hora,colaborador:colab,apr_tri:tri.aprovadas,email,cliente,prazo,cad:null,pas:null,fot:null,not:null,dob:null};
   if(sb){
     const tri2=TRIS[volId];
@@ -1992,7 +2336,7 @@ async function salvarLot(){
   } else {
     LOTES.unshift(loteData);renderAll();
   }
-  closeM('m-lot');toast(`Lote ${loteNum} criado!`,'ok');
+  closeM('m-lot');toast(`Lote ${loteNum} criado!`,'ok');logAction('LOTE','Criou lote: '+loteNum,'Lotes');
 }
 
 // ═══════ ETIQUETA ═════════════════════════════════
@@ -2189,7 +2533,7 @@ async function salvarProc(){
     if(idx>=0)LOTES[idx][tipo]=reg;
     renderAll();
   }
-  closeM('m-proc');toast(`${PROC_LABEL[tipo]} do lote ${l.lote} registrada!`,'ok');
+  closeM('m-proc');toast(`${PROC_LABEL[tipo]} do lote ${l.lote} registrada!`,'ok');logAction('PROCESSO',`${PROC_LABEL[tipo]} lote ${l.lote}`,tipo);
 }
 
 // ═══════ NOTIFICAÇÃO ══════════════════════════════
@@ -2246,7 +2590,7 @@ async function salvarNot(){
     if(idx>=0)LOTES[idx].not=reg;
     renderAll();
   }
-  closeM('m-not');toast(`Notificação do lote ${l.lote} registrada!`,'ok');
+  closeM('m-not');toast(`Notificação do lote ${l.lote} registrada!`,'ok');logAction('NOTIFICAÇÃO',`Notificou lote ${l.lote}`,'Notificação');
 }
 
 // ═══════ DASHBOARD ════════════════════════════════
@@ -2307,11 +2651,14 @@ function renderDash(){
       <div class="bar-val">${v}</div>
     </div>`).join('');
   renderDashAreaCards();
+  renderNotifDias();
+  renderTranspTrend();
+  renderAlertaTaxa();
 }
 
 // ═══════ DASHBOARD — CARDS DE ÁREA ════════════════
 function renderDashAreaCards(){
-  const detSection=document.getElementById('dash-det-section');
+  const detSection=document.getElementById('pcp-det-section')||document.getElementById('dash-det-section');
   if(USER_NIVEL<4){if(detSection)detSection.style.display='none';return;}
   if(detSection)detSection.style.display='block';
   const d1=document.getElementById('dash-d1')?.value||'';
@@ -2346,7 +2693,7 @@ function renderDashAreaCards(){
   const numColabs = a => Object.keys(a.colabs).length;
   const topColab = a => { const entries=Object.entries(a.colabs); if(!entries.length) return '—'; return entries.sort((x,y)=>y[1]-x[1])[0][0].split(' ')[0]; };
 
-  document.getElementById('dash-area-cards').innerHTML = areasDef.map(a => `
+  (document.getElementById('pcp-area-cards')||document.getElementById('dash-area-cards')).innerHTML = areasDef.map(a => `
     <div onclick="openDashArea('${a.key}')" style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:1rem 1.1rem;cursor:pointer;transition:all 0.15s;border-left:3px solid ${a.cor}" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <span style="font-size:13px;font-weight:600;color:var(--text)">${a.icon} ${a.label}</span>
@@ -2388,21 +2735,8 @@ function renderDashIndicadoresExtra(){
     '2030-03-04','2030-03-05','2030-04-19','2030-06-20',
   ]);
 
-  // isDiaUtil: O(1) — sem new Date() no loop
-  function isDiaUtil(dateStr) {
-    const [y, m, d] = dateStr.split('-').map(Number);
-    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
-    const yr = m < 3 ? y - 1 : y;
-    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
-    if (dow === 0 || dow === 6) return false;
-    // Verificar feriados do Supabase (prioridade) ou fallback para fixos embutidos
-    if (FERIADOS_DB.length > 0) {
-      return !FERIADOS_DB.some(f => f.data === dateStr);
-    }
-    if (FERIADOS_FIXOS_SET.has(dateStr.slice(5))) return false;
-    if (FERIADOS_MOVEIS.has(dateStr)) return false;
-    return true;
-  }
+  // isDiaUtil: usa função global
+
 
   // _duCache, _duCacheMin, _duCacheMax e invalidateDuCache declarados no escopo global
 
@@ -2527,14 +2861,22 @@ function renderDashIndicadoresExtra(){
           </thead>
           <tbody>${noPrazo.map(({l, p}) => {
             const etapa = l.dob ? '🗂️ Dobra (ag. not.)' : l.fot ? '📸 Foto' : l.pas ? '👕 Pass.' : l.cad ? '🏷️ Cad.' : '📦 Lote';
-            const urgente = p.diasRestantes <= 2;
-            return `<tr style="border-bottom:1px solid var(--border)">
+            // Escala de cores: menos dias = mais urgente
+            // 1-3d = vermelho pulsante, 4-7d = amarelo, 8-12d = verde
+            const dr = p.diasRestantes;
+            const corDias = dr <= 3 ? 'var(--danger)' : dr <= 7 ? 'var(--warn)' : 'var(--success)';
+            const bgDias  = dr <= 3 ? 'var(--dl)' : dr <= 7 ? 'var(--wl)' : 'var(--sl)';
+            const icoDias = dr <= 3 ? '🚨' : dr <= 7 ? '⚠️' : '✅';
+            const bordaRow = dr <= 3 ? 'border-left:3px solid var(--danger);' : dr <= 7 ? 'border-left:3px solid var(--warn);' : '';
+            return `<tr style="border-bottom:1px solid var(--border);${bordaRow}">
               <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--at);font-weight:600">${l.lote}</td>
               <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${l.rastreio||'—'}</td>
               <td style="padding:9px 12px;font-size:12px">${fmtDate(l.data)}</td>
-              <td style="padding:9px 12px;font-weight:600;color:${urgente?'var(--warn)':'var(--success)'}">${fmtDate(p.prazoDate)}</td>
-              <td style="padding:9px 12px;font-weight:700;text-align:center;color:${urgente?'var(--warn)':'var(--success)'}">
-                ${urgente?'⚠️':'✅'} ${p.diasRestantes}d
+              <td style="padding:9px 12px;font-weight:600;color:${corDias}">${fmtDate(p.prazoDate)}</td>
+              <td style="padding:9px 12px;text-align:center">
+                <span style="display:inline-flex;align-items:center;gap:4px;background:${bgDias};color:${corDias};font-weight:700;padding:3px 10px;border-radius:20px;font-size:12px${dr<=3?';animation:pulseAlert 1.2s infinite':''}">
+                  ${icoDias} ${dr}d
+                </span>
               </td>
               <td style="padding:9px 12px">${etapa}</td>
             </tr>`;
@@ -2545,7 +2887,7 @@ function renderDashIndicadoresExtra(){
   }
 
   // ── TEMPO POR ÁREA: do recebimento até cada etapa + tempo que o lote ficou em cada área ──
-  const tempoEl=document.getElementById('dash-tempoetapa');
+  const tempoEl=document.getElementById('pcp-tempoetapa')||document.getElementById('dash-tempoetapa');
   if(tempoEl){
     // Definição das etapas com campo de data/hora e cor
     const etapasT=[
@@ -2669,7 +3011,7 @@ function renderDashIndicadoresExtra(){
   }
 
   // ── LOTES TRAVADOS ──
-  const travEl=document.getElementById('dash-travados');
+  const travEl=document.getElementById('pcp-travados')||document.getElementById('dash-travados');
   if(travEl){
     const DIAS_TRAV=3;
     const travados=[];
@@ -3176,9 +3518,15 @@ function go(n){
   document.getElementById('p-'+n).classList.add('on');
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
   document.getElementById('ni-'+n)?.classList.add('on');
+  // navegação não logada para economizar espaço
   const sb2=document.getElementById('sbar'),bg=document.getElementById('ovbg');
   if(sb2.classList.contains('on')){sb2.classList.remove('on');bg.classList.remove('on');}
   if(n==='dash')renderDash();
+  if(n==='pcp')renderPCP();
+  if(n==='log')renderLog();
+  if(n==='prodmanual'){initProdManual();}
+  if(n==='metas'){initMetas();}
+  if(n==='dashmetas'){renderDashMetas();}
   if(n==='dash2')renderDash2();
   if(n==='cal'){initCalUtil();}
   if(n==='cap')renderCap();
@@ -3193,6 +3541,11 @@ let tT;
 function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast on '+t;clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('on'),3500);}
 
 function applyNivelControls(){
+  // Nível 4 exclusivo: PCP, Calendário, Análise Colaboradores, Capacidade
+  ['ni-pcp','ni-cal','ni-dash2','ni-cap','ni-log','ni-prodmanual','ni-metas','ni-dashmetas'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = USER_NIVEL >= 4 ? '' : 'none';
+  });
   const btnRec=document.querySelector('#p-rec .ph .btn.pri');
   if(btnRec) btnRec.style.display=USER_NIVEL>=1?'':'none';
   const btnLot=document.querySelector('#p-lot .ph button');
@@ -3786,6 +4139,9 @@ function renderCalUtil() {
   const totalFds  = diasMes.filter(d => d.tipo === 'fds').length;
   const totalFer  = diasMes.filter(d => d.tipo === 'feriado').length;
   const hoje = new Date().toISOString().split('T')[0];
+  // Dias úteis restantes: apenas dias > hoje no mesmo mês
+  const utilRestantes = diasMes.filter(d => d.tipo === 'util' && d.ds > hoje).length;
+  const ehMesAtual = ano === new Date().getFullYear() && mes === new Date().getMonth();
   const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
   // Offset do dia da semana
@@ -3803,9 +4159,12 @@ function renderCalUtil() {
     else { bg='var(--sl)'; cor='var(--success)'; }
     if (isHoje) borda = 'box-shadow:0 0 0 2px var(--accent);';
     const title = nome ? `title="${nome}"` : '';
-    cells += `<div ${title} style="background:${bg};border-radius:6px;padding:6px 4px;text-align:center;cursor:${nome?'help':'default'};${borda}">
+    const ferObj = FERIADOS_DB.find(f => f.data === ds);
+    const podeExcluir = tipo === 'feriado' && USER_NIVEL >= 4 && ferObj;
+    cells += `<div ${title} style="background:${bg};border-radius:6px;padding:6px 4px;text-align:center;cursor:${nome?'help':'default'};${borda};position:relative">
       <div style="font-size:13px;font-weight:${isHoje?'800':'600'};color:${cor}">${d}</div>
       ${nome ? `<div style="font-size:8px;color:${cor};line-height:1.1;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${nome}">${nome.split(' ')[0]}</div>` : ''}
+      ${podeExcluir ? `<button onclick="excluirFeriado('${ferObj.id}','${ferObj.nome}')" title="Remover feriado" style="position:absolute;top:1px;right:1px;background:none;border:none;color:var(--danger);cursor:pointer;font-size:9px;padding:0;line-height:1;opacity:.7">✕</button>` : ''}
     </div>`;
   });
 
@@ -3826,6 +4185,9 @@ function renderCalUtil() {
       <div style="background:var(--al);border-radius:var(--rs);padding:8px 16px;font-size:13px;color:var(--at)">
         📅 ${meses[mes]} ${ano}
       </div>
+      ${ehMesAtual ? `<div style="background:var(--pl);border-radius:var(--rs);padding:8px 16px;font-size:13px;color:var(--purple);font-weight:600">
+        ⏳ <b>${utilRestantes}</b> dias úteis restantes no mês
+      </div>` : ''}
     </div>
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:.75rem">
       ${dias_semana.map(d => `<div style="text-align:center;font-size:10px;font-weight:700;color:var(--muted);padding:4px 0">${d}</div>`).join('')}
@@ -4264,6 +4626,1235 @@ function csvCap() {
       Math.round((x.fixos||0)*(x.pecas_por_dia_fixos||0)+(x.em_treinamento||0)*(x.pecas_por_dia_treinamento||0))
     ])
   ], 'capacidade.csv');
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD PCP
+// ═══════════════════════════════════════════════════
+function setPCPPeriodo(dias) {
+  const hoje = new Date(), d2 = hoje.toISOString().split('T')[0];
+  const d1 = new Date(hoje); d1.setDate(d1.getDate() - dias);
+  document.getElementById('pcp-d1').value = d1.toISOString().split('T')[0];
+  document.getElementById('pcp-d2').value = d2;
+  renderPCP();
+}
+function limparFiltroPCP() {
+  document.getElementById('pcp-d1').value = '';
+  document.getElementById('pcp-d2').value = '';
+  renderPCP();
+}
+
+function renderPCP() {
+  if (USER_NIVEL < 4) return;
+  // Inicializar data comparativo
+  const compData = document.getElementById('pcp-comp-data');
+  if (compData && !compData.value) compData.value = new Date().toISOString().slice(0,10);
+  renderComparativo(document.getElementById('pcp-comp-data')?.value);
+  const d1 = document.getElementById('pcp-d1')?.value || '';
+  const d2 = document.getElementById('pcp-d2')?.value || '';
+  // Sync filtros com dash para reusar renderDashIndicadoresExtra
+  const dd1 = document.getElementById('dash-d1');
+  const dd2 = document.getElementById('dash-d2');
+  const _prev1 = dd1?.value, _prev2 = dd2?.value;
+  if (dd1) dd1.value = d1;
+  if (dd2) dd2.value = d2;
+
+  const lotesF = LOTES.filter(l => (!d1||l.data>=d1) && (!d2||l.data<=d2));
+  renderDashIndicadoresExtra(); // reutiliza, aponta para IDs do PCP
+  renderPCPAreaCards(lotesF);
+
+  // Restaurar filtros do dash
+  if (dd1) dd1.value = _prev1 || '';
+  if (dd2) dd2.value = _prev2 || '';
+}
+
+function renderPCPAreaCards(lotesF) {
+  const d1 = document.getElementById('pcp-d1')?.value || '';
+  const d2 = document.getElementById('pcp-d2')?.value || '';
+  const recF  = LOTES.length ? filtraDash(REC,'data') : [];
+  const trisF = Object.values(TRIS).filter(t=>(!d1||t.data>=d1)&&(!d2||t.data<=d2));
+  renderDashAreaCards();
+}
+
+// ── Gráfico de barras: % notificados por dia útil ──
+function renderNotifDias() {
+  const el = document.getElementById('dash-notif-dias'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+
+  const notificados = LOTES.filter(l => l.not?.data && l.data && (!d1||l.data>=d1) && (!d2||l.data<=d2));
+  if (!notificados.length) { el.innerHTML = '<div class="empty">Sem notificações no período.</div>'; return; }
+
+  // Contar por dia útil
+  const contagem = {};
+  for (let i = 1; i <= 12; i++) contagem[i] = 0;
+  contagem['12+'] = 0;
+  notificados.forEach(l => {
+    const d = diasUteisLote(l.data, l.not.data);
+    if (d <= 12) contagem[d]++;
+    else contagem['12+']++;
+  });
+
+  const total = notificados.length;
+  const labels = [1,2,3,4,5,6,7,8,9,10,11,12,'12+'];
+
+  // Acumulado
+  let acum = 0;
+  const acumPct = labels.map(k => { acum += (contagem[k]||0); return parseFloat(((acum/total)*100).toFixed(2)); });
+
+  function corBarra(k) {
+    if (k === '12+' || k >= 10) return '#e05c5c';
+    if (k >= 6) return '#d4973c';
+    return '#2a7fd4';
+  }
+
+  const CHART_H = 220; // altura útil das barras em px
+  const maxPct = Math.max(...labels.map(k => parseFloat(((contagem[k]||0)/total*100).toFixed(2))), 1);
+
+  // Legenda
+  const legendHtml = `
+    <div style="display:flex;gap:16px;margin-bottom:.75rem;font-size:12px;flex-wrap:wrap">
+      <span><span style="display:inline-block;width:12px;height:12px;background:#1a3a5c;border-radius:2px;margin-right:4px;vertical-align:middle"></span>% por dia (eixo esq.)</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#3a8fd4;opacity:.6;border-radius:2px;margin-right:4px;vertical-align:middle"></span>% acumulada (eixo dir.)</span>
+      <span style="color:var(--muted)">Total: <b style="color:var(--text)">${total}</b> lotes · 🔵 1–5d · 🟡 6–9d · 🔴 10–12d+</span>
+    </div>`;
+
+  // SVG do gráfico
+  const barW = 36, gap = 16, paddingL = 48, paddingR = 48, paddingT = 30, paddingB = 36;
+  const totalW = labels.length * (barW + gap) + paddingL + paddingR;
+  const totalH = CHART_H + paddingT + paddingB;
+
+  // Linhas de grade Y
+  const grades = [0,25,50,75,100];
+  const gradeLines = grades.map(g => {
+    const y = paddingT + CHART_H - (g/100)*CHART_H;
+    return `<line x1="${paddingL}" y1="${y}" x2="${totalW-paddingR}" y2="${y}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+            <text x="${paddingL-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#7A9AB8">${g}%</text>
+            <text x="${totalW-paddingR+6}" y="${y+4}" text-anchor="start" font-size="10" fill="#3a8fd4">${g}%</text>`;
+  }).join('');
+
+  // Barras + linha acumulada
+  let barsHtml = '';
+  let linePoints = '';
+  labels.forEach((k, i) => {
+    const x = paddingL + i * (barW + gap);
+    const pct = parseFloat(((contagem[k]||0)/total*100).toFixed(2));
+    const h1 = Math.max((pct/100)*CHART_H, pct>0?2:0);
+    const y1 = paddingT + CHART_H - h1;
+    const cor = corBarra(k);
+    // Barra escura (% do dia)
+    barsHtml += `<rect x="${x}" y="${y1}" width="${barW}" height="${h1}" fill="${cor}" rx="2" opacity=".85"/>`;
+    // Label % acima da barra
+    if (pct > 0) barsHtml += `<text x="${x+barW/2}" y="${y1-5}" text-anchor="middle" font-size="9.5" fill="${cor}" font-weight="700">${pct.toFixed(2)}%</text>`;
+    // Barra clara (acumulado) — linha de pontos
+    const acP = acumPct[i];
+    const yAc = paddingT + CHART_H - (acP/100)*CHART_H;
+    const cx = x + barW/2;
+    linePoints += `${cx},${yAc} `;
+    // Ponto acumulado
+    barsHtml += `<circle cx="${cx}" cy="${yAc}" r="4" fill="#3a8fd4" opacity=".9"/>`;
+    if (acP > 0) barsHtml += `<text x="${cx}" y="${yAc-8}" text-anchor="middle" font-size="9" fill="#3a8fd4" font-weight="600">${acP.toFixed(2)}%</text>`;
+    // Label eixo X
+    barsHtml += `<text x="${x+barW/2}" y="${paddingT+CHART_H+18}" text-anchor="middle" font-size="11" fill="#7A9AB8" font-weight="600">${k}</text>`;
+  });
+
+  // Linha acumulada
+  const lineHtml = linePoints.trim()
+    ? `<polyline points="${linePoints.trim()}" fill="none" stroke="#3a8fd4" stroke-width="2" opacity=".7" stroke-dasharray="4,2"/>`
+    : '';
+
+  // Label eixo X
+  const xAxisLabel = `<text x="${(totalW)/2}" y="${totalH-2}" text-anchor="middle" font-size="11" fill="#7A9AB8">Dia útil (SLA)</text>`;
+
+  const svgHtml = `<div style="overflow-x:auto">
+    <svg width="${totalW}" height="${totalH}" style="display:block">
+      ${gradeLines}
+      ${lineHtml}
+      ${barsHtml}
+      ${xAxisLabel}
+    </svg>
+  </div>`;
+
+  el.innerHTML = legendHtml + svgHtml;
+}
+
+// Calcula dias úteis entre criação do lote e notificação (inclusive)
+function diasUteisLote(dataInicio, dataFim) {
+  let count = isDiaUtil(dataInicio) ? 1 : 0;
+  const cur = new Date(dataInicio + 'T12:00:00');
+  const end = new Date(dataFim   + 'T12:00:00');
+  while (cur < end) {
+    cur.setDate(cur.getDate() + 1);
+    const s = cur.toISOString().split('T')[0];
+    if (isDiaUtil(s)) count++;
+  }
+  return count;
+}
+
+// ═══════════════════════════════════════════════════
+// LOG DE ATIVIDADES
+// ═══════════════════════════════════════════════════
+async function logAction(acao, detalhe='', pagina='') {
+  if (!sb || !CU) return;
+  try {
+    await sb.from('activity_log').insert({
+      usuario: getUserName(),
+      email: CU.email,
+      acao,
+      detalhe,
+      pagina: pagina || document.querySelector('.ni.on span:last-child')?.textContent || '',
+    });
+  } catch(e) { console.warn('Log error:', e); }
+}
+
+function renderLog() {
+  if (USER_NIVEL < 4) return;
+  const busca = (document.getElementById('log-busca')?.value || '').toLowerCase();
+  const d1 = document.getElementById('log-d1')?.value || '';
+  const d2 = document.getElementById('log-d2')?.value || '';
+
+  const dados = LOG_DB.filter(x => {
+    const data = x.created_at?.slice(0,10) || '';
+    if (d1 && data < d1) return false;
+    if (d2 && data > d2) return false;
+    if (busca && !((x.usuario||'').toLowerCase().includes(busca) || (x.acao||'').toLowerCase().includes(busca) || (x.detalhe||'').toLowerCase().includes(busca))) return false;
+    return true;
+  });
+
+  // KPIs
+  const usuarios = [...new Set(LOG_DB.map(x=>x.usuario))].length;
+  const hoje = new Date().toISOString().slice(0,10);
+  const hoje_count = LOG_DB.filter(x=>x.created_at?.slice(0,10)===hoje).length;
+  document.getElementById('kpi-log').innerHTML = `
+    <div class="kpi a"><div class="kl">Total registros</div><div class="kv">${LOG_DB.length}</div></div>
+    <div class="kpi g"><div class="kl">Ações hoje</div><div class="kv">${hoje_count}</div></div>
+    <div class="kpi p"><div class="kl">Usuários ativos</div><div class="kv">${usuarios}</div></div>
+    <div class="kpi"><div class="kl">No filtro</div><div class="kv">${dados.length}</div></div>`;
+
+  const ACT_COR = {
+    'LOGIN':'var(--success)', 'LOGOUT':'var(--muted)',
+    'RECEBIMENTO':'var(--accent)', 'TRIAGEM':'var(--purple)',
+    'LOTE':'var(--teal)', 'PROCESSO':'var(--warn)',
+    'NOTIFICAÇÃO':'var(--danger)', 'DEVOLUÇÃO':'var(--pink)',
+    'USUÁRIO':'var(--warn)', 'FERIADO':'var(--accent)',
+    'CAPACIDADE':'var(--teal)', 'EXCLUIR':'var(--danger)',
+  };
+  function corAcao(acao) {
+    for (const [k,v] of Object.entries(ACT_COR)) if (acao.toUpperCase().includes(k)) return v;
+    return 'var(--muted)';
+  }
+
+  const tb = document.getElementById('log-tb');
+  if (!dados.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty">Nenhum registro encontrado.</div></td></tr>'; return; }
+
+  tb.innerHTML = dados.map(x => {
+    const dt = x.created_at ? new Date(x.created_at) : null;
+    const dtStr = dt ? dt.toLocaleDateString('pt-BR') + ' ' + dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '—';
+    const cor = corAcao(x.acao||'');
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:8px 12px;font-size:11px;color:var(--muted);white-space:nowrap">${dtStr}</td>
+      <td style="padding:8px 12px;font-size:12px;font-weight:500">${x.usuario||'—'}</td>
+      <td style="padding:8px 12px"><span style="background:rgba(0,0,0,.2);color:${cor};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">${x.acao||'—'}</span></td>
+      <td style="padding:8px 12px;font-size:12px;color:var(--muted)">${x.detalhe||'—'}</td>
+      <td style="padding:8px 12px;font-size:11px;color:var(--muted)">${x.pagina||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportLogCSV() {
+  dlCsv([
+    ['Data/Hora','Usuário','Email','Ação','Detalhe','Página'],
+    ...LOG_DB.map(x=>[x.created_at,x.usuario,x.email,x.acao,x.detalhe,x.pagina])
+  ], 'log_atividades.csv');
+}
+
+// ═══════════════════════════════════════════════════
+// HISTÓRICO VOLUMES POR TRANSPORTADORA
+// ═══════════════════════════════════════════════════
+function renderTranspTrend() {
+  const el = document.getElementById('dash-transp-trend'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+
+  const recF = REC.filter(r => (!d1||r.data>=d1) && (!d2||r.data<=d2));
+  if (!recF.length) { el.innerHTML = '<div class="empty">Sem dados no período.</div>'; return; }
+
+  // Agrupar por data + transportadora
+  const transportadoras = [...new Set(recF.map(r => r.transportadora))].sort();
+  const diasSet = [...new Set(recF.map(r => r.data))].sort();
+
+  // Só mostrar os últimos 30 dias para não ficar poluído
+  const dias = diasSet.slice(-30);
+
+  const CORES_TRANSP = {
+    'Correios':'var(--accent)', 'Venuxx':'var(--purple)',
+    'Devolução Correios':'var(--warn)', 'Devolução Jadlog':'var(--teal)',
+    'Devolução Kangu Log':'var(--pink)',
+  };
+
+  // Dados por transportadora por dia
+  const serie = {};
+  transportadoras.forEach(tr => { serie[tr] = {}; dias.forEach(d => { serie[tr][d] = 0; }); });
+  recF.filter(r => dias.includes(r.data)).forEach(r => { if(serie[r.transportadora]) serie[r.transportadora][r.data] += (r.qtd||0); });
+
+  // Tabela + mini gráfico SVG por transportadora
+  const totalGeral = recF.reduce((s,r)=>s+(r.qtd||0),0);
+
+  // Resumo por transportadora
+  const resumo = transportadoras.map(tr => ({
+    tr, total: recF.filter(r=>r.transportadora===tr).reduce((s,r)=>s+(r.qtd||0),0),
+    count: recF.filter(r=>r.transportadora===tr).length,
+    cor: CORES_TRANSP[tr]||'var(--accent)'
+  })).sort((a,b)=>b.total-a.total);
+
+  // SVG sparkline para cada transportadora
+  function sparkline(tr, cor) {
+    const vals = dias.map(d => serie[tr][d]||0);
+    const maxV = Math.max(...vals, 1);
+    const W=120, H=32, pts = vals.map((v,i) => `${Math.round(i*(W/(vals.length-1||1)))},${Math.round(H - (v/maxV)*H)}`).join(' ');
+    return `<svg width="${W}" height="${H}" style="display:block"><polyline points="${pts}" fill="none" stroke="${cor}" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  }
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:1rem">
+      ${resumo.map(r => `
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:center;gap:12px">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:${r.cor};margin-bottom:2px">${r.tr}</div>
+            <div style="font-size:20px;font-weight:700;color:var(--text)">${r.total.toLocaleString('pt-BR')}</div>
+            <div style="font-size:11px;color:var(--muted)">${r.count} receb. · ${Math.round((r.total/totalGeral)*100)}% do total</div>
+          </div>
+          <div>${sparkline(r.tr, r.cor)}</div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:.5rem">Linha do tempo: últimos ${dias.length} dias com recebimentos no período</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// ALERTA TAXA DE APROVAÇÃO
+// ═══════════════════════════════════════════════════
+function renderAlertaTaxa() {
+  const el = document.getElementById('dash-alerta-taxa'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+  const limite = ALERTA_TAXA;
+
+  const trisF = Object.values(TRIS).filter(t => (!d1||t.data>=d1) && (!d2||t.data<=d2));
+  if (!trisF.length) { el.innerHTML = '<div class="empty">Sem triagens no período.</div>'; return; }
+
+  // Taxa média por colaborador
+  const porColab = {};
+  trisF.forEach(t => {
+    if (!porColab[t.colaborador]) porColab[t.colaborador] = { total:0, apr:0, rep:0, count:0 };
+    porColab[t.colaborador].total  += t.total || 0;
+    porColab[t.colaborador].apr    += t.aprovadas || 0;
+    porColab[t.colaborador].rep    += t.reprovadas || 0;
+    porColab[t.colaborador].count  += 1;
+  });
+
+  const colabs = Object.entries(porColab).map(([c,d]) => ({
+    c, taxa: d.total > 0 ? Math.round((d.apr/d.total)*100) : 0,
+    apr: d.apr, rep: d.rep, total: d.total, count: d.count
+  })).sort((a,b) => a.taxa - b.taxa);
+
+  const abaixo = colabs.filter(x => x.taxa < limite);
+  const ok     = colabs.filter(x => x.taxa >= limite);
+  const taxaMedia = colabs.length ? Math.round(colabs.reduce((s,x)=>s+x.taxa,0)/colabs.length) : 0;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="background:${abaixo.length?'var(--dl)':'var(--sl)'};border-radius:var(--rs);padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:${abaixo.length?'var(--danger)':'var(--success)'}">⚠️ Abaixo de ${limite}%</div>
+        <div style="font-size:26px;font-weight:700;color:${abaixo.length?'var(--danger)':'var(--success)'}">${abaixo.length}</div>
+        <div style="font-size:11px;color:var(--muted)">colaborador(es)</div>
+      </div>
+      <div style="background:var(--sl);border-radius:var(--rs);padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:var(--success)">✅ Dentro do limite</div>
+        <div style="font-size:26px;font-weight:700;color:var(--success)">${ok.length}</div>
+        <div style="font-size:11px;color:var(--muted)">colaborador(es)</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--rs);padding:10px 16px;flex:1;min-width:120px">
+        <div style="font-size:11px;color:var(--muted)">Taxa média geral</div>
+        <div style="font-size:26px;font-weight:700;color:${taxaMedia<limite?'var(--danger)':taxaMedia<80?'var(--warn)':'var(--success)'}">${taxaMedia}%</div>
+      </div>
+    </div>
+    ${abaixo.length ? `
+    <div style="font-size:11px;font-weight:600;color:var(--danger);text-transform:uppercase;margin-bottom:.5rem">🚨 Colaboradores com alerta</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem">
+      ${abaixo.map(x => `<div style="background:var(--dl);border:1px solid rgba(244,112,112,.3);border-radius:var(--rs);padding:8px 14px">
+        <div style="font-size:12px;font-weight:600;color:var(--danger)">${x.c.split(' ').slice(0,2).join(' ')}</div>
+        <div style="font-size:20px;font-weight:700;color:var(--danger)">${x.taxa}%</div>
+        <div style="font-size:11px;color:var(--muted)">✅${x.apr} ❌${x.rep} · ${x.count} triagens</div>
+      </div>`).join('')}
+    </div>` : '<div style="color:var(--success);font-size:13px;margin-bottom:1rem">✅ Todos os colaboradores acima do limite!</div>'}
+    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem">Todos os colaboradores</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${colabs.map(x => {
+        const cor = x.taxa < limite ? 'var(--danger)' : x.taxa < 80 ? 'var(--warn)' : 'var(--success)';
+        return `<div style="display:flex;align-items:center;gap:10px">
+          <div style="width:150px;font-size:12px;font-weight:500;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.c}">${x.c.split(' ').slice(0,2).join(' ')}</div>
+          <div style="flex:1;background:var(--surface2);border-radius:4px;height:8px"><div style="width:${x.taxa}%;height:8px;border-radius:4px;background:${cor}"></div></div>
+          <div style="font-size:12px;font-weight:700;color:${cor};width:40px;text-align:right">${x.taxa}%</div>
+          <div style="font-size:11px;color:var(--muted);width:80px">✅${x.apr} ❌${x.rep}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// COMPARATIVO CAPACIDADE x PRODUÇÃO — no Dashboard PCP
+// ═══════════════════════════════════════════════════
+// Chamado dentro de renderPCP via HTML injetado
+function renderComparativo(d1, d2) {
+  const el = document.getElementById('pcp-comparativo'); if (!el) return;
+  const hoje = new Date().toISOString().slice(0,10);
+  const data = d1 || hoje;
+
+  // Produção real do app por área para a data
+  const trisF = Object.values(TRIS).filter(t => t.data === data);
+  const lotesF = LOTES.filter(l => l.data === data);
+
+  const prodApp = {
+    'TRIAGEM':      trisF.reduce((s,t)=>s+(t.aprovadas||0),0),
+    'CADASTRO':     lotesF.filter(l=>l.cad?.data===data).reduce((s,l)=>s+(l.cad?.apr||0),0),
+    'PASSADORIA':   lotesF.filter(l=>l.pas?.data===data).reduce((s,l)=>s+(l.pas?.apr||0),0),
+    'FOTOGRAFIA':   lotesF.filter(l=>l.fot?.data===data).reduce((s,l)=>s+(l.fot?.apr||0),0),
+    'DOBRA':        lotesF.filter(l=>l.dob?.data===data).reduce((s,l)=>s+(l.dob?.apr||0),0),
+    'CRIAÇÃO DE LOTES': lotesF.length,
+  };
+
+  // Produção manual para a data
+  const prodManual = {};
+  PROD_MANUAL_DB.filter(x=>x.data===data).forEach(x=>{ prodManual[x.area] = x.pecas; });
+
+  // Capacidade planejada para a data
+  const capDia = CAP_DB.filter(x=>x.data===data);
+  const capPlan = {};
+  capDia.forEach(x=>{
+    capPlan[x.area] = Math.round((x.fixos||0)*(x.pecas_por_dia_fixos||0) + (x.em_treinamento||0)*(x.pecas_por_dia_treinamento||0));
+  });
+
+  // Áreas manuais
+  const AREAS_MANUAL = ['PICKING','CONFERENCIA','EXPEDIÇÃO','CHECK IN','ARMAZENAGEM','CADASTRO RED','FOTOGRAFIA RED'];
+  const AREAS_APP = ['CRIAÇÃO DE LOTES','TRIAGEM','CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA'];
+  const TODAS = [...AREAS_APP, ...AREAS_MANUAL];
+
+  const rows = TODAS.map(area => {
+    const plan = capPlan[area] || 0;
+    const real = AREAS_APP.includes(area) ? (prodApp[area]||0) : (prodManual[area]||0);
+    const pct = plan > 0 ? Math.round((real/plan)*100) : null;
+    const isManual = AREAS_MANUAL.includes(area);
+    return { area, plan, real, pct, isManual };
+  });
+
+  el.innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">
+      Referência: <b style="color:var(--at)">${fmtDate(data)}</b>
+      ${AREAS_MANUAL.map(a=>`
+        <span style="margin-left:12px">${a}:
+          <input type="number" min="0" value="${prodManual[a]||0}" oninput="salvarProdManual('${data}','${a}',this.value)"
+            style="width:70px;border:1px solid var(--border2);border-radius:4px;padding:3px 6px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit;margin-left:4px">
+        </span>`).join('')}
+    </div>
+    <div class="tw"><table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr>
+        <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Área</th>
+        <th style="text-align:center;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Capacidade</th>
+        <th style="text-align:center;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Produção Real</th>
+        <th style="text-align:center;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">% Atingido</th>
+        <th style="padding:8px 10px;border-bottom:1px solid var(--border)">Barra</th>
+      </tr></thead>
+      <tbody>${rows.map(r => {
+        const pctV = r.pct !== null ? r.pct : 0;
+        const cor = r.pct === null ? 'var(--muted)' : r.pct >= 90 ? 'var(--success)' : r.pct >= 60 ? 'var(--warn)' : 'var(--danger)';
+        const pctStr = r.pct !== null ? r.pct+'%' : '—';
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 10px;font-weight:500">${r.area} ${r.isManual?'<span style="font-size:10px;color:var(--muted);margin-left:4px">manual</span>':''}</td>
+          <td style="text-align:center;padding:8px 10px;color:var(--muted)">${r.plan?r.plan.toLocaleString('pt-BR'):'—'}</td>
+          <td style="text-align:center;padding:8px 10px;font-weight:600;color:var(--text)">${r.real.toLocaleString('pt-BR')}</td>
+          <td style="text-align:center;padding:8px 10px;font-weight:700;color:${cor}">${pctStr}</td>
+          <td style="padding:8px 10px;min-width:100px"><div style="background:var(--surface2);border-radius:4px;height:8px">
+            <div style="width:${Math.min(pctV,100)}%;height:8px;border-radius:4px;background:${cor}"></div>
+          </div></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+}
+
+async function salvarProdManual(data, area, valor) {
+  const pecas = parseInt(valor)||0;
+  if (!sb) { PROD_MANUAL_DB = PROD_MANUAL_DB.filter(x=>!(x.data===data&&x.area===area)); if(pecas>0) PROD_MANUAL_DB.push({data,area,pecas}); return; }
+  await sb.from('producao_manual').upsert({data, area, pecas, created_by:getUserName()},{onConflict:'data,area'});
+  const {data:pm} = await sb.from('producao_manual').select('*').order('data',{ascending:false}).limit(500);
+  PROD_MANUAL_DB = pm||[];
+  // Não rerenderiza tudo para não perder foco
+}
+
+// ── PAGINAÇÃO ─────────────────────────────────────
+function pagBar(elId, current, pages, total, fnName) {
+  const el = document.getElementById(elId); if (!el) return;
+  if (pages <= 1) { el.style.display='none'; return; }
+  el.style.display = 'flex';
+  const inicio = (current-1)*PAG_SIZE+1, fim = Math.min(current*PAG_SIZE, total);
+  let btns = '';
+  // Botão anterior
+  btns += `<button class="pag-btn" onclick="${fnName}(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  // Páginas
+  const range = [];
+  if (pages <= 7) { for(let i=1;i<=pages;i++) range.push(i); }
+  else {
+    range.push(1);
+    if (current > 3) range.push('...');
+    for (let i=Math.max(2,current-1); i<=Math.min(pages-1,current+1); i++) range.push(i);
+    if (current < pages-2) range.push('...');
+    range.push(pages);
+  }
+  range.forEach(p => {
+    if (p==='...') btns += `<span style="padding:4px 6px;color:var(--muted)">…</span>`;
+    else btns += `<button class="pag-btn ${p===current?'on':''}" onclick="${fnName}(${p})">${p}</button>`;
+  });
+  // Botão próximo
+  btns += `<button class="pag-btn" onclick="${fnName}(${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  el.innerHTML = `<span>${inicio}–${fim} de ${total}</span><div class="pag-btns">${btns}</div>`;
+}
+
+
+// ═══════════════════════════════════════════════════
+// METAS MENSAIS
+// ═══════════════════════════════════════════════════
+
+const METAS_AREAS = [
+  { grupo:'inbound',    areas:['CRIAÇÃO DE LOTES','TRIAGEM','CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA','CHECK IN','ARMAZENAGEM'] },
+  { grupo:'outbound',   areas:['PICKING','CONFERENCIA','EXPEDIÇÃO','DEVOLUÇÃO'] },
+  { grupo:'red_carpet', areas:['CADASTRO RED','FOTOGRAFIA RED'] },
+];
+const MESES_NOMES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function initMetasSel() {
+  const hoje = new Date();
+  const sm = document.getElementById('meta-mes');
+  const sa = document.getElementById('meta-ano');
+  const dm = document.getElementById('dm-mes');
+  const da = document.getElementById('dm-ano');
+  if (sm && !sm.value) sm.value = String(hoje.getMonth()+1);
+  if (sa && !sa.value) sa.value = String(hoje.getFullYear());
+  if (dm && !dm.value) dm.value = String(hoje.getMonth()+1);
+  if (da && !da.value) da.value = String(hoje.getFullYear());
+}
+
+function getMeta(ano, mes, area) {
+  const m = METAS_DB.find(x => x.ano===ano && x.mes===mes && x.area===area);
+  return m ? m.meta : 0;
+}
+
+function renderMetas() {
+  initMetasSel();
+  const mes = parseInt(document.getElementById('meta-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('meta-ano')?.value || new Date().getFullYear());
+  const el = document.getElementById('metas-form'); if (!el) return;
+
+  const GRUPO_COR = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
+  const GRUPO_LABEL = { inbound:'📦 INBOUND', outbound:'🚚 OUTBOUND', red_carpet:'🎯 RED CARPET' };
+
+  el.innerHTML = METAS_AREAS.map(g => `
+    <div style="margin-bottom:1.25rem">
+      <div style="font-size:11px;font-weight:700;color:${GRUPO_COR[g.grupo]};text-transform:uppercase;letter-spacing:.07em;padding:.6rem 1.25rem;border-bottom:1px solid var(--border);background:var(--surface2)">
+        ${GRUPO_LABEL[g.grupo]}
+      </div>
+      ${g.areas.map(a => {
+        const val = getMeta(ano, mes, a);
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 1.25rem;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:500">${a}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" min="0" id="meta-inp-${a.replace(/\s/g,'_')}"
+              value="${val}" placeholder="0"
+              style="width:110px;text-align:center;border:1px solid var(--border2);border-radius:var(--rs);padding:7px 10px;font-size:14px;background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-weight:600">
+            <span style="font-size:11px;color:var(--muted)">peças</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+async function salvarTodasMetas() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value);
+  const ano = parseInt(document.getElementById('meta-ano')?.value);
+  if (!mes || !ano) { toast('Selecione mês e ano.','er'); return; }
+
+  const rows = [];
+  METAS_AREAS.forEach(g => {
+    g.areas.forEach(a => {
+      const inp = document.getElementById(`meta-inp-${a.replace(/\s/g,'_')}`);
+      const meta = parseInt(inp?.value)||0;
+      rows.push({ ano, mes, area:a, grupo:g.grupo, meta, created_by:getUserName() });
+    });
+  });
+
+  if (sb) {
+    const { error } = await sb.from('metas_mensais').upsert(rows, { onConflict:'ano,mes,area' });
+    if (error) { toast('Erro ao salvar: '+error.message,'er'); return; }
+    const { data } = await sb.from('metas_mensais').select('*').order('ano',{ascending:false});
+    METAS_DB = data || [];
+  } else {
+    rows.forEach(r => {
+      const idx = METAS_DB.findIndex(x=>x.ano===r.ano&&x.mes===r.mes&&x.area===r.area);
+      if (idx>=0) METAS_DB[idx]=r; else METAS_DB.push(r);
+    });
+  }
+  toast(`Metas de ${MESES_NOMES[mes]} ${ano} salvas!`,'ok');
+  logAction('METAS',`Salvou metas de ${MESES_NOMES[mes]}/${ano}`,'Metas');
+}
+
+async function copiarMetaMesAnterior() {
+  const mes = parseInt(document.getElementById('meta-mes')?.value);
+  const ano = parseInt(document.getElementById('meta-ano')?.value);
+  let mesPrev = mes-1, anoPrev = ano;
+  if (mesPrev < 1) { mesPrev=12; anoPrev=ano-1; }
+
+  const prev = METAS_DB.filter(x=>x.mes===mesPrev&&x.ano===anoPrev);
+  if (!prev.length) { toast(`Sem metas cadastradas em ${MESES_NOMES[mesPrev]}/${anoPrev}.`,'er'); return; }
+
+  prev.forEach(m => {
+    const inp = document.getElementById(`meta-inp-${m.area.replace(/\s/g,'_')}`);
+    if (inp) inp.value = m.meta;
+  });
+  toast(`Metas de ${MESES_NOMES[mesPrev]}/${anoPrev} copiadas! Clique em Salvar para confirmar.`,'ok');
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD DE METAS
+// ═══════════════════════════════════════════════════
+function getProdReal(area, ano, mes) {
+  // Datas do mês
+  const d1 = `${ano}-${String(mes).padStart(2,'0')}-01`;
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  const d2 = `${ano}-${String(mes).padStart(2,'0')}-${String(ultimoDia).padStart(2,'0')}`;
+
+  // Áreas do app
+  const APP_MAP = {
+    'TRIAGEM':        () => Object.values(TRIS).filter(t=>t.data>=d1&&t.data<=d2).reduce((s,t)=>s+(t.aprovadas||0),0),
+    'CADASTRO':       () => LOTES.filter(l=>l.cad?.data>=d1&&l.cad?.data<=d2).reduce((s,l)=>s+(l.cad?.apr||0),0),
+    'PASSADORIA':     () => LOTES.filter(l=>l.pas?.data>=d1&&l.pas?.data<=d2).reduce((s,l)=>s+(l.pas?.apr||0),0),
+    'FOTOGRAFIA':     () => LOTES.filter(l=>l.fot?.data>=d1&&l.fot?.data<=d2).reduce((s,l)=>s+(l.fot?.apr||0),0),
+    'DOBRA':          () => LOTES.filter(l=>l.dob?.data>=d1&&l.dob?.data<=d2).reduce((s,l)=>s+(l.dob?.apr||0),0),
+    'CRIAÇÃO DE LOTES':()=> LOTES.filter(l=>l.data>=d1&&l.data<=d2).length,
+  };
+  if (APP_MAP[area]) return APP_MAP[area]();
+  // Áreas manuais
+  const m = PROD_MANUAL_DB.filter(x=>x.area===area&&x.data>=d1&&x.data<=d2).reduce((s,x)=>s+(x.pecas||0),0);
+  return m;
+}
+
+// Função auxiliar isDiaUtil global para renderDashMetas
+
+
+// ═══════════════════════════════════════════════════
+// METAS MENSAIS
+// ═══════════════════════════════════════════════════
+const TODAS_AREAS_META = [
+  {area:'CRIAÇÃO DE LOTES', grupo:'inbound',     icon:'📦'},
+  {area:'TRIAGEM',          grupo:'inbound',     icon:'🔍'},
+  {area:'CADASTRO',         grupo:'inbound',     icon:'🏷️'},
+  {area:'PASSADORIA',       grupo:'inbound',     icon:'👕'},
+  {area:'FOTOGRAFIA',       grupo:'inbound',     icon:'📸'},
+  {area:'DOBRA',            grupo:'inbound',     icon:'🗂️'},
+  {area:'CHECK IN',         grupo:'inbound',     icon:'✅'},
+  {area:'ARMAZENAGEM',      grupo:'inbound',     icon:'📦'},
+  {area:'PICKING',          grupo:'outbound',    icon:'🔎'},
+  {area:'CONFERENCIA',      grupo:'outbound',    icon:'📋'},
+  {area:'EXPEDIÇÃO',        grupo:'outbound',    icon:'🚚'},
+  {area:'DEVOLUÇÃO',        grupo:'outbound',    icon:'↩️'},
+  {area:'CADASTRO RED',     grupo:'red_carpet',  icon:'🏷️'},
+  {area:'FOTOGRAFIA RED',   grupo:'red_carpet',  icon:'📸'},
+];
+
+const GRUPO_LABEL = { inbound:'📥 INBOUND', outbound:'📤 OUTBOUND', red_carpet:'🔴 RED CARPET' };
+const GRUPO_COR   = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
+
+function renderDashMetas() {
+  const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
+  const hoje = new Date();
+  const ehMesAtual = mes === hoje.getMonth()+1 && ano === hoje.getFullYear();
+
+  // Metas do período
+  const metas = {};
+  METAS_DB.filter(m => m.mes === mes && m.ano === ano).forEach(m => { metas[m.area] = m.meta; });
+
+  if (!Object.keys(metas).length) {
+    document.getElementById('kpi-dashmetas').innerHTML = '<div class="empty" style="grid-column:1/-1">Nenhuma meta cadastrada para este mês. Acesse a aba 🎯 Metas para definir.</div>';
+    document.getElementById('dm-ranking').innerHTML = '';
+    document.getElementById('dm-cards').innerHTML = '';
+    return;
+  }
+
+  // Calcular dias úteis do mês (usando isDiaUtil global)
+
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  let diasUteisTotal = 0, diasUteisPassados = 0, diasUteisRestantes = 0;
+  for (let d = 1; d <= ultimoDia; d++) {
+    const ds = `${ano}-${String(mes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const util = isDiaUtil(ds);
+    if (util) {
+      diasUteisTotal++;
+      if (ds <= hoje.toISOString().slice(0,10)) diasUteisPassados++;
+      else diasUteisRestantes++;
+    }
+  }
+  if (ehMesAtual && diasUteisPassados === 0) diasUteisPassados = 1;
+
+  // Produção real por área no mês
+  const prefixoData = `${ano}-${String(mes).padStart(2,'0')}`;
+  const prodReal = {};
+
+  // App: Triagem = aprovadas, outros = aprovadas por etapa
+  Object.values(TRIS).filter(t => t.data?.startsWith(prefixoData)).forEach(t => {
+    prodReal['TRIAGEM'] = (prodReal['TRIAGEM']||0) + (t.aprovadas||0);
+  });
+  LOTES.filter(l => l.data?.startsWith(prefixoData)).forEach(l => {
+    prodReal['CRIAÇÃO DE LOTES'] = (prodReal['CRIAÇÃO DE LOTES']||0) + 1;
+  });
+  LOTES.forEach(l => {
+    ['CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA'].forEach((area, i) => {
+      const k = ['cad','pas','fot','dob'][i];
+      if (l[k]?.data?.startsWith(prefixoData)) prodReal[area] = (prodReal[area]||0) + (l[k].apr||0);
+    });
+  });
+  // Áreas do app com input manual via PROD_MANUAL_DB (diário)
+  PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixoData)).forEach(x => {
+    prodReal[x.area] = (prodReal[x.area]||0) + (x.pecas||0);
+  });
+
+  // Áreas manuais mensais: pegar do formulário do dashboard se já preenchido
+  const AREAS_MANUAIS_META = ['CHECK IN','ARMAZENAGEM','PICKING','CONFERENCIA','EXPEDIÇÃO','CADASTRO RED','FOTOGRAFIA RED'];
+  AREAS_MANUAIS_META.forEach(area => {
+    const inpId = 'dm-manual-' + area.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+    const el = document.getElementById(inpId);
+    if (el && el.value !== '') prodReal[area] = parseInt(el.value)||0;
+  });
+
+  // Renderizar formulário de input manual
+  const dmManual = document.getElementById('dm-manual-form');
+  if (dmManual) {
+    const mesesNome = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    dmManual.innerHTML = `
+      <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">
+        Insira a produção total de <b style="color:var(--at)">${mesesNome[mes]}/${ano}</b> para as áreas abaixo:
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+        ${AREAS_MANUAIS_META.map(area => {
+          const inpId = 'dm-manual-' + area.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+          const val = prodReal[area] || '';
+          return '<div style="display:flex;flex-direction:column;gap:4px">' +
+            '<label style="font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase">' + area + '</label>' +
+            '<input type="number" min="0" id="' + inpId + '" value="' + val + '" placeholder="Total de peças" oninput="renderDashMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:14px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none" onfocus="this.style.borderColor=\'var(--accent)\'" onblur="this.style.borderColor=\'var(--border2)\'"> ' +
+            '</div>';
+        }).join('')}
+      </div>`;
+  }
+
+  // Calcular indicadores por área
+  const dadosAreas = TODAS_AREAS_META.filter(a => metas[a.area]).map(a => {
+    const meta   = metas[a.area] || 0;
+    const real   = prodReal[a.area] || 0;
+    const pct    = meta > 0 ? Math.round((real/meta)*100) : 0;
+    const deficit = Math.max(0, meta - real);
+    // Média diária atual
+    const mediaDiariaAtual = diasUteisPassados > 0 ? real / diasUteisPassados : 0;
+    // Média diária necessária para bater a meta
+    const mediaDiariaNec = diasUteisRestantes > 0 ? deficit / diasUteisRestantes : 0;
+    // Projeção: se continuar no ritmo atual
+    const projecao = Math.round(mediaDiariaAtual * diasUteisTotal);
+    const vaiCumprirMeta = projecao >= meta;
+    return { ...a, meta, real, pct, deficit, mediaDiariaAtual, mediaDiariaNec, projecao, vaiCumprirMeta };
+  });
+
+  // KPIs globais
+  const totalMeta = dadosAreas.reduce((s,a)=>s+a.meta, 0);
+  const totalReal = dadosAreas.reduce((s,a)=>s+a.real, 0);
+  const pctGeral  = totalMeta > 0 ? Math.round((totalReal/totalMeta)*100) : 0;
+  const areasOk   = dadosAreas.filter(a=>a.vaiCumprirMeta).length;
+  const areasRisco= dadosAreas.filter(a=>!a.vaiCumprirMeta).length;
+
+  // Popular select de áreas do gráfico
+  const grafSel = document.getElementById('dm-area-graf');
+  if (grafSel) {
+    const curVal = grafSel.value;
+    grafSel.innerHTML = '<option value="">Selecione uma área...</option>' +
+      dadosAreas.map(a => `<option value="${a.area}" ${a.area===curVal?'selected':''}>${a.icon} ${a.area}</option>`).join('');
+    if (!curVal && dadosAreas.length) { grafSel.value = dadosAreas[0].area; }
+  }
+  renderGrafMeta();
+
+  document.getElementById('kpi-dashmetas').innerHTML = `
+    <div class="kpi a"><div class="kl">Meta total do mês</div><div class="kv">${totalMeta.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi g"><div class="kl">Produção real</div><div class="kv">${totalReal.toLocaleString('pt-BR')}</div></div>
+    <div class="kpi ${pctGeral>=100?'g':pctGeral>=70?'w':'d'}"><div class="kl">% Atingido</div><div class="kv">${pctGeral}%</div></div>
+    <div class="kpi g"><div class="kl">Áreas no caminho</div><div class="kv" style="color:var(--success)">${areasOk}</div></div>
+    <div class="kpi ${areasRisco>0?'d':'g'}"><div class="kl">Áreas em risco</div><div class="kv" style="color:${areasRisco>0?'var(--danger)':'var(--success)'}">${areasRisco}</div></div>
+    <div class="kpi"><div class="kl">Dias úteis restantes</div><div class="kv" style="color:var(--purple)">${diasUteisRestantes}</div></div>`;
+
+  // Ranking
+  const ranking = [...dadosAreas].sort((a,b) => b.pct - a.pct);
+  const maxPct   = Math.max(...ranking.map(a=>a.pct), 1);
+  document.getElementById('dm-ranking').innerHTML = ranking.map((a,i) => {
+    const cor = a.pct >= 100 ? 'var(--success)' : a.pct >= 70 ? 'var(--warn)' : 'var(--danger)';
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:28px;text-align:center;font-size:12px;font-weight:700;color:var(--muted)">#${i+1}</div>
+      <div style="width:180px;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.icon} ${a.area}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:4px;height:10px">
+        <div style="width:${Math.min(Math.round((a.pct/maxPct)*100),100)}%;height:10px;border-radius:4px;background:${cor}"></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:${cor};width:50px;text-align:right">${a.pct}%</div>
+      <div style="font-size:11px;color:var(--muted);width:120px">${a.real.toLocaleString('pt-BR')} / ${a.meta.toLocaleString('pt-BR')}</div>
+      <div style="font-size:11px;font-weight:600;color:${a.vaiCumprirMeta?'var(--success)':'var(--danger)'}">${a.vaiCumprirMeta?'✅ Na meta':'⚠️ Risco'}</div>
+    </div>`;
+  }).join('');
+
+  // Cards por área
+  document.getElementById('dm-cards').innerHTML = dadosAreas.map(a => {
+    const cor       = a.pct >= 100 ? 'var(--success)' : a.pct >= 70 ? 'var(--warn)' : 'var(--danger)';
+    const bgCor     = a.pct >= 100 ? 'var(--sl)' : a.pct >= 70 ? 'var(--wl)' : 'var(--dl)';
+    const grupoCor  = GRUPO_COR[a.grupo];
+    const barW      = Math.min(a.pct, 100);
+    return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:1.1rem;border-top:3px solid ${grupoCor}">
+      <!-- Cabeçalho -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
+        <div>
+          <div style="font-size:13px;font-weight:700">${a.icon} ${a.area}</div>
+          <div style="font-size:10px;color:${grupoCor};font-weight:600;text-transform:uppercase;margin-top:2px">${GRUPO_LABEL[a.grupo]}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:700;color:${cor}">${a.pct}%</div>
+          <div style="font-size:10px;color:var(--muted)">da meta</div>
+        </div>
+      </div>
+      <!-- Barra de progresso -->
+      <div style="background:var(--surface2);border-radius:4px;height:8px;margin-bottom:.75rem;overflow:hidden">
+        <div style="width:${barW}%;height:8px;background:${cor};border-radius:4px;transition:width .5s"></div>
+      </div>
+      <!-- Dados -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:.6rem">
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Meta</div>
+          <div style="font-weight:700;color:var(--text)">${a.meta.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Realizado</div>
+          <div style="font-weight:700;color:${cor}">${a.real.toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Média atual/dia</div>
+          <div style="font-weight:700;color:var(--at)">${Math.round(a.mediaDiariaAtual).toLocaleString('pt-BR')}</div>
+        </div>
+        <div style="background:${a.mediaDiariaNec>a.mediaDiariaAtual?'var(--dl)':'var(--sl)'};border-radius:var(--rs);padding:6px 10px">
+          <div style="color:var(--muted);font-size:10px">Necessário/dia</div>
+          <div style="font-weight:700;color:${a.mediaDiariaNec>a.mediaDiariaAtual?'var(--danger)':'var(--success)'}">${Math.round(a.mediaDiariaNec).toLocaleString('pt-BR')}</div>
+        </div>
+      </div>
+      <!-- Déficit / Projeção -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:${bgCor};border-radius:var(--rs);font-size:12px">
+        <span style="color:var(--muted)">Déficit: <b style="color:${a.deficit>0?'var(--danger)':'var(--success)'}">${a.deficit>0?'-'+a.deficit.toLocaleString('pt-BR'):'✓ Concluído'}</b></span>
+        <span style="color:var(--muted)">Projeção: <b style="color:${a.vaiCumprirMeta?'var(--success)':'var(--danger)'}">${a.projecao.toLocaleString('pt-BR')}</b></span>
+      </div>
+      <!-- Badge projeção -->
+      <div style="margin-top:8px;text-align:center;font-size:12px;font-weight:600;color:${a.vaiCumprirMeta?'var(--success)':'var(--danger)'}">
+        ${a.vaiCumprirMeta ? '✅ No ritmo atual vai bater a meta!' : `⚠️ Vai ficar ${(a.meta-a.projecao).toLocaleString('pt-BR')} peças abaixo da meta`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── GRÁFICO ACUMULADO META vs REALIZADO ───────────
+function renderGrafMeta() {
+  const el = document.getElementById('dm-grafico-acum'); if (!el) return;
+  const area = document.getElementById('dm-area-graf')?.value;
+  if (!area) { el.innerHTML = '<div class="empty">Selecione uma área para visualizar.</div>'; return; }
+
+  const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
+  const meta = METAS_DB.find(m => m.mes===mes && m.ano===ano && m.area===area)?.meta || 0;
+  if (!meta) { el.innerHTML = '<div class="empty">Nenhuma meta cadastrada para esta área neste mês.</div>'; return; }
+
+  const hoje = new Date().toISOString().slice(0,10);
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  const prefixo = `${ano}-${String(mes).padStart(2,'0')}`;
+
+  // Dias úteis do mês
+
+  const diasUteisMes = [];
+  for (let d=1; d<=ultimoDia; d++) {
+    const ds = `${prefixo}-${String(d).padStart(2,'0')}`;
+    if (isDiaUtil(ds)) diasUteisMes.push(ds);
+  }
+  const duTotal = diasUteisMes.length;
+  const metaPorDia = duTotal > 0 ? meta / duTotal : 0;
+
+  // Produção real por dia útil (para áreas do app)
+  const AREAS_APP_MAP = {
+    'TRIAGEM':      d => Object.values(TRIS).filter(t=>t.data===d).reduce((s,t)=>s+(t.aprovadas||0),0),
+    'CRIAÇÃO DE LOTES': d => LOTES.filter(l=>l.data===d).length,
+    'CADASTRO':     d => LOTES.filter(l=>l.cad?.data===d).reduce((s,l)=>s+(l.cad?.apr||0),0),
+    'PASSADORIA':   d => LOTES.filter(l=>l.pas?.data===d).reduce((s,l)=>s+(l.pas?.apr||0),0),
+    'FOTOGRAFIA':   d => LOTES.filter(l=>l.fot?.data===d).reduce((s,l)=>s+(l.fot?.apr||0),0),
+    'DOBRA':        d => LOTES.filter(l=>l.dob?.data===d).reduce((s,l)=>s+(l.dob?.apr||0),0),
+  };
+  const AREAS_MANUAL_SET = new Set(['CHECK IN','ARMAZENAGEM','PICKING','CONFERENCIA','EXPEDIÇÃO','CADASTRO RED','FOTOGRAFIA RED','DEVOLUÇÃO']);
+
+  function getProdDia(a, d) {
+    if (AREAS_APP_MAP[a]) return AREAS_APP_MAP[a](d);
+    if (AREAS_MANUAL_SET.has(a)) {
+      // Para áreas manuais, verificar se há input mensal no formulário
+      const inpId = 'dm-manual-' + a.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+      const el2 = document.getElementById(inpId);
+      if (el2 && el2.value) {
+        // Distribuir uniformemente pelos dias úteis passados
+        const duPassados = diasUteisMes.filter(ds => ds <= hoje).length;
+        if (duPassados > 0) return Math.round(parseInt(el2.value)/duPassados);
+      }
+      return PROD_MANUAL_DB.filter(x=>x.data===d&&x.area===a).reduce((s,x)=>s+(x.pecas||0),0);
+    }
+    return 0;
+  }
+
+  // Montar série de pontos
+  const diasPassados = diasUteisMes.filter(d => d <= hoje);
+  let acumReal = 0, acumMeta = 0;
+  const pontosReal = [], pontosMeta = [], labels = [];
+  let melhorDia = null, melhorVal = -1, piorDia = null, piorVal = Infinity;
+
+  diasUteisMes.forEach((d, i) => {
+    acumMeta += metaPorDia;
+    labels.push(d.slice(8)); // dia
+    pontosMeta.push(Math.round(acumMeta));
+
+    if (d <= hoje) {
+      const prod = getProdDia(area, d);
+      acumReal += prod;
+      pontosReal.push(acumReal);
+      if (prod > melhorVal) { melhorVal = prod; melhorDia = d; }
+      if (prod < piorVal && prod >= 0) { piorVal = prod; piorDia = d; }
+    } else {
+      pontosReal.push(null); // dias futuros sem dados
+    }
+  });
+
+  const gapHoje = diasPassados.length > 0 ? (acumReal - pontosMeta[diasPassados.length-1]) : 0;
+  const corGap = gapHoje >= 0 ? 'var(--success)' : 'var(--danger)';
+
+  // Montar SVG
+  const W_PAD_L=44, W_PAD_R=16, W_PAD_T=24, W_PAD_B=32;
+  const N = diasUteisMes.length;
+  const SVG_W = Math.max(N*24+W_PAD_L+W_PAD_R, 400);
+  const SVG_H = 220;
+  const CHART_H = SVG_H - W_PAD_T - W_PAD_B;
+  const CHART_W = SVG_W - W_PAD_L - W_PAD_R;
+
+  const maxVal = Math.max(meta, acumReal, 10);
+  const scaleY = v => W_PAD_T + CHART_H - Math.round((v/maxVal)*CHART_H);
+  const scaleX = i => W_PAD_L + Math.round(i*(CHART_W/(N-1||1)));
+
+  // Linhas de grade
+  const grades = [0,25,50,75,100];
+  const gradesSVG = grades.map(pct => {
+    const v = Math.round(maxVal*pct/100);
+    const y = scaleY(v);
+    return `<line x1="${W_PAD_L}" y1="${y}" x2="${SVG_W-W_PAD_R}" y2="${y}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+            <text x="${W_PAD_L-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#7A9AB8">${(v/1000).toFixed(v>=1000?1:0)}${v>=1000?'k':''}</text>`;
+  }).join('');
+
+  // Linha meta diluída
+  const metaPts = pontosMeta.map((v,i) => `${scaleX(i)},${scaleY(v)}`).join(' ');
+
+  // Linha realizado (só pontos não-nulos)
+  const realSegments = [];
+  let seg = [];
+  pontosReal.forEach((v,i) => {
+    if (v !== null) { seg.push(`${scaleX(i)},${scaleY(v)}`); }
+    else { if (seg.length) { realSegments.push(seg.join(' ')); seg=[]; } }
+  });
+  if (seg.length) realSegments.push(seg.join(' '));
+
+  // Área sob a linha realizado
+  const realPtsValid = pontosReal.map((v,i) => v!==null?{v,i}:null).filter(Boolean);
+  let areaPath = '';
+  if (realPtsValid.length) {
+    const first = realPtsValid[0], last = realPtsValid[realPtsValid.length-1];
+    areaPath = `M${scaleX(first.i)},${scaleY(0)} ` +
+      realPtsValid.map(p=>`L${scaleX(p.i)},${scaleY(p.v)}`).join(' ') +
+      ` L${scaleX(last.i)},${scaleY(0)} Z`;
+  }
+
+  // Labels eixo X (só alguns para não poluir)
+  const step = Math.max(1, Math.floor(N/8));
+  const xLabels = labels.map((l,i) => i%step===0||i===N-1
+    ? `<text x="${scaleX(i)}" y="${SVG_H-6}" text-anchor="middle" font-size="9" fill="#7A9AB8">${l}</text>`
+    : '').join('');
+
+  // Ponto hoje
+  const idxHoje = diasPassados.length-1;
+  const pontoHojeSVG = idxHoje >= 0 && pontosReal[idxHoje] !== null
+    ? `<circle cx="${scaleX(idxHoje)}" cy="${scaleY(pontosReal[idxHoje])}" r="5" fill="${gapHoje>=0?'#2DD4A0':'#F47070'}" stroke="var(--surface)" stroke-width="2"/>`
+    : '';
+
+  const svgHtml = `<svg width="100%" viewBox="0 0 ${SVG_W} ${SVG_H}" style="display:block;overflow:visible">
+    ${gradesSVG}
+    <!-- Área realizado -->
+    ${areaPath?`<path d="${areaPath}" fill="${gapHoje>=0?'rgba(45,212,160,.08)':'rgba(244,112,112,.08)'}" />`:''}
+    <!-- Linha meta diluída (tracejada) -->
+    <polyline points="${metaPts}" fill="none" stroke="#3B9DD2" stroke-width="2" stroke-dasharray="6,3" opacity=".7"/>
+    <!-- Linhas realizado -->
+    ${realSegments.map(pts=>`<polyline points="${pts}" fill="none" stroke="${gapHoje>=0?'#2DD4A0':'#F47070'}" stroke-width="2.5" stroke-linejoin="round"/>`).join('')}
+    <!-- Ponto hoje -->
+    ${pontoHojeSVG}
+    ${xLabels}
+  </svg>`;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">Meta do mês</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent)">${meta.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${Math.round(metaPorDia)}/dia útil</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">Realizado</div>
+        <div style="font-size:18px;font-weight:700;color:${gapHoje>=0?'var(--success)':'var(--danger)'}">${acumReal.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${diasPassados.length} dias úteis</div>
+      </div>
+      <div style="background:${gapHoje>=0?'var(--sl)':'var(--dl)'};border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">Gap hoje</div>
+        <div style="font-size:18px;font-weight:700;color:${corGap}">${gapHoje>=0?'+':''}${Math.round(gapHoje).toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:${corGap}">${gapHoje>=0?'Adiantado ✅':'Atrasado ⚠️'}</div>
+      </div>
+      ${melhorDia?`<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">🏆 Melhor dia</div>
+        <div style="font-size:16px;font-weight:700;color:var(--success)">${melhorVal.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${fmtDate(melhorDia)}</div>
+      </div>`:''}
+      ${piorDia&&piorVal!==Infinity?`<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">📉 Pior dia</div>
+        <div style="font-size:16px;font-weight:700;color:var(--danger)">${piorVal.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${fmtDate(piorDia)}</div>
+      </div>`:''}
+    </div>
+    <!-- Legenda -->
+    <div style="display:flex;gap:16px;margin-bottom:.5rem;font-size:11px;flex-wrap:wrap">
+      <span><span style="display:inline-block;width:20px;height:2px;background:#3B9DD2;border-bottom:2px dashed #3B9DD2;vertical-align:middle;margin-right:4px"></span>Meta diluída</span>
+      <span><span style="display:inline-block;width:20px;height:3px;background:${gapHoje>=0?'#2DD4A0':'#F47070'};vertical-align:middle;margin-right:4px;border-radius:2px"></span>Realizado acumulado</span>
+    </div>
+    <div style="overflow-x:auto">${svgHtml}</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// PRODUÇÃO MANUAL — LANÇAMENTO DIÁRIO
+// ═══════════════════════════════════════════════════
+const PM_AREAS = [
+  { key:'CHECK IN',      label:'✅ Check In',      grupo:'inbound' },
+  { key:'ARMAZENAGEM',   label:'📦 Armazenagem',   grupo:'inbound' },
+  { key:'PICKING',       label:'🔎 Picking',        grupo:'outbound' },
+  { key:'CONFERENCIA',   label:'📋 Conferência',   grupo:'outbound' },
+  { key:'EXPEDIÇÃO',     label:'🚚 Expedição',      grupo:'outbound' },
+  { key:'CADASTRO RED',  label:'🏷️ Cadastro Red',  grupo:'red_carpet' },
+  { key:'FOTOGRAFIA RED',label:'📸 Fotografia Red', grupo:'red_carpet' },
+];
+
+function initProdManual() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const inp = document.getElementById('pm-data');
+  if (inp && !inp.value) inp.value = hoje;
+  // Inicializar seletores de mês/ano
+  const agora = new Date();
+  const sm = document.getElementById('pm-mes');
+  const sa = document.getElementById('pm-ano');
+  if (sm && !sm.value) sm.value = String(agora.getMonth()+1);
+  if (sa && !sa.value) sa.value = String(agora.getFullYear());
+  renderPMGrid();
+  renderProdManual();
+}
+
+function setPMHoje() {
+  const inp = document.getElementById('pm-data');
+  if (inp) { inp.value = new Date().toISOString().slice(0,10); renderPMGrid(); }
+}
+
+function renderPMGrid() {
+  const data = document.getElementById('pm-data')?.value;
+  const grid = document.getElementById('pm-grid'); if (!grid) return;
+
+  // Buscar valores existentes para essa data
+  const existentes = {};
+  PROD_MANUAL_DB.filter(x => x.data === data).forEach(x => { existentes[x.area] = x.pecas; });
+
+  grid.innerHTML = PM_AREAS.map(a => {
+    const val = existentes[a.key] || '';
+    const inpId = 'pm-inp-' + a.key.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+    return '<div style="display:flex;flex-direction:column;gap:4px">' +
+      '<label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase">' + a.label + '</label>' +
+      '<input type="number" min="0" id="' + inpId + '" value="' + val + '" placeholder="0"' +
+      ' style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:16px;font-weight:600;background:var(--surface2);color:var(--text);font-family:inherit;outline:none;text-align:center"' +
+      ' onfocus="this.style.borderColor=\'var(--accent)\'" onblur="this.style.borderColor=\'var(--border2)\'">' +
+      (val ? '<div style="font-size:10px;color:var(--success);text-align:center">✓ salvo</div>' : '') +
+      '</div>';
+  }).join('');
+
+  // Listener na data para atualizar grid ao mudar
+  const dataInp = document.getElementById('pm-data');
+  if (dataInp) dataInp.onchange = () => renderPMGrid();
+}
+
+async function salvarProdManualDia() {
+  const data = document.getElementById('pm-data')?.value;
+  if (!data) { toast('Informe a data.', 'er'); return; }
+
+  const btn = document.getElementById('btn-pm-salvar');
+  if (btn) btn.disabled = true;
+
+  const rows = PM_AREAS.map(a => {
+    const inpId = 'pm-inp-' + a.key.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+    const val = parseInt(document.getElementById(inpId)?.value) || 0;
+    return { data, area: a.key, pecas: val, created_by: getUserName() };
+  }).filter(r => r.pecas > 0);
+
+  if (!rows.length) { toast('Informe pelo menos uma área.', 'er'); if(btn) btn.disabled=false; return; }
+
+  if (sb) {
+    // Deletar registros do dia primeiro, depois inserir
+    await sb.from('producao_manual').delete().eq('data', data)
+      .in('area', PM_AREAS.map(a => a.key));
+    const { error } = await sb.from('producao_manual').insert(rows);
+    if (error) { toast('Erro: ' + error.message, 'er'); if(btn) btn.disabled=false; return; }
+    // Recarregar
+    const { data: pm } = await sb.from('producao_manual').select('*').order('data', { ascending: false }).limit(500);
+    PROD_MANUAL_DB = pm || [];
+  } else {
+    PROD_MANUAL_DB = PROD_MANUAL_DB.filter(x => !(x.data===data && PM_AREAS.some(a=>a.key===x.area)));
+    rows.forEach(r => PROD_MANUAL_DB.push({ ...r, id: Math.random().toString(36) }));
+  }
+
+  if (btn) btn.disabled = false;
+  logAction('PRODUÇÃO MANUAL', 'Lançou produção de ' + data, 'Produção Manual');
+  // Mostrar mensagem de sucesso
+  const msg = document.getElementById('pm-msg');
+  if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
+  // Atualizar grid e acumulado
+  renderPMGrid();
+  renderProdManual();
+  toast('Produção de ' + fmtDate(data) + ' salva!', 'ok');
+}
+
+function renderProdManual() {
+  const mes = parseInt(document.getElementById('pm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('pm-ano')?.value || new Date().getFullYear());
+  const prefixo = ano + '-' + String(mes).padStart(2,'0');
+  const mesesNome = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  const dados = PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixo) && PM_AREAS.some(a=>a.key===x.area));
+
+  // Dias com lançamentos
+  const diasSet = [...new Set(dados.map(x=>x.data))].sort();
+
+  // KPIs — total por área no mês
+  const totaisArea = {};
+  PM_AREAS.forEach(a => { totaisArea[a.key] = 0; });
+  dados.forEach(x => { if(totaisArea[x.area]!==undefined) totaisArea[x.area] += (x.pecas||0); });
+  const totalGeral = Object.values(totaisArea).reduce((s,v)=>s+v, 0);
+
+  const kpiEl = document.getElementById('pm-kpi');
+  if (kpiEl) {
+    kpiEl.innerHTML = '<div style="display:flex;gap:10px;flex-wrap:wrap;padding:.25rem 0">' +
+      PM_AREAS.map(a => {
+        const tot = totaisArea[a.key] || 0;
+        return '<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;min-width:100px">' +
+          '<div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">' + a.label + '</div>' +
+          '<div style="font-size:18px;font-weight:700;color:var(--text)">' + tot.toLocaleString('pt-BR') + '</div>' +
+          '</div>';
+      }).join('') +
+      '<div style="background:var(--al);border-radius:var(--rs);padding:8px 14px;min-width:100px;border:1px solid rgba(59,157,210,.2)">' +
+        '<div style="font-size:10px;color:var(--at);font-weight:600;text-transform:uppercase">TOTAL GERAL</div>' +
+        '<div style="font-size:20px;font-weight:700;color:var(--at)">' + totalGeral.toLocaleString('pt-BR') + '</div>' +
+      '</div>' +
+      '</div>';
+  }
+
+  const thead = document.getElementById('pm-thead');
+  const tbody = document.getElementById('pm-tbody');
+  const tfoot = document.getElementById('pm-tfoot');
+  if (!thead || !tbody || !tfoot) return;
+
+  if (!diasSet.length) {
+    thead.innerHTML = '';
+    tbody.innerHTML = '<tr><td colspan="' + (PM_AREAS.length+2) + '"><div class="empty">Nenhum lançamento em ' + mesesNome[mes] + '/' + ano + '.</div></td></tr>';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  // Cabeçalho
+  const thStyle = 'text-align:center;padding:8px 10px;color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap';
+  thead.innerHTML = '<tr>' +
+    '<th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Data</th>' +
+    PM_AREAS.map(a => '<th style="' + thStyle + '">' + a.label + '</th>').join('') +
+    '<th style="' + thStyle + ';color:var(--at)">Total</th>' +
+    '</tr>';
+
+  // Corpo — uma linha por dia
+  const tdStyle = 'text-align:center;padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px';
+  const hoje = new Date().toISOString().slice(0,10);
+  let acum = {}; PM_AREAS.forEach(a => { acum[a.key] = 0; });
+
+  tbody.innerHTML = diasSet.map(d => {
+    const isHoje = d === hoje;
+    const valDia = {};
+    dados.filter(x=>x.data===d).forEach(x => { valDia[x.key||x.area] = x.pecas||0; });
+    PM_AREAS.forEach(a => { acum[a.key] += (valDia[a.key]||0); });
+    const totalDia = PM_AREAS.reduce((s,a)=>s+(valDia[a.key]||0), 0);
+
+    return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;' + (isHoje?'background:var(--al)':'') + '"' +
+      ' onclick="setPMDataEdit(\'' + d + '\')" title="Clique para editar este dia">' +
+      '<td style="padding:8px 12px;font-weight:' + (isHoje?'700':'500') + ';white-space:nowrap;color:' + (isHoje?'var(--at)':'var(--text)') + '">' +
+        fmtDate(d) + (isHoje?' <span style="font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:8px">hoje</span>':'') +
+      '</td>' +
+      PM_AREAS.map(a => {
+        const v = valDia[a.key]||0;
+        return '<td style="' + tdStyle + ';color:' + (v>0?'var(--text)':'var(--border2)') + ';font-weight:' + (v>0?'600':'400') + '">' +
+          (v>0 ? v.toLocaleString('pt-BR') : '—') + '</td>';
+      }).join('') +
+      '<td style="' + tdStyle + ';font-weight:700;color:var(--accent)">' + totalDia.toLocaleString('pt-BR') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  // Rodapé — total acumulado
+  const totalAcum = PM_AREAS.reduce((s,a)=>s+acum[a.key], 0);
+  const tfStyle = 'text-align:center;padding:8px 10px;font-weight:700;font-size:13px;background:var(--surface2)';
+  tfoot.innerHTML = '<tr>' +
+    '<td style="padding:8px 12px;font-weight:700;font-size:12px;background:var(--surface2);color:var(--muted)">TOTAL ' + mesesNome[mes].toUpperCase() + '</td>' +
+    PM_AREAS.map(a => '<td style="' + tfStyle + ';color:var(--at)">' + (acum[a.key]||0).toLocaleString('pt-BR') + '</td>').join('') +
+    '<td style="' + tfStyle + ';color:var(--success);font-size:15px">' + totalAcum.toLocaleString('pt-BR') + '</td>' +
+    '</tr>';
+}
+
+function setPMDataEdit(data) {
+  // Ao clicar numa linha, preenche o form com aquela data para edição
+  const inp = document.getElementById('pm-data');
+  if (inp) { inp.value = data; renderPMGrid(); }
+  // Scroll para o topo do form
+  document.getElementById('pm-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function csvProdManual() {
+  const mes = parseInt(document.getElementById('pm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('pm-ano')?.value || new Date().getFullYear());
+  const prefixo = ano + '-' + String(mes).padStart(2,'0');
+  const dados = PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixo));
+  const diasSet = [...new Set(dados.map(x=>x.data))].sort();
+  const rows = [
+    ['Data', ...PM_AREAS.map(a=>a.key), 'TOTAL'],
+    ...diasSet.map(d => {
+      const vals = PM_AREAS.map(a => dados.filter(x=>x.data===d&&x.area===a.key).reduce((s,x)=>s+x.pecas,0));
+      return [d, ...vals, vals.reduce((s,v)=>s+v,0)];
+    })
+  ];
+  dlCsv(rows, 'producao_manual_' + prefixo + '.csv');
 }
 
 init();
