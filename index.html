@@ -2,7 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IN·HAUS">
+<meta name="theme-color" content="#080F1F">
 <title>IN-HAUS — Operações</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,17 +15,35 @@
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <style>
 :root{
-  --bg:#0A1628;--surface:#112240;--surface2:#0D1B35;--surface3:#091526;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
-  --text:#E2EAF4;--muted:#7A9AB8;
-  --accent:#3B9DD2;--al:rgba(59,157,210,0.15);--at:#93C5E8;
-  --success:#2DD4A0;--sl:rgba(45,212,160,0.12);
-  --warn:#F5A623;--wl:rgba(245,166,35,0.12);
-  --danger:#F47070;--dl:rgba(244,112,112,0.12);
-  --purple:#A78BFA;--pl:rgba(167,139,250,0.12);
-  --teal:#2DD4BF;--tl:rgba(45,212,191,0.12);
-  --pink:#F472B6;--pkl:rgba(244,114,182,0.12);
-  --sb:#080F1F;--r:10px;--rs:6px;--sh:0 4px 20px rgba(0,0,0,0.45);
+  /* Paleta base */
+  --bg:#080F1F; --surface:#0D1526; --surface2:#111C30; --surface3:#162035; --surface4:#1A2540;
+  /* Bordas */
+  --border:rgba(59,157,210,.12); --border2:rgba(59,157,210,.22); --border3:rgba(59,157,210,.35);
+  /* Texto */
+  --text:#E2EAF4; --text2:#B8CEDF; --muted:#7A9AB8; --muted2:#5A7A96;
+  /* Accent */
+  --accent:#3B9DD2; --accent-hover:#4DAEE3; --at:#3B9DD2; --al:rgba(59,157,210,.12); --al2:rgba(59,157,210,.18);
+  /* Semânticas */
+  --success:#2DD4A0; --sl:rgba(45,212,160,.12); --sl2:rgba(45,212,160,.2);
+  --warn:#F5A623;    --wl:rgba(245,166,35,.12);  --wl2:rgba(245,166,35,.2);
+  --danger:#F47070;  --dl:rgba(244,112,112,.12); --dl2:rgba(244,112,112,.2); --danger-light:rgba(244,112,112,.15);
+  --purple:#A78BFA;  --pl:rgba(167,139,250,.12);
+  --pink:#F472B6;    --teal:#2DD4A0; --gold:#F5C842; --gl:rgba(245,200,66,.12);
+  /* Tipografia */
+  --fs-xs:10px; --fs-sm:11px; --fs-base:13px; --fs-md:14px; --fs-lg:16px; --fs-xl:20px; --fs-2xl:24px;
+  /* Espaçamento */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px;
+  /* Raios */
+  --r:12px; --rs:8px; --r-sm:6px; --r-full:9999px;
+  /* Sombras */
+  --shadow-sm:0 1px 3px rgba(0,0,0,.3);
+  --shadow:0 4px 16px rgba(0,0,0,.4);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.5);
+  --shadow-accent:0 4px 20px rgba(59,157,210,.25);
+  /* Transições */
+  --t-fast:100ms ease; --t-base:150ms ease; --t-slow:250ms ease;
+  /* Sidebar */
+  --sb:#080F1F; --sb-w:225px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.55;min-height:100vh;}
@@ -65,7 +88,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .sb-out{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--rs);cursor:pointer;font-size:13px;color:var(--muted);border:1px solid var(--border2);background:none;font-family:inherit;width:100%;margin-top:.75rem;transition:all .15s;}
 .sb-out:hover{background:var(--dl);color:var(--danger);border-color:rgba(244,112,112,.4);}
 .sb-credit{text-align:center;padding:.5rem 0 0;font-size:10px;color:rgba(255,255,255,.15);}
-.topbar{display:none;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--sb);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:98;}
+.topbar{display:none;align-items:center;justify-content:space-between;padding:.65rem 1rem;background:var(--sb);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:98;gap:8px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(8,15,31,.92);}
 .ovbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;}
 .ovbg.on{display:block;}
 
@@ -87,7 +110,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 
 /* KPI */
 .kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin-bottom:1.5rem;}
-.kpi{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:.9rem 1.1rem;}
+.kpi{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r);padding:.9rem 1.1rem;
+  box-shadow:var(--shadow-sm);
+  transition:transform var(--t-base), box-shadow var(--t-base);
+}
+.kpi:hover{transform:translateY(-1px);box-shadow:var(--shadow);}
 .kpi .kl{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
 .kpi .kv{font-size:24px;font-weight:700;line-height:1;}
 .kpi .ks{font-size:11px;color:var(--muted);margin-top:3px;}
@@ -96,7 +125,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .kpi.d .kv{color:var(--danger);}.kpi.t .kv{color:var(--teal);}
 
 /* CARD */
-.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:1.25rem;overflow:hidden;}
+.card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r);margin-bottom:1.25rem;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  transition:box-shadow var(--t-slow);
+}
 .ch{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
 .ch h2{font-size:15px;font-weight:600;}
 .cb{padding:1.25rem;}
@@ -174,6 +208,8 @@ tbody tr:last-child td{border-bottom:none;}
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;padding:1rem;}
 .overlay.on{display:flex;}
+.modal{animation:modalIn .2s cubic-bezier(.34,1.56,.64,1);}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(10px);}to{opacity:1;transform:none;}}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:1.75rem;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:var(--sh);}
 .modal.wide{max-width:680px;}
 .modal h3{font-size:17px;font-weight:600;margin-bottom:1.25rem;}
@@ -275,20 +311,181 @@ tbody tr:last-child td{border-bottom:none;}
 .access-denied .icon{font-size:40px;}
 
 /* RESPONSIVE */
+/* ══ TABLET (769–1024px) ══ */
+@media(min-width:769px) and (max-width:1024px){
+  .sb{width:200px;}
+  .main{margin-left:200px;padding:1.25rem;}
+  .kg{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));}
+  .modal{max-width:90vw!important;}
+  .hm{display:none!important;}
+  table{font-size:12px;}
+  thead th{font-size:10px;padding:0 8px 8px;}
+  tbody td{padding:8px;}
+}
+
+/* ══ MOBILE (≤768px) ══ */
 @media(max-width:768px){
-  .sb{display:none;}.sb.on{display:flex;position:fixed;width:82%;max-width:280px;animation:slin .2s;}
-  @keyframes slin{from{transform:translateX(-100%);}to{transform:translateX(0);}}
-  .ovbg.on{display:block;}.topbar{display:flex!important;}
-  .main{margin-left:0;padding:.75rem;}
+  /* Sidebar como drawer */
+  .sb{
+    display:none;
+    position:fixed;
+    top:0;left:0;bottom:0;
+    width:82%;max-width:280px;
+    z-index:200;
+    border-right:1px solid var(--border2);
+    box-shadow:4px 0 24px rgba(0,0,0,.4);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    animation:slin .22s cubic-bezier(.25,.46,.45,.94);
+  }
+  .sb.on{display:flex;}
+  @keyframes slin{from{transform:translateX(-110%);}to{transform:translateX(0);}}
+
+  /* Overlay escuro */
+  .ovbg{touch-action:none;}
+  .ovbg.on{display:block;}
+
+  /* Topbar hambúrguer */
+  .topbar{
+    display:flex!important;
+    position:sticky;top:0;z-index:150;
+    background:var(--sb);
+    border-bottom:1px solid var(--border);
+    padding:.6rem 1rem;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .topbar-ham{
+    background:none;border:none;
+    color:var(--text);cursor:pointer;
+    padding:6px;border-radius:6px;
+    display:flex;flex-direction:column;
+    gap:4px;align-items:center;justify-content:center;
+    width:36px;height:36px;
+    transition:background .15s;
+  }
+  .topbar-ham:hover{background:rgba(59,157,210,.15);}
+  .topbar-ham span{
+    display:block;width:20px;height:2px;
+    background:var(--text);border-radius:2px;
+    transition:all .2s;
+  }
+  .topbar-ham.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .topbar-ham.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+  .topbar-ham.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+  /* Conteúdo principal */
+  .main{margin-left:0;padding:.75rem;padding-bottom:80px;}
+
+  /* Formulários — coluna única */
   .fg{grid-template-columns:1fr!important;}
+  .farow{flex-direction:column!important;}
+  .farow .btn{width:100%!important;}
+
+  /* KPIs — 2 colunas */
   .kg{grid-template-columns:1fr 1fr;}
-  .hm{display:none!important;}.flow{display:none;}
+  .kpi .kv{font-size:20px;}
+
+  /* Cards */
+  .ch{flex-direction:column;align-items:flex-start!important;gap:8px;}
+  .ch h2{font-size:14px;}
+
+  /* Tabelas — scroll horizontal */
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{font-size:11px;min-width:400px;}
+  thead th{padding:0 8px 8px;font-size:10px;}
+  tbody td{padding:8px 6px;}
+
+  /* Colunas opcionais — esconder no mobile */
+  .hm{display:none!important;}
+  .flow{display:none;}
+
+  /* Modal — full width */
+  .modal{
+    width:96vw!important;max-width:96vw!important;
+    max-height:90vh;overflow-y:auto;
+    margin:0;border-radius:12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .overlay{align-items:flex-end;padding:0;}
+  .modal{border-radius:16px 16px 0 0!important;max-height:92vh!important;}
+
+  /* Botões — maiores para toque */
+  .btn{min-height:36px;font-size:13px;}
+  .btn.pri{min-height:40px;}
+
+  /* Page header */
+  .ph{flex-direction:column;align-items:flex-start;}
+  .ph h1{font-size:17px;}
+  .ph p{font-size:12px;}
+
+  /* Paginação */
+  .pag-bar{flex-direction:column;align-items:center;gap:8px;}
+
+  /* Grids */
   .dash-grid{grid-template-columns:1fr;}
-  table{font-size:12px;}thead th{padding:0 8px 8px;font-size:10px;}tbody td{padding:9px 8px;}
+
+  /* Barras de busca */
+  .search-bar input{width:100%;}
+}
+
+/* ══ EXTRA SMALL (≤400px) ══ */
+@media(max-width:400px){
+  .kg{grid-template-columns:1fr;}
+  .kpi .kv{font-size:18px;}
+  .main{padding:.5rem;}
+  .topbar{padding:.5rem .75rem;}
+}
+
+/* ══ TOUCH — melhorar alvos de toque ══ */
+@media(hover:none) and (pointer:coarse){
+  .ni{min-height:44px;}
+  .btn{min-height:40px;}
+  .btn.xs{min-height:32px;min-width:32px;}
+  input,select{font-size:16px!important;} /* Prevenir zoom no iOS */
+}
+
+/* ── UTILITÁRIOS ── */
+.mono{font-family:'DM Mono',monospace;letter-spacing:.3px;}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.text-xs{font-size:var(--fs-xs);} .text-sm{font-size:var(--fs-sm);}
+.text-base{font-size:var(--fs-base);} .text-md{font-size:var(--fs-md);}
+.text-lg{font-size:var(--fs-lg);} .text-xl{font-size:var(--fs-xl);}
+.fw-medium{font-weight:var(--fw-medium);} .fw-semibold{font-weight:var(--fw-semibold);}
+.fw-bold{font-weight:var(--fw-bold);}
+.text-muted{color:var(--muted);} .text-accent{color:var(--accent);}
+.text-success{color:var(--success);} .text-warn{color:var(--warn);}
+.text-danger{color:var(--danger);}
+.flex{display:flex;} .flex-col{flex-direction:column;}
+.items-center{align-items:center;} .justify-between{justify-content:space-between;}
+.gap-1{gap:var(--sp-1);} .gap-2{gap:var(--sp-2);} .gap-3{gap:var(--sp-3);}
+.gap-4{gap:var(--sp-4);} .gap-6{gap:var(--sp-6);}
+.mt-1{margin-top:var(--sp-1);} .mt-2{margin-top:var(--sp-2);}
+.mb-2{margin-bottom:var(--sp-2);} .mb-4{margin-bottom:var(--sp-4);}
+.p-2{padding:var(--sp-2);} .p-3{padding:var(--sp-3);} .p-4{padding:var(--sp-4);}
+.rounded{border-radius:var(--rs);} .rounded-lg{border-radius:var(--r);}
+.rounded-full{border-radius:var(--r-full);}
+.w-full{width:100%;} .h-full{height:100%;}
+.overflow-auto{overflow:auto;} .overflow-hidden{overflow:hidden;}
+.opacity-60{opacity:.6;} .opacity-0{opacity:0;}
+.cursor-pointer{cursor:pointer;}
+.select-none{user-select:none;-webkit-user-select:none;}
+/* Badge aprimorado */
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-full);font-size:var(--fs-xs);font-weight:var(--fw-semibold);}
+.chip.success{background:var(--sl2);color:var(--success);}
+.chip.warn{background:var(--wl2);color:var(--warn);}
+.chip.danger{background:var(--dl2);color:var(--danger);}
+.chip.accent{background:var(--al2);color:var(--at);}
+/* Divider */
+.divider{height:1px;background:var(--border);margin:1rem 0;}
+/* Focus ring */
+input:focus,select:focus,textarea:focus,button:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
 }
 </style>
 </head>
-<body>
+<body style="scroll-behavior:smooth;">
 
 <!-- ═══════════ AUTH ═══════════ -->
 
@@ -328,9 +525,14 @@ tbody tr:last-child td{border-bottom:none;}
 <div id="app">
   <div class="ovbg" id="ovbg" onclick="toggleSb()"></div>
   <div class="topbar">
-    <button onclick="toggleSb()" style="background:none;border:none;color:var(--text);font-size:22px;cursor:pointer">☰</button>
-    <span style="font-size:15px;font-weight:700;color:var(--accent)">IN·HAUS</span>
-    <div style="width:32px"></div>
+    <button id="ham-btn" class="topbar-ham" onclick="toggleSb()" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:15px;font-weight:800;color:var(--accent);letter-spacing:-.5px">IN·HAUS</span>
+      <span style="font-size:10px;color:var(--muted);font-weight:500">Operações</span>
+    </div>
+    <div id="topbar-page-name" style="font-size:11px;color:var(--muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right"></div>
   </div>
   <div class="sb" id="sbar">
     <div class="sb-logo">IN·HAUS</div>
@@ -340,7 +542,7 @@ tbody tr:last-child td{border-bottom:none;}
       <div class="sb-uname" id="sb-name">—</div>
       <div class="sb-nivel" id="sb-nivel-lbl"></div>
     </div>
-    <nav class="nav">
+    <nav class="nav" role="navigation" aria-label="Menu principal">
       <div class="ns">Processos</div>
       <button class="ni on" id="ni-rec"  onclick="go('rec')"><span class="ic">📥</span>Recebimento<span class="nb" id="nb-rec"></span></button>
       <button class="ni"    id="ni-tri"  onclick="go('tri')"><span class="ic">🔍</span>Triagem<span class="nb" id="nb-tri"></span></button>
@@ -356,6 +558,7 @@ tbody tr:last-child td{border-bottom:none;}
       <button class="ni"    id="ni-pcp"   onclick="go('pcp')"  style="display:none"><span class="ic">🏭</span>Dashboard PCP</button>
       <button class="ni"    id="ni-dash2" onclick="go('dash2')"><span class="ic">🔬</span>Análise Colaboradores</button>
       <button class="ni"    id="ni-cap"   onclick="go('cap')"><span class="ic">📋</span>Capacidade</button>
+      <button class="ni"    id="ni-prodmanual" onclick="go('prodmanual')" style="display:none"><span class="ic">✏️</span>Produção Manual</button>
       <button class="ni"    id="ni-metas" onclick="go('metas')" style="display:none"><span class="ic">🎯</span>Metas</button>
       <button class="ni"    id="ni-dashmetas" onclick="go('dashmetas')" style="display:none"><span class="ic">📈</span>Dashboard Metas</button>
       <button class="ni"    id="ni-cal"   onclick="go('cal')"><span class="ic">📅</span>Calendário</button>
@@ -367,7 +570,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="sb-credit">criado por Pedro Archija</div>
   </div>
 
-  <main class="main">
+  <main class="main" role="main">
 
     <!-- ══ RECEBIMENTO ══ -->
     <div id="p-rec" class="page on">
@@ -751,6 +954,10 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
     </div>
+    <!-- Aliases para IDs migrados para PCP (fallbacks) -->
+    <div id="dash-tempoetapa" style="display:none"></div>
+    <div id="dash-travados" style="display:none"></div>
+    <div id="dash-det-section" style="display:none"><div id="dash-area-cards"></div></div>
 
     <!-- ══ USUÁRIOS ══ -->
     <div id="p-usr" class="page">
@@ -1050,6 +1257,59 @@ tbody tr:last-child td{border-bottom:none;}
     </div>
 
     <!-- ══ METAS MENSAIS ══ -->
+    <!-- ══ PRODUÇÃO MANUAL ══ -->
+    <div id="p-prodmanual" class="page">
+      <div class="ph">
+        <div><h1>✏️ Produção Manual</h1><p>Lançamento diário das áreas fora do app</p></div>
+      </div>
+      <!-- Seletor de data e área -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch"><h2>Lançar produção do dia</h2></div>
+        <div class="cb" style="padding:1rem 1.25rem">
+          <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+            <div class="ff" style="flex:none">
+              <label>Data <span class="req">*</span></label>
+              <input type="date" id="pm-data" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none">
+            </div>
+            <button class="btn sm" onclick="setPMHoje()">Hoje</button>
+          </div>
+          <div id="pm-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:1rem"></div>
+          <div style="margin-top:1rem;display:flex;gap:8px;align-items:center">
+            <button class="btn pri" id="btn-pm-salvar" onclick="salvarProdManualDia()">💾 Salvar dia</button>
+            <span id="pm-msg" style="font-size:12px;color:var(--success);display:none">✓ Salvo!</span>
+          </div>
+        </div>
+      </div>
+      <!-- Acumulado do mês -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch">
+          <h2>📊 Acumulado do mês</h2>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="pm-mes" onchange="renderProdManual()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="pm-ano" onchange="renderProdManual()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="2025">2025</option><option value="2026">2026</option><option value="2027">2027</option>
+            </select>
+            <button class="btn sm" onclick="csvProdManual()">⬇ CSV</button>
+          </div>
+        </div>
+        <!-- KPIs acumulado -->
+        <div class="kg" id="pm-kpi" style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)"></div>
+        <!-- Tabela por dia -->
+        <div class="tw">
+          <table style="width:100%;border-collapse:collapse;font-size:12px" id="pm-tabela">
+            <thead id="pm-thead"></thead>
+            <tbody id="pm-tbody"></tbody>
+            <tfoot id="pm-tfoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div id="p-metas" class="page">
       <div class="ph">
         <div><h1>🎯 Metas Mensais</h1><p>Defina a meta de produção por área e mês</p></div>
@@ -1096,6 +1356,27 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
       <div class="kg" id="kpi-dashmetas" style="margin-bottom:1.25rem"></div>
+      <!-- Link para aba de produção manual -->
+      <div id="dm-manual-card" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 16px;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:13px;font-weight:600">✏️ Produção Real Manual</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Check In · Armazenagem · Picking · Conferência · Expedição · Cadastro Red · Fotografia Red</div>
+        </div>
+        <button class="btn sm" onclick="go('prodmanual')">Lançar produção →</button>
+      </div>
+      <div id="dm-manual-form" style="display:none"></div>
+      <!-- Gráfico acumulado por área -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="ch">
+          <h2>📈 Acumulado: Realizado vs Meta Diluída</h2>
+          <div style="display:flex;align-items:center;gap:8px">
+            <select id="dm-area-graf" onchange="renderGrafMeta()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit">
+              <option value="">Selecione uma área...</option>
+            </select>
+          </div>
+        </div>
+        <div class="cb"><div id="dm-grafico-acum"></div></div>
+      </div>
       <div class="card" style="margin-bottom:1.25rem">
         <div class="ch"><h2>🏆 Ranking — % atingido da meta</h2></div>
         <div class="cb"><div id="dm-ranking"></div></div>
@@ -1511,16 +1792,35 @@ tbody tr:last-child td{border-bottom:none;}
 <!-- ══ MODAL CÂMERA ══ -->
 <div class="overlay" id="m-cam">
   <div class="cambox">
-    <h3>📷 Escanear código de barras</h3>
-    <video id="camprev" autoplay muted playsinline></video>
-    <div class="camst" id="camst">Iniciando câmera...</div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:1rem">
-      <button class="btn" onclick="closeCam()">Fechar câmera</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+      <h3 style="margin:0">📷 Escanear código de barras</h3>
+      <button class="btn xs" onclick="closeCam()" aria-label="Fechar câmera" style="padding:4px 10px;font-size:18px;line-height:1">✕</button>
+    </div>
+    <!-- Viewfinder overlay -->
+    <div style="position:relative;border-radius:var(--rs);overflow:hidden;background:#000">
+      <video id="camprev" autoplay muted playsinline style="width:100%;display:block;max-height:320px;object-fit:cover;border-radius:var(--rs)"></video>
+      <!-- Mira de scanner -->
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <div style="width:65%;height:45%;border:2px solid rgba(59,157,210,.8);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)">
+          <!-- Cantos animados -->
+          <div style="position:absolute;top:-2px;left:-2px;width:20px;height:20px;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:4px 0 0 0"></div>
+          <div style="position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 4px 0 0"></div>
+          <div style="position:absolute;bottom:-2px;left:-2px;width:20px;height:20px;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 4px"></div>
+          <div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 4px 0"></div>
+          <!-- Linha de scan animada -->
+          <div id="cam-scanline" style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanline 2s ease-in-out infinite"></div>
+        </div>
+      </div>
+    </div>
+    <div class="camst" id="camst" style="margin-top:.75rem">Iniciando câmera...</div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:.75rem;align-items:center">
+      <span style="font-size:11px;color:var(--muted)">Posicione o código dentro da mira</span>
+      <button class="btn pri sm" onclick="closeCam()">Fechar</button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -1565,6 +1865,20 @@ function hideLoading() { /* removido — sem overlay */ }
 function skelTable(tbId, cols=7, rows=5) {
   const tb = document.getElementById(tbId); if (!tb) return;
   tb.innerHTML = Array(rows).fill(0).map(()=>`<tr>${Array(cols).fill(0).map(()=>`<td><div class="skel skel-row"></div></td>`).join('')}</tr>`).join('');
+}
+
+// ── isDiaUtil GLOBAL — única definição, usada em todo o app ──────────
+function isDiaUtil(ds) {
+  const [y,m,d] = ds.split('-').map(Number);
+  const t2=[0,3,2,5,0,3,5,1,4,6,2,4];
+  const yr=m<3?y-1:y;
+  const dow=(yr+Math.floor(yr/4)-Math.floor(yr/100)+Math.floor(yr/400)+t2[m-1]+d)%7;
+  if(dow===0||dow===6) return false;
+  if(typeof FERIADOS_DB!=='undefined'&&FERIADOS_DB.length>0)
+    return !FERIADOS_DB.some(f=>f.data===ds);
+  const FIXOS=new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
+  const MOVEIS=new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04','2027-02-08','2027-02-09','2027-03-26','2027-05-27']);
+  return !FIXOS.has(ds.slice(5))&&!MOVEIS.has(ds);
 }
 
 function init() {
@@ -1661,7 +1975,12 @@ async function loadData() {
   ]);
 
   setLoadingProgress(60, 'Processando dados...');
-  if (r.error) { hideLoading(); toast('Erro ao carregar dados: ' + r.error.message, 'er'); return; }
+  // Verificar erros em todas as tabelas
+  const erros = [r,v,t,l,fer,cap,pm,log,met]
+    .map((res,i)=>res.error?['recebimentos','volumes','triagens','lotes','feriados','capacidade','producao_manual','activity_log','metas_mensais'][i]+': '+res.error.message:null)
+    .filter(Boolean);
+  if (r.error) { toast('Erro crítico ao carregar: ' + r.error.message, 'er'); return; }
+  if (erros.length) erros.forEach(e => console.warn('loadData:', e));
 
   FERIADOS_DB = (fer.data || []).map(x => ({ id: x.id, data: x.data, nome: x.nome, tipo: x.tipo }));
   invalidateDuCache();
@@ -1734,12 +2053,14 @@ async function loadData() {
 
 // ─── RENDER ALL ───────────────────────────────────
 function renderAll(){
-  renderRecKPI();renderRec();
-  renderTriKPI();renderTriPend();renderTriDone();
-  renderLotKPI();renderLotPend();renderLot();
-  ['cad','pas','fot','not','dob'].forEach(k=>renderProcPage(k));
-  renderDash();
-  updateBadges();
+  const fns = [
+    ()=>renderRecKPI(), ()=>renderRec(),
+    ()=>renderTriKPI(), ()=>renderTriPend(), ()=>renderTriDone(),
+    ()=>renderLotKPI(), ()=>renderLotPend(), ()=>renderLot(),
+    ()=>['cad','pas','fot','not','dob'].forEach(k=>renderProcPage(k)),
+    ()=>renderDash(), ()=>updateBadges()
+  ];
+  fns.forEach(fn => { try { fn(); } catch(e) { console.error('renderAll:', e); } });
 }
 
 // ═══════ RECEBIMENTO ══════════════════════════════
@@ -1760,7 +2081,7 @@ function renderRec(pg){
   const t=document.getElementById('rf-t').value, d=document.getElementById('rf-d').value;
   const list=REC.filter(r=>(!t||r.transportadora===t)&&(!d||r.data===d));
   const tb=document.getElementById('rec-tb');
-  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">📭</div>Nenhum recebimento.</div></td></tr>';pagBar('rec-pag',0,0,0);return;}
+  if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="ei">📭</div><div class="empty-title">Nenhum recebimento</div><div class="empty-sub">Use o botão + Novo recebimento para começar</div></div></td></tr>';pagBar('rec-pag',0,0,0);return;}
   const total=list.length, pages=Math.ceil(total/PAG_SIZE);
   PAG.rec=Math.min(PAG.rec,pages);
   const slice=list.slice((PAG.rec-1)*PAG_SIZE, PAG.rec*PAG_SIZE);
@@ -1771,13 +2092,39 @@ function renderRec(pg){
     <td class="hm" style="color:var(--muted)">${r.obs||'—'}</td>
     <td style="display:flex;gap:4px">
       <button class="btn xs" onclick="verCod('${r.id}')">Ver códigos</button>
-      ${USER_NIVEL>=2?`<button class="btn xs" onclick="editRec('${r.id}')" title="Editar">✏️</button>`:''}
-      ${USER_NIVEL>=3?`<button class="btn xs danger-btn" onclick="excluirRec('${r.id}')" title="Excluir">🗑️</button>`:''}
+      ${USER_NIVEL>=2?`<button class="btn xs" onclick="editRec('${r.id}')" title="Editar" aria-label="Editar recebimento">✏️</button>`:''}
+      ${USER_NIVEL>=3?`<button class="btn xs danger-btn" onclick="excluirRec('${r.id}')" title="Excluir" aria-label="Excluir recebimento">🗑️</button>`:''}
     </td>
   </tr>`).join('');
   pagBar('rec-pag', PAG.rec, pages, total, 'renderRec');
 }
-function verCod(id){const r=REC.find(x=>x.id===id);if(r)alert(`${r.transportadora} — ${fmtDate(r.data)}\n\n${(r.rastreios||[]).join('\n')||'(nenhum)'}`);}
+function verCod(id){
+  const r=REC.find(x=>x.id===id);if(!r)return;
+  const codigos=r.rastreios||[];
+  showInfoModal(r.transportadora+' — '+fmtDate(r.data),
+    codigos.length
+      ? codigos.map(c=>'<div style="font-family:monospace;padding:6px 10px;background:var(--surface2);border-radius:var(--rs);margin-bottom:4px;font-size:13px;letter-spacing:.5px">'+c+'</div>').join('')
+      : '<div style="color:var(--muted);font-size:13px">Nenhum código registrado.</div>');
+}
+function showInfoModal(titulo,htmlContent){
+  let m=document.getElementById('m-info');
+  if(!m){
+    m=document.createElement('div');
+    m.id='m-info';m.className='overlay';
+    const inner=document.createElement('div');
+    inner.className='modal';inner.style.maxWidth='460px';
+    inner.innerHTML='<h3 id="m-info-titulo" style="margin-bottom:1rem"></h3>'
+      +'<div id="m-info-body" style="max-height:60vh;overflow-y:auto;margin-bottom:1rem"></div>';
+    const btn=document.createElement('button');
+    btn.className='btn pri';btn.style.width='100%';
+    btn.textContent='Fechar';btn.onclick=()=>closeM('m-info');
+    inner.appendChild(btn);m.appendChild(inner);
+    document.body.appendChild(m);
+  }
+  document.getElementById('m-info-titulo').textContent=titulo;
+  document.getElementById('m-info-body').innerHTML=htmlContent;
+  openM('m-info');
+}
 
 function openRec(){
   document.getElementById('r-edit-id').value = '';
@@ -2112,7 +2459,7 @@ function renderLot(pg){
       <td>${status}</td>
       <td style="display:flex;gap:4px">
         <button class="btn xs sec" onclick="printEtiqueta('${l.id}')">🏷 Etiqueta</button>
-        ${USER_NIVEL>=2?`<button class="btn xs" onclick="editLote('${l.id}')" title="Editar lote">✏️</button>`:''}
+        ${USER_NIVEL>=2?`<button class="btn xs" onclick="editLote('${l.id}')" title="Editar lote" aria-label="Editar lote">✏️</button>`:''}
       </td>
     </tr>`;
   }).join('');
@@ -2193,26 +2540,11 @@ function buscaRastreio(){
 // Usa isDiaUtil global — feriados do Supabase ou fallback embutido
 function calcPrazoUtilGlobal(dataInicio, limiteDias) {
   // isDiaUtil usa FERIADOS_DB se disponível
-  function _isUtil(ds) {
-    const [y, m, d] = ds.split('-').map(Number);
-    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
-    const yr = m < 3 ? y - 1 : y;
-    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
-    if (dow === 0 || dow === 6) return false;
-    if (typeof FERIADOS_DB !== 'undefined' && FERIADOS_DB.length > 0)
-      return !FERIADOS_DB.some(f => f.data === ds);
-    // fallback feriados fixos
-    const FIXOS = new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
-    const MOVEIS = new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04','2027-02-08','2027-02-09','2027-03-26','2027-05-27']);
-    if (FIXOS.has(ds.slice(5))) return false;
-    if (MOVEIS.has(ds)) return false;
-    return true;
-  }
   const cur = new Date(dataInicio + 'T12:00:00');
-  let count = _isUtil(dataInicio) ? 1 : 0;
+  let count = isDiaUtil(dataInicio) ? 1 : 0;
   while (count < limiteDias) {
     cur.setDate(cur.getDate() + 1);
-    if (_isUtil(cur.toISOString().split('T')[0])) count++;
+    if (isDiaUtil(cur.toISOString().split('T')[0])) count++;
   }
   return cur.toISOString().split('T')[0];
 }
@@ -2650,21 +2982,8 @@ function renderDashIndicadoresExtra(){
     '2030-03-04','2030-03-05','2030-04-19','2030-06-20',
   ]);
 
-  // isDiaUtil: O(1) — sem new Date() no loop
-  function isDiaUtil(dateStr) {
-    const [y, m, d] = dateStr.split('-').map(Number);
-    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
-    const yr = m < 3 ? y - 1 : y;
-    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
-    if (dow === 0 || dow === 6) return false;
-    // Verificar feriados do Supabase (prioridade) ou fallback para fixos embutidos
-    if (FERIADOS_DB.length > 0) {
-      return !FERIADOS_DB.some(f => f.data === dateStr);
-    }
-    if (FERIADOS_FIXOS_SET.has(dateStr.slice(5))) return false;
-    if (FERIADOS_MOVEIS.has(dateStr)) return false;
-    return true;
-  }
+  // isDiaUtil: usa função global
+
 
   // _duCache, _duCacheMin, _duCacheMax e invalidateDuCache declarados no escopo global
 
@@ -3413,23 +3732,106 @@ function renderSL(){
 
 // ═══════ CAMERA ═══════════════════════════════════
 async function openCam(){
-  openM('m-cam');document.getElementById('camst').textContent='Iniciando câmera...';document.getElementById('camst').className='camst';
-  try{
-    if(typeof ZXing==='undefined'){document.getElementById('camst').textContent='Biblioteca não carregada.';document.getElementById('camst').className='camst er';return;}
-    codeReader=new ZXing.BrowserMultiFormatReader();
-    const devices=await ZXing.BrowserCodeReader.listVideoInputDevices();
-    if(!devices?.length){document.getElementById('camst').textContent='Nenhuma câmera encontrada.';document.getElementById('camst').className='camst er';return;}
-    const cam=devices.find(d=>/back|rear|environment/i.test(d.label))||devices[devices.length-1];
-    document.getElementById('camst').textContent='Aponte para o código de barras...';
-    await codeReader.decodeFromVideoDevice(cam.deviceId,'camprev',result=>{
-      if(result){
-        const code=result.getText().trim().toUpperCase();
-        if(!scanCodes.includes(code)){scanCodes.push(code);renderSL();document.getElementById('camst').textContent='✓ '+code;document.getElementById('camst').className='camst ok';if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{document.getElementById('camst').textContent='Aponte para o próximo...';document.getElementById('camst').className='camst';},1500);}
+  openM('m-cam');
+  const stEl=document.getElementById('camst');
+  const setStatus=(msg,cls='')=>{if(stEl){stEl.textContent=msg;stEl.className='camst'+(cls?' '+cls:'');}};
+  setStatus('Iniciando câmera...');
+
+  // ── Estratégia 1: getUserMedia direto com facingMode (melhor para tablet/mobile) ──
+  const video=document.getElementById('camprev');
+  if(!video){setStatus('Elemento de vídeo não encontrado.','er');return;}
+
+  // Fechar stream anterior se existir
+  if(video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
+  if(codeReader){try{codeReader.reset();}catch(e){}codeReader=null;}
+
+  // Verificar suporte à câmera
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    setStatus('Câmera não suportada neste dispositivo.','er');return;
+  }
+
+  // Tentar câmera traseira primeiro (environment), depois qualquer uma
+  const constraints=[
+    {video:{facingMode:{exact:'environment'},width:{ideal:1280},height:{ideal:720}}},
+    {video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}},
+    {video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}},
+    {video:true}
+  ];
+
+  let stream=null;
+  for(const c of constraints){
+    try{stream=await navigator.mediaDevices.getUserMedia(c);break;}catch(e){
+      if(e.name==='NotAllowedError'||e.name==='PermissionDeniedError'){
+        setStatus('Permissão de câmera negada. Verifique as configurações do navegador.','er');return;
       }
-    });
-  }catch(err){document.getElementById('camst').textContent=err.name==='NotAllowedError'?'Permissão de câmera negada.':'Erro ao acessar a câmera.';document.getElementById('camst').className='camst er';}
+      // Tentar próxima configuração
+    }
+  }
+
+  if(!stream){setStatus('Não foi possível acessar a câmera.','er');return;}
+
+  // Conectar stream ao vídeo
+  video.srcObject=stream;
+  try{await video.play();}catch(e){/* autoplay já cuidado */}
+
+  // ── Estratégia 2: ZXing para decodificação ──
+  if(typeof ZXing==='undefined'){
+    // Fallback: usar o stream sem ZXing (só mostrar câmera)
+    setStatus('Aponte para o código e escaneie manualmente.','');
+    return;
+  }
+
+  try{
+    codeReader=new ZXing.BrowserMultiFormatReader();
+    setStatus('Aponte para o código de barras...');
+
+    // Usar decodeFromStream se disponível (mais estável em tablet)
+    const hints=new Map();
+    hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+    codeReader.hints=hints;
+
+    // Decodificar continuamente do vídeo já ativo
+    const tick=()=>{
+      if(!codeReader||!video.srcObject)return;
+      codeReader.decodeFromVideoElement(video).then(result=>{
+        if(result){
+          const code=result.getText().trim().toUpperCase();
+          if(!scanCodes.includes(code)){
+            scanCodes.push(code);renderSL();
+            setStatus('✓ '+code,'ok');
+            if(navigator.vibrate)navigator.vibrate([80,40,80]);
+            setTimeout(()=>{setStatus('Aponte para o próximo...');},1800);
+          }
+        }
+        setTimeout(tick,300);
+      }).catch(()=>setTimeout(tick,400));
+    };
+    setTimeout(tick,800); // aguardar vídeo estabilizar
+
+  }catch(err){
+    // ZXing falhou mas stream está ativo — tentar decodeFromVideoDevice como fallback
+    try{
+      await codeReader.decodeFromVideoDevice(null,'camprev',result=>{
+        if(result){
+          const code=result.getText().trim().toUpperCase();
+          if(!scanCodes.includes(code)){
+            scanCodes.push(code);renderSL();
+            setStatus('✓ '+code,'ok');
+            if(navigator.vibrate)navigator.vibrate(100);
+            setTimeout(()=>setStatus('Aponte para o próximo...'),1500);
+          }
+        }
+      });
+    }catch(e2){setStatus('Câmera aberta. Posicione o código de barras.','');}
+  }
 }
-function closeCam(){if(codeReader){codeReader.reset();codeReader=null;}closeM('m-cam');}
+
+function closeCam(){
+  const video=document.getElementById('camprev');
+  if(video?.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
+  if(codeReader){try{codeReader.reset();}catch(e){}codeReader=null;}
+  closeM('m-cam');
+}
 
 // ═══════ HELPERS ══════════════════════════════════
 function getUserName(){return(CU?.user_metadata?.name||CU?.email||'').toUpperCase();}
@@ -3446,12 +3848,32 @@ function go(n){
   document.getElementById('p-'+n).classList.add('on');
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('on'));
   document.getElementById('ni-'+n)?.classList.add('on');
+  // Fechar sidebar no mobile ao navegar
+  if(window.innerWidth<=768){
+    const sbar=document.getElementById('sbar');
+    const ovbg=document.getElementById('ovbg');
+    const ham=document.getElementById('ham-btn');
+    if(sbar.classList.contains('on')){
+      sbar.classList.remove('on');
+      ovbg.classList.remove('on');
+      if(ham){ham.classList.remove('open');ham.setAttribute('aria-expanded','false');}
+      document.body.style.overflow='';
+    }
+  }
+  // Atualizar nome da página na topbar mobile
+  const pageNames={rec:'Recebimento',tri:'Triagem',lot:'Lotes',cad:'Cadastro',pas:'Passadoria',
+    fot:'Fotografia',not:'Notificação',dob:'Dobra',dev:'Devolução',dash:'Dashboard',
+    pcp:'Dashboard PCP',dash2:'Análise',cap:'Capacidade',cal:'Calendário',
+    usr:'Usuários',log:'Log',metas:'Metas',dashmetas:'Dash Metas',prodmanual:'Prod. Manual'};
+  const tpn=document.getElementById('topbar-page-name');
+  if(tpn) tpn.textContent=pageNames[n]||'';
   // navegação não logada para economizar espaço
   const sb2=document.getElementById('sbar'),bg=document.getElementById('ovbg');
   if(sb2.classList.contains('on')){sb2.classList.remove('on');bg.classList.remove('on');}
   if(n==='dash')renderDash();
   if(n==='pcp')renderPCP();
   if(n==='log')renderLog();
+  if(n==='prodmanual'){initProdManual();}
   if(n==='metas'){initMetas();}
   if(n==='dashmetas'){renderDashMetas();}
   if(n==='dash2')renderDash2();
@@ -3460,25 +3882,30 @@ function go(n){
   if(n==='dev'){renderDevKPI();renderDevPend();renderDevDone();}
   if(n==='usr')renderUsrPage();
 }
-function toggleSb(){document.getElementById('sbar').classList.toggle('on');document.getElementById('ovbg').classList.toggle('on');}
+function toggleSb(){
+  const sbar=document.getElementById('sbar');
+  const ovbg=document.getElementById('ovbg');
+  const ham=document.getElementById('ham-btn');
+  const isOpen = sbar.classList.toggle('on');
+  ovbg.classList.toggle('on', isOpen);
+  if(ham){ ham.classList.toggle('open', isOpen); ham.setAttribute('aria-expanded', isOpen); }
+  // Travar scroll do body quando menu aberto no mobile
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
 function openM(id){document.getElementById(id).classList.add('on');}
 function closeM(id){document.getElementById(id).classList.remove('on');}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){if(o.id==='m-cam')closeCam();else o.classList.remove('on');}}));
 let tT;
-function toast(m,t='ok'){const el=document.getElementById('toast');el.textContent=m;el.className='toast on '+t;clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('on'),3500);}
-
-function applyNivelControls(){
-  // Nível 4 exclusivo: PCP, Calendário, Análise Colaboradores, Capacidade
-  ['ni-pcp','ni-cal','ni-dash2','ni-cap','ni-log','ni-metas','ni-dashmetas'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = USER_NIVEL >= 4 ? '' : 'none';
-  });
-  const btnRec=document.querySelector('#p-rec .ph .btn.pri');
-  if(btnRec) btnRec.style.display=USER_NIVEL>=1?'':'none';
-  const btnLot=document.querySelector('#p-lot .ph button');
-  if(btnLot) btnLot.style.display=USER_NIVEL>=1?'':'none';
-  const btnUsr=document.querySelector('#p-usr .ph button');
-  if(btnUsr) btnUsr.style.display=USER_NIVEL>=3?'':'none';
+function toast(msg, t='ok', duration=3500){
+  const el=document.getElementById('toast');if(!el)return;
+  const icons={ok:'✓',er:'✕',warn:'⚠',info:'ℹ'};
+  el.innerHTML='<span style="margin-right:6px;opacity:.8">'+(icons[t]||'')+'</span>'+msg;
+  el.className='toast '+t;el.style.display='block';el.style.opacity='1';
+  clearTimeout(el._timer);
+  el._timer=setTimeout(()=>{
+    el.style.opacity='0';el.style.transition='opacity .3s';
+    setTimeout(()=>{el.style.display='none';el.style.opacity='1';el.style.transition='';},300);
+  },duration);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3582,7 +4009,7 @@ function renderDash2(){
   // ── RANKING ──
   const ranking=[...colabs].sort((a,b)=>dados[b].total-dados[a].total);
   const maxTotal=ranking.length?dados[ranking[0]].total||1:1;
-  const rankColors=['var(--warn)','var(--muted)','#cd7f32','var(--accent)','var(--purple)'];
+  const rankColors=['var(--warn)','var(--muted)','var(--gold)','var(--accent)','var(--purple)'];
   document.getElementById('dash2-ranking-sub').textContent=`${ranking.length} colaborador(es)`;
   document.getElementById('dash2-ranking').innerHTML=ranking.length?ranking.map((c,i)=>`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
@@ -4630,9 +5057,9 @@ function renderNotifDias() {
   const acumPct = labels.map(k => { acum += (contagem[k]||0); return parseFloat(((acum/total)*100).toFixed(2)); });
 
   function corBarra(k) {
-    if (k === '12+' || k >= 10) return '#e05c5c';
-    if (k >= 6) return '#d4973c';
-    return '#2a7fd4';
+    if (k === '12+' || k >= 10) return 'var(--danger)';
+    if (k >= 6) return 'var(--warn)';
+    return 'var(--accent)';
   }
 
   const CHART_H = 220; // altura útil das barras em px
@@ -4656,7 +5083,7 @@ function renderNotifDias() {
   const gradeLines = grades.map(g => {
     const y = paddingT + CHART_H - (g/100)*CHART_H;
     return `<line x1="${paddingL}" y1="${y}" x2="${totalW-paddingR}" y2="${y}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
-            <text x="${paddingL-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#7A9AB8">${g}%</text>
+            <text x="${paddingL-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--muted)">${g}%</text>
             <text x="${totalW-paddingR+6}" y="${y+4}" text-anchor="start" font-size="10" fill="#3a8fd4">${g}%</text>`;
   }).join('');
 
@@ -4682,7 +5109,7 @@ function renderNotifDias() {
     barsHtml += `<circle cx="${cx}" cy="${yAc}" r="4" fill="#3a8fd4" opacity=".9"/>`;
     if (acP > 0) barsHtml += `<text x="${cx}" y="${yAc-8}" text-anchor="middle" font-size="9" fill="#3a8fd4" font-weight="600">${acP.toFixed(2)}%</text>`;
     // Label eixo X
-    barsHtml += `<text x="${x+barW/2}" y="${paddingT+CHART_H+18}" text-anchor="middle" font-size="11" fill="#7A9AB8" font-weight="600">${k}</text>`;
+    barsHtml += `<text x="${x+barW/2}" y="${paddingT+CHART_H+18}" text-anchor="middle" font-size="11" fill="var(--muted)" font-weight="600">${k}</text>`;
   });
 
   // Linha acumulada
@@ -4691,7 +5118,7 @@ function renderNotifDias() {
     : '';
 
   // Label eixo X
-  const xAxisLabel = `<text x="${(totalW)/2}" y="${totalH-2}" text-anchor="middle" font-size="11" fill="#7A9AB8">Dia útil (SLA)</text>`;
+  const xAxisLabel = `<text x="${(totalW)/2}" y="${totalH-2}" text-anchor="middle" font-size="11" fill="var(--muted)">Dia útil (SLA)</text>`;
 
   const svgHtml = `<div style="overflow-x:auto">
     <svg width="${totalW}" height="${totalH}" style="display:block">
@@ -4707,27 +5134,13 @@ function renderNotifDias() {
 
 // Calcula dias úteis entre criação do lote e notificação (inclusive)
 function diasUteisLote(dataInicio, dataFim) {
-  function _isUtil(ds) {
-    const [y, m, d] = ds.split('-').map(Number);
-    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
-    const yr = m < 3 ? y - 1 : y;
-    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
-    if (dow === 0 || dow === 6) return false;
-    if (typeof FERIADOS_DB !== 'undefined' && FERIADOS_DB.length > 0)
-      return !FERIADOS_DB.some(f => f.data === ds);
-    const FIXOS = new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
-    const MOVEIS = new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04','2027-02-08','2027-02-09','2027-03-26','2027-05-27']);
-    if (FIXOS.has(ds.slice(5))) return false;
-    if (MOVEIS.has(ds)) return false;
-    return true;
-  }
-  let count = _isUtil(dataInicio) ? 1 : 0;
+  let count = isDiaUtil(dataInicio) ? 1 : 0;
   const cur = new Date(dataInicio + 'T12:00:00');
   const end = new Date(dataFim   + 'T12:00:00');
   while (cur < end) {
     cur.setDate(cur.getDate() + 1);
     const s = cur.toISOString().split('T')[0];
-    if (_isUtil(s)) count++;
+    if (isDiaUtil(s)) count++;
   }
   return count;
 }
@@ -5186,153 +5599,8 @@ function getProdReal(area, ano, mes) {
   return m;
 }
 
-function renderDashMetas() {
-  initMetasSel();
-  const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
-  const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
-
-  const hoje = new Date();
-  const d1 = `${ano}-${String(mes).padStart(2,'0')}-01`;
-  const ultimoDia = new Date(ano, mes, 0).getDate();
-  const d2 = `${ano}-${String(mes).padStart(2,'0')}-${String(ultimoDia).padStart(2,'0')}`;
-  const dHoje = hoje.toISOString().slice(0,10);
-  const ehMesAtual = ano===hoje.getFullYear() && mes===hoje.getMonth()+1;
-
-  // Dias úteis do mês e decorridos
-  let duMes=0, duDecorridos=0;
-  for (let d=1; d<=ultimoDia; d++) {
-    const ds = `${ano}-${String(mes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const util = isDiaUtil ? isDiaUtil(ds) : true;
-    if (util) {
-      duMes++;
-      if (ds <= dHoje) duDecorridos++;
-    }
-  }
-  const duRestantes = duMes - duDecorridos;
-
-  // Montar dados por área
-  const todasAreas = METAS_AREAS.flatMap(g => g.areas.map(a => ({
-    area: a, grupo: g.grupo,
-    meta: getMeta(ano, mes, a),
-    real: getProdReal(a, ano, mes),
-  }))).filter(x => x.meta > 0); // só áreas com meta definida
-
-  if (!todasAreas.length) {
-    document.getElementById('kpi-dashmetas').innerHTML = `<div class="empty" style="grid-column:1/-1">Nenhuma meta cadastrada para ${MESES_NOMES[mes]}/${ano}. <button class="btn sm" onclick="go('metas')" style="margin-left:8px">Cadastrar metas →</button></div>`;
-    document.getElementById('dm-ranking').innerHTML = '';
-    document.getElementById('dm-cards').innerHTML = '';
-    return;
-  }
-
-  todasAreas.forEach(x => {
-    x.pct = x.meta > 0 ? Math.round((x.real/x.meta)*100) : 0;
-    x.deficit = Math.max(0, x.meta - x.real);
-    x.superavit = Math.max(0, x.real - x.meta);
-    x.mediaAtual = duDecorridos > 0 ? Math.round(x.real/duDecorridos) : 0;
-    x.mediaNecessaria = duRestantes > 0 ? Math.round(x.deficit/duRestantes) : 0;
-    x.projecao = duDecorridos > 0 ? Math.round((x.real/duDecorridos)*duMes) : 0;
-    x.vatMeta = x.meta > 0 ? Math.round((x.projecao/x.meta)*100) : 0;
-    x.bateraMeta = x.projecao >= x.meta;
-  });
-
-  // KPIs globais
-  const batendo = todasAreas.filter(x=>x.pct>=100).length;
-  const emRisco = todasAreas.filter(x=>!x.bateraMeta&&x.pct<100).length;
-  const mediaGeral = Math.round(todasAreas.reduce((s,x)=>s+x.pct,0)/todasAreas.length);
-  const totalReal = todasAreas.reduce((s,x)=>s+x.real,0);
-  const totalMeta = todasAreas.reduce((s,x)=>s+x.meta,0);
-
-  document.getElementById('kpi-dashmetas').innerHTML = `
-    <div class="kpi g"><div class="kl">✅ Já bateram a meta</div><div class="kv">${batendo}</div><div class="ks">de ${todasAreas.length} áreas</div></div>
-    <div class="kpi ${emRisco>0?'d':'g'}"><div class="kl">⚠️ Em risco</div><div class="kv">${emRisco}</div><div class="ks">áreas abaixo do ritmo</div></div>
-    <div class="kpi a"><div class="kl">% Médio geral</div><div class="kv">${mediaGeral}%</div></div>
-    <div class="kpi p"><div class="kl">Produção total</div><div class="kv">${totalReal.toLocaleString('pt-BR')}</div><div class="ks">meta: ${totalMeta.toLocaleString('pt-BR')}</div></div>
-    <div class="kpi"><div class="kl">⏳ Dias úteis</div><div class="kv">${duDecorridos}/${duMes}</div><div class="ks">${duRestantes} restantes</div></div>`;
-
-  // Ranking
-  const sorted = [...todasAreas].sort((a,b)=>b.pct-a.pct);
-  const maxPct = Math.max(...sorted.map(x=>x.pct),100);
-  document.getElementById('dm-ranking').innerHTML = sorted.map((x,i) => {
-    const cor = x.pct>=100?'var(--success)':x.bateraMeta?'var(--warn)':'var(--danger)';
-    const ico = x.pct>=100?'✅':x.bateraMeta?'⚠️':'🚨';
-    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-      <div style="width:24px;height:24px;border-radius:50%;background:${cor};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${i+1}</div>
-      <div style="width:160px;font-size:12px;font-weight:500;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${x.area}</div>
-      <div style="flex:1;background:var(--surface2);border-radius:4px;height:10px;min-width:80px;position:relative">
-        <div style="width:${Math.min(x.pct,100)}%;height:10px;border-radius:4px;background:${cor};opacity:.85"></div>
-        ${x.pct>100?`<div style="position:absolute;top:0;left:100%;width:2px;height:10px;background:var(--success)"></div>`:''}
-      </div>
-      <div style="font-size:13px;font-weight:700;color:${cor};width:50px;text-align:right">${x.pct}%</div>
-      <div style="font-size:11px;color:var(--muted);white-space:nowrap">${ico} ${x.real.toLocaleString('pt-BR')} / ${x.meta.toLocaleString('pt-BR')}</div>
-    </div>`;
-  }).join('');
-
-  // Cards detalhados
-  const GRUPO_COR = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
-  document.getElementById('dm-cards').innerHTML = sorted.map(x => {
-    const cor = x.pct>=100?'var(--success)':x.bateraMeta?'var(--warn)':'var(--danger)';
-    const gcor = GRUPO_COR[x.grupo]||'var(--accent)';
-    return `<div style="background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:1.1rem;border-top:3px solid ${cor}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
-        <div>
-          <div style="font-size:13px;font-weight:700">${x.area}</div>
-          <div style="font-size:10px;color:${gcor};text-transform:uppercase;font-weight:600;margin-top:2px">${x.grupo.replace('_',' ')}</div>
-        </div>
-        <div style="font-size:22px;font-weight:800;color:${cor}">${x.pct}%</div>
-      </div>
-      <!-- Barra de progresso -->
-      <div style="background:var(--surface2);border-radius:4px;height:8px;margin-bottom:.75rem">
-        <div style="width:${Math.min(x.pct,100)}%;height:8px;border-radius:4px;background:${cor}"></div>
-      </div>
-      <!-- Dados -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">
-        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
-          <div style="color:var(--muted)">Produção atual</div>
-          <div style="font-weight:700;font-size:14px;color:var(--text)">${x.real.toLocaleString('pt-BR')}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
-          <div style="color:var(--muted)">Meta do mês</div>
-          <div style="font-weight:700;font-size:14px;color:var(--text)">${x.meta.toLocaleString('pt-BR')}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
-          <div style="color:var(--muted)">Média atual/dia</div>
-          <div style="font-weight:600;color:var(--text)">${x.mediaAtual.toLocaleString('pt-BR')}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
-          <div style="color:var(--muted)">Necessário/dia</div>
-          <div style="font-weight:600;color:${x.mediaNecessaria>x.mediaAtual?'var(--danger)':'var(--success)'}">${x.mediaNecessaria.toLocaleString('pt-BR')}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:var(--rs);padding:6px 8px">
-          <div style="color:var(--muted)">${x.deficit>0?'Déficit':'Superávit'}</div>
-          <div style="font-weight:700;color:${x.deficit>0?'var(--danger)':'var(--success)'}">
-            ${x.deficit>0?'-'+x.deficit.toLocaleString('pt-BR'):'+'+x.superavit.toLocaleString('pt-BR')}
-          </div>
-        </div>
-        <div style="background:${x.bateraMeta?'var(--sl)':'var(--dl)'};border-radius:var(--rs);padding:6px 8px">
-          <div style="color:var(--muted)">Projeção fim do mês</div>
-          <div style="font-weight:700;color:${x.bateraMeta?'var(--success)':'var(--danger)'}">
-            ${x.bateraMeta?'✅':'🚨'} ${x.projecao.toLocaleString('pt-BR')} (${x.vatMeta}%)
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
 // Função auxiliar isDiaUtil global para renderDashMetas
-function isDiaUtil(ds) {
-  const [y,m,d] = ds.split('-').map(Number);
-  const t2=[0,3,2,5,0,3,5,1,4,6,2,4];
-  const yr=m<3?y-1:y;
-  const dow=(yr+Math.floor(yr/4)-Math.floor(yr/100)+Math.floor(yr/400)+t2[m-1]+d)%7;
-  if(dow===0||dow===6) return false;
-  if(typeof FERIADOS_DB!=='undefined'&&FERIADOS_DB.length>0) return !FERIADOS_DB.some(f=>f.data===ds);
-  const FIXOS=new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
-  const MOVEIS=new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04']);
-  if(FIXOS.has(ds.slice(5))) return false;
-  if(MOVEIS.has(ds)) return false;
-  return true;
-}
+
 
 // ═══════════════════════════════════════════════════
 // METAS MENSAIS
@@ -5357,102 +5625,6 @@ const TODAS_AREAS_META = [
 const GRUPO_LABEL = { inbound:'📥 INBOUND', outbound:'📤 OUTBOUND', red_carpet:'🔴 RED CARPET' };
 const GRUPO_COR   = { inbound:'var(--accent)', outbound:'var(--purple)', red_carpet:'var(--pink)' };
 
-function initMetas() {
-  const hoje = new Date();
-  const sm = document.getElementById('meta-mes');
-  const sa = document.getElementById('meta-ano');
-  const dm = document.getElementById('dm-mes');
-  const da = document.getElementById('dm-ano');
-  if (sm) sm.value = String(hoje.getMonth()+1);
-  if (sa) sa.value = String(hoje.getFullYear());
-  if (dm) dm.value = String(hoje.getMonth()+1);
-  if (da) da.value = String(hoje.getFullYear());
-  renderMetas();
-}
-
-function renderMetas() {
-  const mes = parseInt(document.getElementById('meta-mes')?.value || new Date().getMonth()+1);
-  const ano = parseInt(document.getElementById('meta-ano')?.value || new Date().getFullYear());
-  const el  = document.getElementById('metas-form'); if (!el) return;
-
-  // Buscar metas salvas para este mês/ano
-  const metasSalvas = {};
-  METAS_DB.filter(m => m.mes === mes && m.ano === ano).forEach(m => { metasSalvas[m.area] = m.meta; });
-
-  // Agrupar por grupo
-  const grupos = [...new Set(TODAS_AREAS_META.map(a => a.grupo))];
-
-  el.innerHTML = grupos.map(g => {
-    const areas = TODAS_AREAS_META.filter(a => a.grupo === g);
-    const cor   = GRUPO_COR[g];
-    return `
-      <div style="margin-bottom:1.25rem">
-        <div style="font-size:11px;font-weight:700;color:${cor};text-transform:uppercase;letter-spacing:.08em;padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border)">${GRUPO_LABEL[g]}</div>
-        ${areas.map(a => `
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border)">
-            <div style="width:200px;font-size:13px;font-weight:500">${a.icon} ${a.area}</div>
-            <input type="number" min="0" id="meta-inp-${a.area.replace(/\s/g,'_')}"
-              value="${metasSalvas[a.area] || ''}"
-              placeholder="Meta em peças"
-              style="width:160px;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:14px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none"
-              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'">
-            <span style="font-size:12px;color:var(--muted)">peças/mês</span>
-            ${metasSalvas[a.area] ? `<span style="font-size:11px;color:var(--success)">✓ salvo</span>` : ''}
-          </div>`).join('')}
-      </div>`;
-  }).join('');
-}
-
-async function salvarTodasMetas() {
-  const mes = parseInt(document.getElementById('meta-mes')?.value);
-  const ano = parseInt(document.getElementById('meta-ano')?.value);
-
-  const rows = TODAS_AREAS_META.map(a => {
-    const val = parseInt(document.getElementById(`meta-inp-${a.area.replace(/\s/g,'_')}`)?.value) || 0;
-    return { ano, mes, area: a.area, grupo: a.grupo, meta: val, created_by: getUserName() };
-  }).filter(r => r.meta > 0);
-
-  if (!rows.length) { toast('Informe pelo menos uma meta.', 'er'); return; }
-
-  const btnSave = document.querySelector('#p-metas .btn.pri.sm');
-  if (btnSave) btnSave.disabled = true;
-
-  if (sb) {
-    const { error } = await sb.from('metas_mensais').upsert(rows, { onConflict: 'ano,mes,area' });
-    if (error) { toast('Erro: '+error.message, 'er'); if(btnSave) btnSave.disabled=false; return; }
-    // Recarregar metas
-    const { data: met } = await sb.from('metas_mensais').select('*').order('ano', { ascending: false });
-    METAS_DB = met || [];
-  } else {
-    METAS_DB = METAS_DB.filter(m => !(m.mes===mes && m.ano===ano));
-    rows.forEach(r => METAS_DB.push(r));
-  }
-
-  if (btnSave) btnSave.disabled = false;
-  logAction('METAS', `Salvou metas de ${mes}/${ano}`, 'Metas');
-  renderMetas();
-  toast(`Metas de ${mes}/${ano} salvas!`, 'ok');
-}
-
-async function copiarMetaMesAnterior() {
-  const mes = parseInt(document.getElementById('meta-mes')?.value);
-  const ano = parseInt(document.getElementById('meta-ano')?.value);
-  let mesPrev = mes - 1, anoPrev = ano;
-  if (mesPrev < 1) { mesPrev = 12; anoPrev--; }
-
-  const metasPrev = METAS_DB.filter(m => m.mes === mesPrev && m.ano === anoPrev);
-  if (!metasPrev.length) { toast(`Nenhuma meta encontrada em ${mesPrev}/${anoPrev}.`, 'er'); return; }
-
-  metasPrev.forEach(m => {
-    const el = document.getElementById(`meta-inp-${m.area.replace(/\s/g,'_')}`);
-    if (el) el.value = m.meta;
-  });
-  toast(`Metas de ${mesPrev}/${anoPrev} copiadas! Clique em Salvar todas para confirmar.`, 'ok');
-}
-
-// ═══════════════════════════════════════════════════
-// DASHBOARD METAS
-// ═══════════════════════════════════════════════════
 function renderDashMetas() {
   const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
   const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
@@ -5471,24 +5643,12 @@ function renderDashMetas() {
   }
 
   // Calcular dias úteis do mês (usando isDiaUtil global)
-  function _isUtil(ds) {
-    const [y, m, d] = ds.split('-').map(Number);
-    const t2 = [0,3,2,5,0,3,5,1,4,6,2,4];
-    const yr = m < 3 ? y - 1 : y;
-    const dow = (yr + Math.floor(yr/4) - Math.floor(yr/100) + Math.floor(yr/400) + t2[m-1] + d) % 7;
-    if (dow === 0 || dow === 6) return false;
-    if (typeof FERIADOS_DB !== 'undefined' && FERIADOS_DB.length > 0)
-      return !FERIADOS_DB.some(f => f.data === ds);
-    const FIXOS = new Set(['01-01','03-24','04-21','05-01','07-09','09-07','09-15','10-12','11-02','11-15','11-20','12-25']);
-    const MOVEIS = new Set(['2025-03-03','2025-03-04','2025-04-18','2025-06-19','2026-02-16','2026-02-17','2026-04-03','2026-06-04']);
-    return !FIXOS.has(ds.slice(5)) && !MOVEIS.has(ds);
-  }
 
   const ultimoDia = new Date(ano, mes, 0).getDate();
   let diasUteisTotal = 0, diasUteisPassados = 0, diasUteisRestantes = 0;
   for (let d = 1; d <= ultimoDia; d++) {
     const ds = `${ano}-${String(mes).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const util = _isUtil(ds);
+    const util = isDiaUtil(ds);
     if (util) {
       diasUteisTotal++;
       if (ds <= hoje.toISOString().slice(0,10)) diasUteisPassados++;
@@ -5514,10 +5674,38 @@ function renderDashMetas() {
       if (l[k]?.data?.startsWith(prefixoData)) prodReal[area] = (prodReal[area]||0) + (l[k].apr||0);
     });
   });
-  // Manual: Check In, Armazenagem, Picking, Conferência, Expedição, Devolução, Cadastro Red, Fotografia Red
+  // Áreas do app com input manual via PROD_MANUAL_DB (diário)
   PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixoData)).forEach(x => {
     prodReal[x.area] = (prodReal[x.area]||0) + (x.pecas||0);
   });
+
+  // Áreas manuais mensais: pegar do formulário do dashboard se já preenchido
+  const AREAS_MANUAIS_META = ['CHECK IN','ARMAZENAGEM','PICKING','CONFERENCIA','EXPEDIÇÃO','CADASTRO RED','FOTOGRAFIA RED'];
+  AREAS_MANUAIS_META.forEach(area => {
+    const inpId = 'dm-manual-' + area.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+    const el = document.getElementById(inpId);
+    if (el && el.value !== '') prodReal[area] = parseInt(el.value)||0;
+  });
+
+  // Renderizar formulário de input manual
+  const dmManual = document.getElementById('dm-manual-form');
+  if (dmManual) {
+    const mesesNome = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    dmManual.innerHTML = `
+      <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">
+        Insira a produção total de <b style="color:var(--at)">${mesesNome[mes]}/${ano}</b> para as áreas abaixo:
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+        ${AREAS_MANUAIS_META.map(area => {
+          const inpId = 'dm-manual-' + area.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+          const val = prodReal[area] || '';
+          return '<div style="display:flex;flex-direction:column;gap:4px">' +
+            '<label style="font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase">' + area + '</label>' +
+            '<input type="number" min="0" id="' + inpId + '" value="' + val + '" placeholder="Total de peças" oninput="renderDashMetas()" style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:14px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none" onfocus="this.style.borderColor=\'var(--accent)\'" onblur="this.style.borderColor=\'var(--border2)\'"> ' +
+            '</div>';
+        }).join('')}
+      </div>`;
+  }
 
   // Calcular indicadores por área
   const dadosAreas = TODAS_AREAS_META.filter(a => metas[a.area]).map(a => {
@@ -5541,6 +5729,16 @@ function renderDashMetas() {
   const pctGeral  = totalMeta > 0 ? Math.round((totalReal/totalMeta)*100) : 0;
   const areasOk   = dadosAreas.filter(a=>a.vaiCumprirMeta).length;
   const areasRisco= dadosAreas.filter(a=>!a.vaiCumprirMeta).length;
+
+  // Popular select de áreas do gráfico
+  const grafSel = document.getElementById('dm-area-graf');
+  if (grafSel) {
+    const curVal = grafSel.value;
+    grafSel.innerHTML = '<option value="">Selecione uma área...</option>' +
+      dadosAreas.map(a => `<option value="${a.area}" ${a.area===curVal?'selected':''}>${a.icon} ${a.area}</option>`).join('');
+    if (!curVal && dadosAreas.length) { grafSel.value = dadosAreas[0].area; }
+  }
+  renderGrafMeta();
 
   document.getElementById('kpi-dashmetas').innerHTML = `
     <div class="kpi a"><div class="kl">Meta total do mês</div><div class="kv">${totalMeta.toLocaleString('pt-BR')}</div></div>
@@ -5619,6 +5817,398 @@ function renderDashMetas() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ─── GRÁFICO ACUMULADO META vs REALIZADO ───────────
+function renderGrafMeta() {
+  const el = document.getElementById('dm-grafico-acum'); if (!el) return;
+  const area = document.getElementById('dm-area-graf')?.value;
+  if (!area) { el.innerHTML = '<div class="empty">Selecione uma área para visualizar.</div>'; return; }
+
+  const mes = parseInt(document.getElementById('dm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('dm-ano')?.value || new Date().getFullYear());
+  const meta = METAS_DB.find(m => m.mes===mes && m.ano===ano && m.area===area)?.meta || 0;
+  if (!meta) { el.innerHTML = '<div class="empty">Nenhuma meta cadastrada para esta área neste mês.</div>'; return; }
+
+  const hoje = new Date().toISOString().slice(0,10);
+  const ultimoDia = new Date(ano, mes, 0).getDate();
+  const prefixo = `${ano}-${String(mes).padStart(2,'0')}`;
+
+  // Dias úteis do mês
+
+  const diasUteisMes = [];
+  for (let d=1; d<=ultimoDia; d++) {
+    const ds = `${prefixo}-${String(d).padStart(2,'0')}`;
+    if (isDiaUtil(ds)) diasUteisMes.push(ds);
+  }
+  const duTotal = diasUteisMes.length;
+  const metaPorDia = duTotal > 0 ? meta / duTotal : 0;
+
+  // Produção real por dia útil (para áreas do app)
+  const AREAS_APP_MAP = {
+    'TRIAGEM':      d => Object.values(TRIS).filter(t=>t.data===d).reduce((s,t)=>s+(t.aprovadas||0),0),
+    'CRIAÇÃO DE LOTES': d => LOTES.filter(l=>l.data===d).length,
+    'CADASTRO':     d => LOTES.filter(l=>l.cad?.data===d).reduce((s,l)=>s+(l.cad?.apr||0),0),
+    'PASSADORIA':   d => LOTES.filter(l=>l.pas?.data===d).reduce((s,l)=>s+(l.pas?.apr||0),0),
+    'FOTOGRAFIA':   d => LOTES.filter(l=>l.fot?.data===d).reduce((s,l)=>s+(l.fot?.apr||0),0),
+    'DOBRA':        d => LOTES.filter(l=>l.dob?.data===d).reduce((s,l)=>s+(l.dob?.apr||0),0),
+  };
+  const AREAS_MANUAL_SET = new Set(['CHECK IN','ARMAZENAGEM','PICKING','CONFERENCIA','EXPEDIÇÃO','CADASTRO RED','FOTOGRAFIA RED','DEVOLUÇÃO']);
+
+  function getProdDia(a, d) {
+    if (AREAS_APP_MAP[a]) return AREAS_APP_MAP[a](d);
+    if (AREAS_MANUAL_SET.has(a)) {
+      // Para áreas manuais, verificar se há input mensal no formulário
+      const inpId = 'dm-manual-' + a.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+      const el2 = document.getElementById(inpId);
+      if (el2 && el2.value) {
+        // Distribuir uniformemente pelos dias úteis passados
+        const duPassados = diasUteisMes.filter(ds => ds <= hoje).length;
+        if (duPassados > 0) return Math.round(parseInt(el2.value)/duPassados);
+      }
+      return PROD_MANUAL_DB.filter(x=>x.data===d&&x.area===a).reduce((s,x)=>s+(x.pecas||0),0);
+    }
+    return 0;
+  }
+
+  // Montar série de pontos
+  const diasPassados = diasUteisMes.filter(d => d <= hoje);
+  let acumReal = 0, acumMeta = 0;
+  const pontosReal = [], pontosMeta = [], labels = [];
+  let melhorDia = null, melhorVal = -1, piorDia = null, piorVal = Infinity;
+
+  diasUteisMes.forEach((d, i) => {
+    acumMeta += metaPorDia;
+    labels.push(d.slice(8)); // dia
+    pontosMeta.push(Math.round(acumMeta));
+
+    if (d <= hoje) {
+      const prod = getProdDia(area, d);
+      acumReal += prod;
+      pontosReal.push(acumReal);
+      if (prod > melhorVal) { melhorVal = prod; melhorDia = d; }
+      if (prod < piorVal && prod >= 0) { piorVal = prod; piorDia = d; }
+    } else {
+      pontosReal.push(null); // dias futuros sem dados
+    }
+  });
+
+  const gapHoje = diasPassados.length > 0 ? (acumReal - pontosMeta[diasPassados.length-1]) : 0;
+  const corGap = gapHoje >= 0 ? 'var(--success)' : 'var(--danger)';
+
+  // Montar SVG
+  const W_PAD_L=44, W_PAD_R=16, W_PAD_T=24, W_PAD_B=32;
+  const N = diasUteisMes.length;
+  const SVG_W = Math.max(N*24+W_PAD_L+W_PAD_R, 400);
+  const SVG_H = 220;
+  const CHART_H = SVG_H - W_PAD_T - W_PAD_B;
+  const CHART_W = SVG_W - W_PAD_L - W_PAD_R;
+
+  const maxVal = Math.max(meta, acumReal, 10);
+  const scaleY = v => W_PAD_T + CHART_H - Math.round((v/maxVal)*CHART_H);
+  const scaleX = i => W_PAD_L + Math.round(i*(CHART_W/(N-1||1)));
+
+  // Linhas de grade
+  const grades = [0,25,50,75,100];
+  const gradesSVG = grades.map(pct => {
+    const v = Math.round(maxVal*pct/100);
+    const y = scaleY(v);
+    return `<line x1="${W_PAD_L}" y1="${y}" x2="${SVG_W-W_PAD_R}" y2="${y}" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+            <text x="${W_PAD_L-4}" y="${y+4}" text-anchor="end" font-size="9" fill="var(--muted)">${(v/1000).toFixed(v>=1000?1:0)}${v>=1000?'k':''}</text>`;
+  }).join('');
+
+  // Linha meta diluída
+  const metaPts = pontosMeta.map((v,i) => `${scaleX(i)},${scaleY(v)}`).join(' ');
+
+  // Linha realizado (só pontos não-nulos)
+  const realSegments = [];
+  let seg = [];
+  pontosReal.forEach((v,i) => {
+    if (v !== null) { seg.push(`${scaleX(i)},${scaleY(v)}`); }
+    else { if (seg.length) { realSegments.push(seg.join(' ')); seg=[]; } }
+  });
+  if (seg.length) realSegments.push(seg.join(' '));
+
+  // Área sob a linha realizado
+  const realPtsValid = pontosReal.map((v,i) => v!==null?{v,i}:null).filter(Boolean);
+  let areaPath = '';
+  if (realPtsValid.length) {
+    const first = realPtsValid[0], last = realPtsValid[realPtsValid.length-1];
+    areaPath = `M${scaleX(first.i)},${scaleY(0)} ` +
+      realPtsValid.map(p=>`L${scaleX(p.i)},${scaleY(p.v)}`).join(' ') +
+      ` L${scaleX(last.i)},${scaleY(0)} Z`;
+  }
+
+  // Labels eixo X (só alguns para não poluir)
+  const step = Math.max(1, Math.floor(N/8));
+  const xLabels = labels.map((l,i) => i%step===0||i===N-1
+    ? `<text x="${scaleX(i)}" y="${SVG_H-6}" text-anchor="middle" font-size="9" fill="var(--muted)">${l}</text>`
+    : '').join('');
+
+  // Ponto hoje
+  const idxHoje = diasPassados.length-1;
+  const pontoHojeSVG = idxHoje >= 0 && pontosReal[idxHoje] !== null
+    ? `<circle cx="${scaleX(idxHoje)}" cy="${scaleY(pontosReal[idxHoje])}" r="5" fill="${gapHoje>=0?'var(--success)':'var(--danger)'}" stroke="var(--surface)" stroke-width="2"/>`
+    : '';
+
+  const svgHtml = `<svg width="100%" viewBox="0 0 ${SVG_W} ${SVG_H}" style="display:block;overflow:visible">
+    ${gradesSVG}
+    <!-- Área realizado -->
+    ${areaPath?`<path d="${areaPath}" fill="${gapHoje>=0?'rgba(45,212,160,.08)':'rgba(244,112,112,.08)'}" />`:''}
+    <!-- Linha meta diluída (tracejada) -->
+    <polyline points="${metaPts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6,3" opacity=".7"/>
+    <!-- Linhas realizado -->
+    ${realSegments.map(pts=>`<polyline points="${pts}" fill="none" stroke="${gapHoje>=0?'var(--success)':'var(--danger)'}" stroke-width="2.5" stroke-linejoin="round"/>`).join('')}
+    <!-- Ponto hoje -->
+    ${pontoHojeSVG}
+    ${xLabels}
+  </svg>`;
+
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">Meta do mês</div>
+        <div style="font-size:18px;font-weight:700;color:var(--accent)">${meta.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${Math.round(metaPorDia)}/dia útil</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">Realizado</div>
+        <div style="font-size:18px;font-weight:700;color:${gapHoje>=0?'var(--success)':'var(--danger)'}">${acumReal.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${diasPassados.length} dias úteis</div>
+      </div>
+      <div style="background:${gapHoje>=0?'var(--sl)':'var(--dl)'};border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">Gap hoje</div>
+        <div style="font-size:18px;font-weight:700;color:${corGap}">${gapHoje>=0?'+':''}${Math.round(gapHoje).toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:${corGap}">${gapHoje>=0?'Adiantado ✅':'Atrasado ⚠️'}</div>
+      </div>
+      ${melhorDia?`<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">🏆 Melhor dia</div>
+        <div style="font-size:16px;font-weight:700;color:var(--success)">${melhorVal.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${fmtDate(melhorDia)}</div>
+      </div>`:''}
+      ${piorDia&&piorVal!==Infinity?`<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;flex:1;min-width:110px">
+        <div style="font-size:10px;color:var(--muted)">📉 Pior dia</div>
+        <div style="font-size:16px;font-weight:700;color:var(--danger)">${piorVal.toLocaleString('pt-BR')}</div>
+        <div style="font-size:10px;color:var(--muted)">${fmtDate(piorDia)}</div>
+      </div>`:''}
+    </div>
+    <!-- Legenda -->
+    <div style="display:flex;gap:16px;margin-bottom:.5rem;font-size:11px;flex-wrap:wrap">
+      <span><span style="display:inline-block;width:20px;height:2px;background:#3B9DD2;border-bottom:2px dashed #3B9DD2;vertical-align:middle;margin-right:4px"></span>Meta diluída</span>
+      <span><span style="display:inline-block;width:20px;height:3px;background:${gapHoje>=0?'var(--success)':'var(--danger)'};vertical-align:middle;margin-right:4px;border-radius:2px"></span>Realizado acumulado</span>
+    </div>
+    <div style="overflow-x:auto">${svgHtml}</div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// PRODUÇÃO MANUAL — LANÇAMENTO DIÁRIO
+// ═══════════════════════════════════════════════════
+const PM_AREAS = [
+  { key:'CHECK IN',      label:'✅ Check In',      grupo:'inbound' },
+  { key:'ARMAZENAGEM',   label:'📦 Armazenagem',   grupo:'inbound' },
+  { key:'PICKING',       label:'🔎 Picking',        grupo:'outbound' },
+  { key:'CONFERENCIA',   label:'📋 Conferência',   grupo:'outbound' },
+  { key:'EXPEDIÇÃO',     label:'🚚 Expedição',      grupo:'outbound' },
+  { key:'CADASTRO RED',  label:'🏷️ Cadastro Red',  grupo:'red_carpet' },
+  { key:'FOTOGRAFIA RED',label:'📸 Fotografia Red', grupo:'red_carpet' },
+];
+
+function initProdManual() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const inp = document.getElementById('pm-data');
+  if (inp && !inp.value) inp.value = hoje;
+  // Inicializar seletores de mês/ano
+  const agora = new Date();
+  const sm = document.getElementById('pm-mes');
+  const sa = document.getElementById('pm-ano');
+  if (sm && !sm.value) sm.value = String(agora.getMonth()+1);
+  if (sa && !sa.value) sa.value = String(agora.getFullYear());
+  renderPMGrid();
+  renderProdManual();
+}
+
+function setPMHoje() {
+  const inp = document.getElementById('pm-data');
+  if (inp) { inp.value = new Date().toISOString().slice(0,10); renderPMGrid(); }
+}
+
+function renderPMGrid() {
+  const data = document.getElementById('pm-data')?.value;
+  const grid = document.getElementById('pm-grid'); if (!grid) return;
+
+  // Buscar valores existentes para essa data
+  const existentes = {};
+  PROD_MANUAL_DB.filter(x => x.data === data).forEach(x => { existentes[x.area] = x.pecas; });
+
+  grid.innerHTML = PM_AREAS.map(a => {
+    const val = existentes[a.key] || '';
+    const inpId = 'pm-inp-' + a.key.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+    return '<div style="display:flex;flex-direction:column;gap:4px">' +
+      '<label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase">' + a.label + '</label>' +
+      '<input type="number" min="0" id="' + inpId + '" value="' + val + '" placeholder="0"' +
+      ' style="border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:16px;font-weight:600;background:var(--surface2);color:var(--text);font-family:inherit;outline:none;text-align:center"' +
+      ' onfocus="this.style.borderColor=\'var(--accent)\'" onblur="this.style.borderColor=\'var(--border2)\'">' +
+      (val ? '<div style="font-size:10px;color:var(--success);text-align:center">✓ salvo</div>' : '') +
+      '</div>';
+  }).join('');
+
+  // Listener na data para atualizar grid ao mudar
+  const dataInp = document.getElementById('pm-data');
+  if (dataInp) dataInp.onchange = () => renderPMGrid();
+}
+
+async function salvarProdManualDia() {
+  const data = document.getElementById('pm-data')?.value;
+  if (!data) { toast('Informe a data.', 'er'); return; }
+
+  const btn = document.getElementById('btn-pm-salvar');
+  if (btn) btn.disabled = true;
+
+  const rows = PM_AREAS.map(a => {
+    const inpId = 'pm-inp-' + a.key.replace(/\s/g,'_').replace(/[^A-Z0-9_]/g,'');
+    const val = parseInt(document.getElementById(inpId)?.value) || 0;
+    return { data, area: a.key, pecas: val, created_by: getUserName() };
+  }).filter(r => r.pecas > 0);
+
+  if (!rows.length) { toast('Informe pelo menos uma área.', 'er'); if(btn) btn.disabled=false; return; }
+
+  if (sb) {
+    // Deletar registros do dia primeiro, depois inserir
+    await sb.from('producao_manual').delete().eq('data', data)
+      .in('area', PM_AREAS.map(a => a.key));
+    const { error } = await sb.from('producao_manual').insert(rows);
+    if (error) { toast('Erro: ' + error.message, 'er'); if(btn) btn.disabled=false; return; }
+    // Recarregar
+    const { data: pm } = await sb.from('producao_manual').select('*').order('data', { ascending: false }).limit(500);
+    PROD_MANUAL_DB = pm || [];
+  } else {
+    PROD_MANUAL_DB = PROD_MANUAL_DB.filter(x => !(x.data===data && PM_AREAS.some(a=>a.key===x.area)));
+    rows.forEach(r => PROD_MANUAL_DB.push({ ...r, id: Math.random().toString(36) }));
+  }
+
+  if (btn) btn.disabled = false;
+  logAction('PRODUÇÃO MANUAL', 'Lançou produção de ' + data, 'Produção Manual');
+  // Mostrar mensagem de sucesso
+  const msg = document.getElementById('pm-msg');
+  if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
+  // Atualizar grid e acumulado
+  renderPMGrid();
+  renderProdManual();
+  toast('Produção de ' + fmtDate(data) + ' salva!', 'ok');
+}
+
+function renderProdManual() {
+  const mes = parseInt(document.getElementById('pm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('pm-ano')?.value || new Date().getFullYear());
+  const prefixo = ano + '-' + String(mes).padStart(2,'0');
+  const mesesNome = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  const dados = PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixo) && PM_AREAS.some(a=>a.key===x.area));
+
+  // Dias com lançamentos
+  const diasSet = [...new Set(dados.map(x=>x.data))].sort();
+
+  // KPIs — total por área no mês
+  const totaisArea = {};
+  PM_AREAS.forEach(a => { totaisArea[a.key] = 0; });
+  dados.forEach(x => { if(totaisArea[x.area]!==undefined) totaisArea[x.area] += (x.pecas||0); });
+  const totalGeral = Object.values(totaisArea).reduce((s,v)=>s+v, 0);
+
+  const kpiEl = document.getElementById('pm-kpi');
+  if (kpiEl) {
+    kpiEl.innerHTML = '<div style="display:flex;gap:10px;flex-wrap:wrap;padding:.25rem 0">' +
+      PM_AREAS.map(a => {
+        const tot = totaisArea[a.key] || 0;
+        return '<div style="background:var(--surface2);border-radius:var(--rs);padding:8px 14px;min-width:100px">' +
+          '<div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">' + a.label + '</div>' +
+          '<div style="font-size:18px;font-weight:700;color:var(--text)">' + tot.toLocaleString('pt-BR') + '</div>' +
+          '</div>';
+      }).join('') +
+      '<div style="background:var(--al);border-radius:var(--rs);padding:8px 14px;min-width:100px;border:1px solid rgba(59,157,210,.2)">' +
+        '<div style="font-size:10px;color:var(--at);font-weight:600;text-transform:uppercase">TOTAL GERAL</div>' +
+        '<div style="font-size:20px;font-weight:700;color:var(--at)">' + totalGeral.toLocaleString('pt-BR') + '</div>' +
+      '</div>' +
+      '</div>';
+  }
+
+  const thead = document.getElementById('pm-thead');
+  const tbody = document.getElementById('pm-tbody');
+  const tfoot = document.getElementById('pm-tfoot');
+  if (!thead || !tbody || !tfoot) return;
+
+  if (!diasSet.length) {
+    thead.innerHTML = '';
+    tbody.innerHTML = '<tr><td colspan="' + (PM_AREAS.length+2) + '"><div class="empty">Nenhum lançamento em ' + mesesNome[mes] + '/' + ano + '.</div></td></tr>';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  // Cabeçalho
+  const thStyle = 'text-align:center;padding:8px 10px;color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap';
+  thead.innerHTML = '<tr>' +
+    '<th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;border-bottom:1px solid var(--border)">Data</th>' +
+    PM_AREAS.map(a => '<th style="' + thStyle + '">' + a.label + '</th>').join('') +
+    '<th style="' + thStyle + ';color:var(--at)">Total</th>' +
+    '</tr>';
+
+  // Corpo — uma linha por dia
+  const tdStyle = 'text-align:center;padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px';
+  const hoje = new Date().toISOString().slice(0,10);
+  let acum = {}; PM_AREAS.forEach(a => { acum[a.key] = 0; });
+
+  tbody.innerHTML = diasSet.map(d => {
+    const isHoje = d === hoje;
+    const valDia = {};
+    dados.filter(x=>x.data===d).forEach(x => { valDia[x.key||x.area] = x.pecas||0; });
+    PM_AREAS.forEach(a => { acum[a.key] += (valDia[a.key]||0); });
+    const totalDia = PM_AREAS.reduce((s,a)=>s+(valDia[a.key]||0), 0);
+
+    return '<tr style="border-bottom:1px solid var(--border);cursor:pointer;' + (isHoje?'background:var(--al)':'') + '"' +
+      ' onclick="setPMDataEdit(\'' + d + '\')" title="Clique para editar este dia">' +
+      '<td style="padding:8px 12px;font-weight:' + (isHoje?'700':'500') + ';white-space:nowrap;color:' + (isHoje?'var(--at)':'var(--text)') + '">' +
+        fmtDate(d) + (isHoje?' <span style="font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:8px">hoje</span>':'') +
+      '</td>' +
+      PM_AREAS.map(a => {
+        const v = valDia[a.key]||0;
+        return '<td style="' + tdStyle + ';color:' + (v>0?'var(--text)':'var(--border2)') + ';font-weight:' + (v>0?'600':'400') + '">' +
+          (v>0 ? v.toLocaleString('pt-BR') : '—') + '</td>';
+      }).join('') +
+      '<td style="' + tdStyle + ';font-weight:700;color:var(--accent)">' + totalDia.toLocaleString('pt-BR') + '</td>' +
+      '</tr>';
+  }).join('');
+
+  // Rodapé — total acumulado
+  const totalAcum = PM_AREAS.reduce((s,a)=>s+acum[a.key], 0);
+  const tfStyle = 'text-align:center;padding:8px 10px;font-weight:700;font-size:13px;background:var(--surface2)';
+  tfoot.innerHTML = '<tr>' +
+    '<td style="padding:8px 12px;font-weight:700;font-size:12px;background:var(--surface2);color:var(--muted)">TOTAL ' + mesesNome[mes].toUpperCase() + '</td>' +
+    PM_AREAS.map(a => '<td style="' + tfStyle + ';color:var(--at)">' + (acum[a.key]||0).toLocaleString('pt-BR') + '</td>').join('') +
+    '<td style="' + tfStyle + ';color:var(--success);font-size:15px">' + totalAcum.toLocaleString('pt-BR') + '</td>' +
+    '</tr>';
+}
+
+function setPMDataEdit(data) {
+  // Ao clicar numa linha, preenche o form com aquela data para edição
+  const inp = document.getElementById('pm-data');
+  if (inp) { inp.value = data; renderPMGrid(); }
+  // Scroll para o topo do form
+  document.getElementById('pm-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function csvProdManual() {
+  const mes = parseInt(document.getElementById('pm-mes')?.value || new Date().getMonth()+1);
+  const ano = parseInt(document.getElementById('pm-ano')?.value || new Date().getFullYear());
+  const prefixo = ano + '-' + String(mes).padStart(2,'0');
+  const dados = PROD_MANUAL_DB.filter(x => x.data?.startsWith(prefixo));
+  const diasSet = [...new Set(dados.map(x=>x.data))].sort();
+  const rows = [
+    ['Data', ...PM_AREAS.map(a=>a.key), 'TOTAL'],
+    ...diasSet.map(d => {
+      const vals = PM_AREAS.map(a => dados.filter(x=>x.data===d&&x.area===a.key).reduce((s,x)=>s+x.pecas,0));
+      return [d, ...vals, vals.reduce((s,v)=>s+v,0)];
+    })
+  ];
+  dlCsv(rows, 'producao_manual_' + prefixo + '.csv');
 }
 
 init();
