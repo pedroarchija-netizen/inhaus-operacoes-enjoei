@@ -1799,6 +1799,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
     <!-- Viewfinder overlay -->
     <div style="position:relative;border-radius:var(--rs);overflow:hidden;background:#000">
       <video id="camprev" autoplay muted playsinline style="width:100%;display:block;max-height:320px;object-fit:cover;border-radius:var(--rs)"></video>
+      <canvas id="cam-canvas" style="display:none"></canvas>
       <!-- Mira de scanner -->
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
         <div style="width:65%;height:45%;border:2px solid rgba(59,157,210,.8);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)">
@@ -1813,9 +1814,17 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
       </div>
     </div>
     <div class="camst" id="camst" style="margin-top:.75rem">Iniciando câmera...</div>
-    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:.75rem;align-items:center">
-      <span style="font-size:11px;color:var(--muted)">Posicione o código dentro da mira</span>
-      <button class="btn pri sm" onclick="closeCam()">Fechar</button>
+    <div style="margin-top:.75rem">
+      <div style="display:flex;gap:6px;margin-bottom:.5rem">
+        <input type="text" id="cam-manual-input" placeholder="Ou digite o código manualmente..." 
+          style="flex:1;border:1px solid var(--border2);border-radius:var(--rs);padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none"
+          onkeydown="if(event.key==='Enter')camManualAdd()">
+        <button class="btn" onclick="camManualAdd()">✓</button>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--muted)">Posicione o código dentro da mira</span>
+        <button class="btn pri sm" onclick="closeCam()">Fechar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3782,54 +3791,69 @@ async function openCam(){
   }
 
   try{
-    codeReader=new ZXing.BrowserMultiFormatReader();
+    // ZXing 0.18.6 — API correta: decodeFromStream ou decodeFromVideoDevice
+    const hints=new Map();
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    // Formatos suportados: CODE_128 (Correios/Venuxx), CODE_39, EAN_13, QR_CODE etc.
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.QR_CODE,
+      ZXing.BarcodeFormat.DATA_MATRIX,
+    ]);
+    codeReader = new ZXing.BrowserMultiFormatReader(hints, 300);
+
     setStatus('Aponte para o código de barras...');
 
-    // Usar decodeFromStream se disponível (mais estável em tablet)
-    const hints=new Map();
-    hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
-    codeReader.hints=hints;
-
-    // Decodificar continuamente do vídeo já ativo
-    const tick=()=>{
-      if(!codeReader||!video.srcObject)return;
-      codeReader.decodeFromVideoElement(video).then(result=>{
-        if(result){
-          const code=result.getText().trim().toUpperCase();
-          if(!scanCodes.includes(code)){
-            scanCodes.push(code);renderSL();
-            setStatus('✓ '+code,'ok');
-            if(navigator.vibrate)navigator.vibrate([80,40,80]);
-            setTimeout(()=>{setStatus('Aponte para o próximo...');},1800);
-          }
+    const onResult = (result, err) => {
+      if(result){
+        const code = result.getText().trim().toUpperCase();
+        if(!scanCodes.includes(code)){
+          scanCodes.push(code); renderSL();
+          setStatus('✓ ' + code, 'ok');
+          if(navigator.vibrate) navigator.vibrate([80,40,80]);
+          setTimeout(()=>setStatus('Aponte para o próximo...'), 1800);
         }
-        setTimeout(tick,300);
-      }).catch(()=>setTimeout(tick,400));
+      }
+      // err é normal entre frames — ignorar NotFoundException
     };
-    setTimeout(tick,800); // aguardar vídeo estabilizar
+
+    // Usar stream já ativo com decodeFromStream (API estável no 0.18.6)
+    if(typeof codeReader.decodeFromStream === 'function'){
+      codeReader.decodeFromStream(stream, video, onResult);
+    } else {
+      // Fallback: decodeFromVideoDevice com null usa qualquer câmera
+      await codeReader.decodeFromVideoDevice(null, 'camprev', onResult);
+    }
 
   }catch(err){
-    // ZXing falhou mas stream está ativo — tentar decodeFromVideoDevice como fallback
-    try{
-      await codeReader.decodeFromVideoDevice(null,'camprev',result=>{
-        if(result){
-          const code=result.getText().trim().toUpperCase();
-          if(!scanCodes.includes(code)){
-            scanCodes.push(code);renderSL();
-            setStatus('✓ '+code,'ok');
-            if(navigator.vibrate)navigator.vibrate(100);
-            setTimeout(()=>setStatus('Aponte para o próximo...'),1500);
-          }
-        }
-      });
-    }catch(e2){setStatus('Câmera aberta. Posicione o código de barras.','');}
+    console.error('ZXing erro:', err);
+    setStatus('Câmera ativa — posicione bem o código de barras.','');
   }
+}
+
+function camManualAdd(){
+  const inp=document.getElementById('cam-manual-input');
+  if(!inp||!inp.value.trim())return;
+  const code=inp.value.trim().toUpperCase();
+  const v=validarCodigo(code);
+  if(!v.ok){toast(v.msg,'er');inp.select();return;}
+  if(!scanCodes.includes(code)){
+    scanCodes.push(code);renderSL();
+    document.getElementById('camst').textContent='✓ '+code;
+    document.getElementById('camst').className='camst ok';
+  }
+  inp.value='';inp.focus();
 }
 
 function closeCam(){
   const video=document.getElementById('camprev');
   if(video?.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
   if(codeReader){try{codeReader.reset();}catch(e){}codeReader=null;}
+  const inp=document.getElementById('cam-manual-input');
+  if(inp)inp.value='';
   closeM('m-cam');
 }
 
