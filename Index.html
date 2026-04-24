@@ -1834,7 +1834,7 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 const NIVEL_LABELS = { 0: '⚪ Nível 0 · Visualização', 1: '🔵 Nível 1 · Lançamento', 2: '🟡 Nível 2 · Edição', 3: '🟣 Nível 3 · Completo', 4: '🔴 Nível 4 · Super Admin' };
 
-let sb, CU, USER_NIVEL = 1;
+let sb, CU, USER_NIVEL = 1; // sempre inteiro — parseInt aplicado em showApp
 let FERIADOS_DB = [];
 let CAP_DB = [];
 let PROD_MANUAL_DB = [];
@@ -1902,7 +1902,7 @@ function seedDemo() {
   document.getElementById('auth').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   CU = { email:'demo@inhaus.com', user_metadata:{ name:'USUÁRIO DEMO', nivel: 3 } };
-  USER_NIVEL = 3;
+  USER_NIVEL = parseInt(CU?.user_metadata?.nivel) || 3;
   document.getElementById('sb-name').textContent = 'USUÁRIO DEMO';
   document.getElementById('sb-nivel-lbl').textContent = NIVEL_LABELS[3];
   REC = []; VOLS = []; TRIS = {}; LOTES = [];
@@ -1945,7 +1945,7 @@ function setAM(m,t){const el=document.getElementById('amsg');el.textContent=m;el
 function showApp(){
   document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='block';
-  USER_NIVEL = CU.user_metadata?.nivel || 1;
+  USER_NIVEL = parseInt(CU.user_metadata?.nivel) || 1;
   const name=(CU.user_metadata?.name||CU.email).toUpperCase();
   document.getElementById('sb-name').textContent=name;
   document.getElementById('sb-nivel-lbl').textContent=NIVEL_LABELS[USER_NIVEL]||'';
