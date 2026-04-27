@@ -3761,33 +3761,21 @@ async function openCam(){
     return;
   }
 
-  // html5-qrcode usa um div como container, não um <video> diretamente
-  // Garantir que o container existe
+  // Garantir container limpo
   let container = document.getElementById('cam-reader');
   if(!container){
     container = document.createElement('div');
     container.id = 'cam-reader';
-    const videoEl = document.getElementById('camprev');
-    if(videoEl) videoEl.parentNode.replaceChild(container, videoEl);
-    else document.querySelector('.cambox').appendChild(container);
+    document.querySelector('.cambox').appendChild(container);
   }
   container.style.width = '100%';
   container.innerHTML = '';
 
   try{
-    html5QrScanner = new Html5Qrcode('cam-reader', {
-      verbose: false,
-      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-    });
-
-    const config = {
-      fps: 10,
-      qrbox: { width: 250, height: 150 },
-      aspectRatio: 1.7,
-      supportedScanTypes: [
-        Html5QrcodeScanType.SCAN_TYPE_CAMERA
-      ],
-      formatsToSupport: [
+    // formatsToSupport vai no CONSTRUTOR para CODE_128 funcionar corretamente
+    const formats = [];
+    try{
+      formats.push(
         Html5QrcodeSupportedFormats.CODE_128,
         Html5QrcodeSupportedFormats.CODE_39,
         Html5QrcodeSupportedFormats.CODE_93,
@@ -3795,19 +3783,25 @@ async function openCam(){
         Html5QrcodeSupportedFormats.EAN_8,
         Html5QrcodeSupportedFormats.QR_CODE,
         Html5QrcodeSupportedFormats.DATA_MATRIX,
-      ]
-    };
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODABAR,
+      );
+    } catch(e){ /* formatos não disponíveis — usar padrão */ }
 
-    // Tentar câmera traseira primeiro
-    let cameraId;
-    try{
-      const devices = await Html5Qrcode.getCameras();
-      if(devices && devices.length){
-        // Preferir câmera traseira
-        const back = devices.find(d => /back|rear|environment/i.test(d.label));
-        cameraId = back ? back.id : devices[devices.length - 1].id;
-      }
-    } catch(e){ /* usar environment como fallback */ }
+    html5QrScanner = new Html5Qrcode('cam-reader', {
+      formatsToSupport: formats.length ? formats : undefined,
+      verbose: false,
+      experimentalFeatures: { useBarCodeDetectorIfSupported: false }
+      // useBarCodeDetectorIfSupported: false — desabilitado pois não suporta CODE_128 bem
+    });
+
+    // qrbox largo para cobrir código de barras linear (Correios = ~20cm de largura)
+    const containerW = container.offsetWidth || 300;
+    const config = {
+      fps: 15, // mais frames = mais chances de leitura
+      qrbox: { width: Math.min(containerW - 20, 350), height: 120 },
+      aspectRatio: 1.5,
+    };
 
     const onSuccess = (decodedText) => {
       const code = decodedText.trim().toUpperCase();
@@ -3820,28 +3814,35 @@ async function openCam(){
       }
     };
 
-    const onError = () => { /* silenciar erros de leitura entre frames */ };
+    const onError = () => {}; // silenciar — normal entre frames
 
-    if(cameraId){
-      await html5QrScanner.start(cameraId, config, onSuccess, onError);
-    } else {
-      // Fallback: usar facingMode environment
-      await html5QrScanner.start(
-        { facingMode: 'environment' },
-        config, onSuccess, onError
-      );
+    // Tentar câmera traseira por ID primeiro
+    let started = false;
+    try{
+      const devices = await Html5Qrcode.getCameras();
+      if(devices && devices.length){
+        const back = devices.find(d => /back|rear|environment|posterior/i.test(d.label))
+                  || devices[devices.length - 1];
+        await html5QrScanner.start(back.id, config, onSuccess, onError);
+        started = true;
+      }
+    } catch(e){ console.warn('Câmera por ID falhou, tentando environment:', e.message); }
+
+    // Fallback: facingMode environment
+    if(!started){
+      await html5QrScanner.start({ facingMode: 'environment' }, config, onSuccess, onError);
     }
 
-    setStatus('Aponte para o código de barras...');
+    setStatus('Aponte o código de barras para a mira...');
 
   } catch(err){
     console.error('Câmera erro:', err);
-    if(err.name === 'NotAllowedError' || (err.message||'').includes('permission')){
-      setStatus('Permissão negada. Habilite a câmera nas configurações do navegador.', 'er');
-    } else if((err.message||'').includes('not found')){
-      setStatus('Nenhuma câmera encontrada neste dispositivo.', 'er');
+    if(err.name === 'NotAllowedError' || (err.message||'').includes('ermission')){
+      setStatus('Permissão negada. Habilite a câmera nas configurações.', 'er');
+    } else if((err.message||'').includes('not found') || (err.message||'').includes('No camera')){
+      setStatus('Nenhuma câmera encontrada.', 'er');
     } else {
-      setStatus('Erro ao iniciar câmera: ' + (err.message||err), 'er');
+      setStatus('Erro: ' + (err.message||err), 'er');
     }
   }
 }
