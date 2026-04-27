@@ -1,1 +1,0 @@
-# inhaus-operacoes-enjoei

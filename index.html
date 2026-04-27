@@ -564,12 +564,12 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
       <div class="ns">Análise</div>
       <button class="ni"    id="ni-dash" onclick="go('dash')"><span class="ic">📊</span>Dashboard</button>
       <button class="ni"    id="ni-pcp"   onclick="go('pcp')"  style="display:none"><span class="ic">🏭</span>Dashboard PCP</button>
-      <button class="ni"    id="ni-dash2" onclick="go('dash2')"><span class="ic">🔬</span>Análise Colaboradores</button>
-      <button class="ni"    id="ni-cap"   onclick="go('cap')"><span class="ic">📋</span>Capacidade</button>
+      <button class="ni"    id="ni-dash2" style="display:none" onclick="go('dash2')"><span class="ic">🔬</span>Análise Colaboradores</button>
+      <button class="ni"    id="ni-cap" style="display:none"   onclick="go('cap')"><span class="ic">📋</span>Capacidade</button>
       <button class="ni"    id="ni-prodmanual" onclick="go('prodmanual')" style="display:none"><span class="ic">✏️</span>Produção Manual</button>
       <button class="ni"    id="ni-metas" onclick="go('metas')" style="display:none"><span class="ic">🎯</span>Metas</button>
       <button class="ni"    id="ni-dashmetas" onclick="go('dashmetas')" style="display:none"><span class="ic">📈</span>Dashboard Metas</button>
-      <button class="ni"    id="ni-cal"   onclick="go('cal')"><span class="ic">📅</span>Calendário</button>
+      <button class="ni"    id="ni-cal" style="display:none"   onclick="go('cal')"><span class="ic">📅</span>Calendário</button>
       <div class="ns">Administração</div>
       <button class="ni"    id="ni-usr"  onclick="go('usr')"><span class="ic">👥</span>Usuários</button>
       <button class="ni"    id="ni-log"  onclick="go('log')" style="display:none"><span class="ic">📋</span>Log de Atividades</button>
@@ -1834,7 +1834,7 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 const NIVEL_LABELS = { 0: '⚪ Nível 0 · Visualização', 1: '🔵 Nível 1 · Lançamento', 2: '🟡 Nível 2 · Edição', 3: '🟣 Nível 3 · Completo', 4: '🔴 Nível 4 · Super Admin' };
 
-let sb, CU, USER_NIVEL = 1;
+let sb, CU, USER_NIVEL = 1; // sempre inteiro — parseInt aplicado em showApp
 let FERIADOS_DB = [];
 let CAP_DB = [];
 let PROD_MANUAL_DB = [];
@@ -1902,7 +1902,7 @@ function seedDemo() {
   document.getElementById('auth').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   CU = { email:'demo@inhaus.com', user_metadata:{ name:'USUÁRIO DEMO', nivel: 3 } };
-  USER_NIVEL = 3;
+  USER_NIVEL = parseInt(CU?.user_metadata?.nivel) || 3;
   document.getElementById('sb-name').textContent = 'USUÁRIO DEMO';
   document.getElementById('sb-nivel-lbl').textContent = NIVEL_LABELS[3];
   REC = []; VOLS = []; TRIS = {}; LOTES = [];
@@ -1945,15 +1945,21 @@ function setAM(m,t){const el=document.getElementById('amsg');el.textContent=m;el
 function showApp(){
   document.getElementById('auth').style.display='none';
   document.getElementById('app').style.display='block';
-  USER_NIVEL = CU.user_metadata?.nivel || 1;
+  USER_NIVEL = parseInt(CU.user_metadata?.nivel) || 1;
   const name=(CU.user_metadata?.name||CU.email).toUpperCase();
   document.getElementById('sb-name').textContent=name;
   document.getElementById('sb-nivel-lbl').textContent=NIVEL_LABELS[USER_NIVEL]||'';
+  // Mostrar abas nível 4 imediatamente — não depender de chamada posterior
+  const lvl4ids=['ni-pcp','ni-cal','ni-dash2','ni-cap','ni-log','ni-prodmanual','ni-metas','ni-dashmetas'];
+  lvl4ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display = USER_NIVEL>=4 ? 'flex' : 'none';
+  });
   if(sb) {
     loadData().then(()=>logAction('LOGIN','Acesso ao sistema','Dashboard'));
   } else {setNow();renderAll();}
-  applyNivelControls();
-  showBtnGerFeriados();
+  try{ applyNivelControls(); }catch(e){ console.warn('applyNivelControls:',e); }
+  try{ showBtnGerFeriados(); }catch(e){}
 }
 function showAuth(){document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}
 
@@ -4659,6 +4665,30 @@ async function excluirFeriado(id, nome) {
   renderFerLista();
   renderCalUtil();
   toast(`Feriado "${nome}" removido.`, 'ok');
+}
+
+function applyNivelControls(){
+  // Nível 4 exclusivo — ocultar para todos os outros
+  const lvl4 = ['ni-pcp','ni-cal','ni-dash2','ni-cap','ni-log','ni-prodmanual','ni-metas','ni-dashmetas'];
+  lvl4.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = USER_NIVEL >= 4 ? '' : 'none';
+  });
+  // Nível 3+ — botões de ação
+  const btnRec = document.querySelector('#p-rec .ph .btn.pri');
+  if(btnRec) btnRec.style.display = USER_NIVEL >= 1 ? '' : 'none';
+  const btnLot = document.querySelector('#p-lot .ph button');
+  if(btnLot) btnLot.style.display = USER_NIVEL >= 1 ? '' : 'none';
+  const btnUsr = document.querySelector('#p-usr .ph button');
+  if(btnUsr) btnUsr.style.display = USER_NIVEL >= 3 ? '' : 'none';
+  const btnNovoCap = document.getElementById('btn-novo-cap');
+  if(btnNovoCap) btnNovoCap.style.display = USER_NIVEL >= 4 ? '' : 'none';
+  // Se usuário não é nível 4 e está numa aba restrita, voltar ao dashboard
+  const abasRestritas = ['pcp','cal','dash2','cap','log','prodmanual','metas','dashmetas'];
+  const paginaAtual = document.querySelector('.page.on')?.id?.replace('p-','');
+  if(paginaAtual && abasRestritas.includes(paginaAtual) && USER_NIVEL < 4){
+    go('dash');
+  }
 }
 
 function showBtnGerFeriados() {
