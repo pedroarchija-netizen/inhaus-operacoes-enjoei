@@ -2179,7 +2179,7 @@ async function loadData() {
   skelTable('lot-tb', 8, 4);
   skelTable('tri-done-tb', 15, 4);
   // Carregar tudo em paralelo incluindo capacidade e feriados
-  const [r, v, t, l, fer, cap, pm, log, met] = await Promise.all([
+  const [r, v, t, l, fer, cap, pm, log, met, cads, pass, fots, nots, dobs] = await Promise.all([
     sb.from('recebimentos').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('volumes_recebidos').select('*').order('created_at', { ascending: false }).limit(2000),
     sb.from('triagens').select('*').order('created_at', { ascending: false }).limit(2000),
@@ -2189,15 +2189,27 @@ async function loadData() {
     sb.from('producao_manual').select('*').order('data', { ascending: false }).limit(500),
     sb.from('activity_log').select('*').order('created_at', { ascending: false }).limit(200),
     sb.from('metas_mensais').select('*').order('ano', { ascending: false }),
+    sb.from('setor_cadastro').select('*'),
+    sb.from('setor_passadoria').select('*'),
+    sb.from('setor_fotografia').select('*'),
+    sb.from('setor_notificacao').select('*'),
+    sb.from('setor_dobra').select('*'),
   ]);
 
   setLoadingProgress(60, 'Processando dados...');
   // Verificar erros em todas as tabelas
-  const erros = [r,v,t,l,fer,cap,pm,log,met]
-    .map((res,i)=>res.error?['recebimentos','volumes','triagens','lotes','feriados','capacidade','producao_manual','activity_log','metas_mensais'][i]+': '+res.error.message:null)
+  const erros = [r,v,t,l,fer,cap,pm,log,met,cads,pass,fots,nots,dobs]
+    .map((res,i)=>res.error?['recebimentos','volumes','triagens','lotes','feriados','capacidade','producao_manual','activity_log','metas_mensais','setor_cadastro','setor_passadoria','setor_fotografia','setor_notificacao','setor_dobra'][i]+': '+res.error.message:null)
     .filter(Boolean);
   if (r.error) { toast('Erro crítico ao carregar: ' + r.error.message, 'er'); return; }
   if (erros.length) erros.forEach(e => console.warn('loadData:', e));
+
+  // Indexar dados das tabelas filhas por lote_id
+  const cadMap = {}; (cads.data||[]).forEach(x => { cadMap[x.lote_id] = x; });
+  const pasMap = {}; (pass.data||[]).forEach(x => { pasMap[x.lote_id] = x; });
+  const fotMap = {}; (fots.data||[]).forEach(x => { fotMap[x.lote_id] = x; });
+  const notMap = {}; (nots.data||[]).forEach(x => { notMap[x.lote_id] = x; });
+  const dobMap = {}; (dobs.data||[]).forEach(x => { dobMap[x.lote_id] = x; });
 
   FERIADOS_DB = (fer.data || []).map(x => ({ id: x.id, data: x.data, nome: x.nome, tipo: x.tipo }));
   invalidateDuCache();
@@ -2243,23 +2255,30 @@ async function loadData() {
     };
   });
 
-  LOTES = (l.data||[]).map(x => ({
-    id: x.id,
-    lote: x.numero_lote,
-    rastreio: x.codigo_rastreio,
-    rastreio_vol_id: x.volume_id,
-    data: x.data, hora: x.hora,
-    colaborador: x.colaborador,
-    apr_tri: x.pecas_aprovadas_triagem||0,
-    email: x.email_cliente,
-    cliente: x.nome_cliente,
-    prazo: x.prazo_notificacao,
-    cad: x.cad_data ? { data:x.cad_data, hora:x.cad_hora, colab:x.cad_colab, apr:x.cad_apr||0, rep:x.cad_rep||0, obs:x.cad_obs } : null,
-    pas: x.pas_data ? { data:x.pas_data, hora:x.pas_hora, colab:x.pas_colab, apr:x.pas_apr||0, rep:x.pas_rep||0, obs:x.pas_obs } : null,
-    fot: x.fot_data ? { data:x.fot_data, hora:x.fot_hora, colab:x.fot_colab, apr:x.fot_apr||0, rep:x.fot_rep||0, obs:x.fot_obs } : null,
-    not: x.not_data ? { data:x.not_data, hora:x.not_hora, colab:x.not_colab, apr:x.not_apr||0, rep_total:x.not_rep_total||0, div:x.not_divergencia, tipo_erro:x.not_tipo_erro, qtd_err:x.not_qtd_err||0, obs:x.not_obs } : null,
-    dob: x.dob_data ? { data:x.dob_data, hora:x.dob_hora, colab:x.dob_colab, apr:x.dob_apr||0, rep:x.dob_rep||0, obs:x.dob_obs } : null,
-  }));
+  LOTES = (l.data||[]).map(x => {
+    const cad = cadMap[x.id];
+    const pas = pasMap[x.id];
+    const fot = fotMap[x.id];
+    const not = notMap[x.id];
+    const dob = dobMap[x.id];
+    return {
+      id: x.id,
+      lote: x.numero_lote,
+      rastreio: x.codigo_rastreio,
+      rastreio_vol_id: x.volume_id,
+      data: x.data, hora: x.hora,
+      colaborador: x.colaborador,
+      apr_tri: x.pecas_aprovadas_triagem||0,
+      email: x.email_cliente,
+      cliente: x.nome_cliente,
+      prazo: x.prazo_notificacao,
+      cad: cad ? { data:cad.data, hora:cad.hora, colab:cad.colaborador, apr:cad.aprovadas||0, rep:cad.reprovadas||0, obs:cad.observacoes } : null,
+      pas: pas ? { data:pas.data, hora:pas.hora, colab:pas.colaborador, apr:pas.aprovadas||0, rep:pas.reprovadas||0, obs:pas.observacoes } : null,
+      fot: fot ? { data:fot.data, hora:fot.hora, colab:fot.colaborador, apr:fot.aprovadas||0, rep:fot.reprovadas||0, obs:fot.observacoes } : null,
+      not: not ? { data:not.data, hora:not.hora, colab:not.colaborador, apr:not.aprovadas||0, rep_total:not.reprovadas_total||0, div:not.divergencia, tipo_erro:not.tipo_erro, qtd_err:not.qtd_erro||0, obs:not.observacoes } : null,
+      dob: dob ? { data:dob.data, hora:dob.hora, colab:dob.colaborador, apr:dob.aprovadas||0, rep:dob.reprovadas||0, obs:dob.observacoes } : null,
+    };
+  });
 
   setNow();
   setLoadingProgress(90, 'Renderizando interface...');
@@ -2982,15 +3001,14 @@ async function salvarProc(){
   const aprNovo=aprAntes-rep;
   const reg={data,hora,colab,apr:aprNovo,rep,obs};
   if(sb){
-    const colMap={
-      cad:{ data:'cad_data', hora:'cad_hora', colab:'cad_colab', apr:'cad_apr', rep:'cad_rep', obs:'cad_obs' },
-      pas:{ data:'pas_data', hora:'pas_hora', colab:'pas_colab', apr:'pas_apr', rep:'pas_rep', obs:'pas_obs' },
-      fot:{ data:'fot_data', hora:'fot_hora', colab:'fot_colab', apr:'fot_apr', rep:'fot_rep', obs:'fot_obs' },
-      dob:{ data:'dob_data', hora:'dob_hora', colab:'dob_colab', apr:'dob_apr', rep:'dob_rep', obs:'dob_obs' },
-    };
-    const cm=colMap[tipo];if(!cm){toast('Tipo inválido.','er');return;}
-    const upd={[cm.data]:data,[cm.hora]:hora,[cm.colab]:colab,[cm.apr]:aprNovo,[cm.rep]:rep,[cm.obs]:obs};
-    await sb.from('lotes').update(upd).eq('id', loteId);
+    const tabelaMap={cad:'setor_cadastro',pas:'setor_passadoria',fot:'setor_fotografia',dob:'setor_dobra'};
+    const tabela=tabelaMap[tipo];if(!tabela){toast('Tipo inválido.','er');return;}
+    const{data:existing}=await sb.from(tabela).select('id').eq('lote_id',loteId).maybeSingle();
+    if(existing){
+      await sb.from(tabela).update({data,hora,colaborador:colab,aprovadas:aprNovo,reprovadas:rep,observacoes:obs}).eq('lote_id',loteId);
+    } else {
+      await sb.from(tabela).insert({lote_id:loteId,numero_lote:l.lote,codigo_rastreio:l.rastreio,data,hora,colaborador:colab,aprovadas:aprNovo,reprovadas:rep,observacoes:obs});
+    }
     await loadData();
   } else {
     const idx=LOTES.findIndex(x=>String(x.id)===String(loteId));
@@ -3041,13 +3059,21 @@ async function salvarNot(){
   const apr=+document.getElementById('mn-apr').value||0,repTotal=+document.getElementById('mn-rep').value||0;
   const reg={data,hora,colab,apr,rep_total:repTotal,div:divFlag,tipo_erro:document.getElementById('mn-tipo-erro').value,qtd_err:+document.getElementById('mn-qtd-err').value||0,obs};
   if(sb){
-    const upd={
-      not_data:data, not_hora:hora, not_colab:colab,
-      not_apr:apr, not_rep_total:repTotal,
-      not_divergencia:divFlag, not_tipo_erro:reg.tipo_erro,
-      not_qtd_err:reg.qtd_err, not_obs:obs
-    };
-    await sb.from('lotes').update(upd).eq('id', loteId);
+    const tipoErro=document.getElementById('mn-tipo-erro').value;
+    const qtdErr=+document.getElementById('mn-qtd-err').value||0;
+    const{data:existing}=await sb.from('setor_notificacao').select('id').eq('lote_id',loteId).maybeSingle();
+    if(existing){
+      await sb.from('setor_notificacao').update({
+        data,hora,colaborador:colab,aprovadas:apr,reprovadas_total:repTotal,
+        divergencia:divFlag,tipo_erro:tipoErro,qtd_erro:qtdErr,observacoes:obs
+      }).eq('lote_id',loteId);
+    } else {
+      await sb.from('setor_notificacao').insert({
+        lote_id:loteId,numero_lote:l.lote,codigo_rastreio:l.rastreio,
+        data,hora,colaborador:colab,aprovadas:apr,reprovadas_total:repTotal,
+        divergencia:divFlag,tipo_erro:tipoErro,qtd_erro:qtdErr,observacoes:obs
+      });
+    }
     await loadData();
   } else {
     const idx=LOTES.findIndex(x=>String(x.id)===String(loteId));
