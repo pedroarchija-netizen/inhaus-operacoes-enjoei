@@ -4051,6 +4051,7 @@ function onTranspChange(){
   if(ok) setTimeout(()=>inp.focus(),50);
 }
 
+function addCode(){
   const inp=document.getElementById('sc-i'),c=inp.value.trim().toUpperCase();
   if(!c)return;
   if(scanCodes.includes(c)){toast('Código já adicionado.','er');inp.value='';return;}
