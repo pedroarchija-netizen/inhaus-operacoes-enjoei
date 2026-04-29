@@ -2504,11 +2504,18 @@ function renderTriKPI(){
     return (!d1||t.data>=d1)&&(!d2||t.data<=d2);
   }).reduce((s,v)=>s+(TRIS[v.id]?.aprovadas||0),0);
 
+  const totalApr=valsF.reduce((s,t)=>s+(t.aprovadas||0),0);
+  const totalRep=valsF.reduce((s,t)=>s+(t.reprovadas||0),0);
+  const totalPecas=totalApr+totalRep;
+
   document.getElementById('kpi-tri').innerHTML=`
     <div class="kpi w"><div class="kl">Aguardando triagem</div><div class="kv">${pend}</div></div>
     <div class="kpi g"><div class="kl">Triados</div><div class="kv">${tri}</div></div>
     <div class="kpi g"><div class="kl" style="color:var(--success)">✅ Peças aprovadas aguardando</div><div class="kv" style="color:var(--success)">${pecasTriSemLote}</div></div>
-    <div class="kpi p"><div class="kl">Taxa média</div><div class="kv">${tri?taxa+'%':'—'}</div></div>`;
+    <div class="kpi p"><div class="kl">Taxa média</div><div class="kv">${tri?taxa+'%':'—'}</div></div>
+    <div class="kpi g"><div class="kl">Total aprovadas</div><div class="kv" style="color:var(--success)">${totalApr}</div></div>
+    <div class="kpi d"><div class="kl">Total reprovadas</div><div class="kv" style="color:var(--danger)">${totalRep}</div></div>
+    <div class="kpi a"><div class="kl">Total de peças</div><div class="kv">${totalPecas}</div></div>`;
   const l=document.getElementById('tri-pend-txt');
   if(l)l.textContent=pend>0?`${pend} volume(s) aguardando triagem`:'✓ Todos triados';
 }
