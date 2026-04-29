@@ -2449,6 +2449,7 @@ function editRec(id){
   document.getElementById('r-colab').value=r.colaborador;
   document.getElementById('r-transp').value=r.transportadora;
   document.getElementById('r-obs').value=r.obs||'';
+  onTranspChange();
   openM('m-rec');
   setTimeout(()=>document.getElementById('sc-i').focus(),200);
 }
@@ -4042,6 +4043,18 @@ function onTranspChange(){
   const camBtn=document.getElementById('sc-cam-btn');
   const addBtn=document.getElementById('sc-add-btn');
   const ok=!!transp;
+
+  // Se já tem códigos bipados e mudou a transportadora, avisa e limpa
+  if(ok && scanCodes.length>0){
+    const conf=confirm(`Ao trocar a transportadora, os ${scanCodes.length} código(s) já bipados serão removidos.\n\nDeseja continuar?`);
+    if(!conf){
+      // Reverte o select para o valor anterior
+      document.getElementById('r-transp').value='';
+      return;
+    }
+    scanCodes=[];renderSL();
+  }
+
   inp.disabled=!ok;
   inp.placeholder=ok?'Digite ou bipe o código...':'Selecione a transportadora primeiro...';
   inp.style.opacity=ok?'1':'.5';
