@@ -2301,16 +2301,21 @@ function renderAll(){
 
 // ═══════ RECEBIMENTO ══════════════════════════════
 function renderRecKPI(){
+  const d1=document.getElementById('rec-d1')?.value||'';
+  const d2=document.getElementById('rec-d2')?.value||'';
   const hoje=new Date().toISOString().split('T')[0];
+  const recF=REC.filter(r=>(!d1||r.data>=d1)&&(!d2||r.data<=d2));
+  const recIdsF=new Set(recF.map(r=>r.id));
+  const volsF=VOLS.filter(v=>recIdsF.has(v.recebimento_id));
   const hj=REC.filter(r=>r.data===hoje);
   const recIdsHoje=new Set(hj.map(r=>r.id));
   const volsHoje=VOLS.filter(v=>recIdsHoje.has(v.recebimento_id));
-  const volsTotal=VOLS.length;
+  const label=d1||d2?'No período':'Hoje';
   document.getElementById('kpi-rec').innerHTML=`
-    <div class="kpi a"><div class="kl">Recebimentos hoje</div><div class="kv">${hj.length}</div></div>
-    <div class="kpi g"><div class="kl">Volumes hoje</div><div class="kv">${volsHoje.length}</div></div>
+    <div class="kpi a"><div class="kl">Recebimentos ${label}</div><div class="kv">${d1||d2?recF.length:hj.length}</div></div>
+    <div class="kpi g"><div class="kl">Volumes ${label}</div><div class="kv">${d1||d2?volsF.length:volsHoje.length}</div></div>
     <div class="kpi"><div class="kl">Total recebimentos</div><div class="kv">${REC.length}</div></div>
-    <div class="kpi p"><div class="kl">Total volumes</div><div class="kv">${volsTotal}</div></div>`;
+    <div class="kpi p"><div class="kl">Total volumes</div><div class="kv">${VOLS.length}</div></div>`;
 }
 function renderRec(pg){
   if(pg!==undefined) PAG.rec=pg;
@@ -2474,12 +2479,31 @@ async function excluirRec(id){
 
 // ═══════ TRIAGEM ══════════════════════════════════
 function renderTriKPI(){
-  const pend=VOLS.filter(v=>!v.triado).length, tri=VOLS.filter(v=>v.triado).length;
-  const vals=Object.values(TRIS);
-  const taxa=vals.length?Math.round(vals.reduce((s,t)=>s+t.taxa,0)/vals.length):0;
-  // peças aprovadas dos triados que ainda não têm lote
+  const d1=document.getElementById('tri-d1')?.value||'';
+  const d2=document.getElementById('tri-d2')?.value||'';
+
+  // Pendentes: não têm filtro de data (são volumes ainda não triados)
+  const TRANSP_TRI=['Correios','Venuxx'];
+  const pend=VOLS.filter(v=>{
+    if(v.triado) return false;
+    const r=REC.find(x=>x.id===v.recebimento_id);
+    return r&&TRANSP_TRI.includes(r.transportadora);
+  }).length;
+
+  // Triados e taxa: filtrados pelo período
+  const valsF=Object.values(TRIS).filter(t=>(!d1||t.data>=d1)&&(!d2||t.data<=d2));
+  const tri=valsF.length;
+  const taxa=tri?Math.round(valsF.reduce((s,t)=>s+t.taxa,0)/tri):0;
+
+  // Peças aprovadas: triados no período sem lote criado
   const lotesRastreios=new Set(LOTES.map(l=>l.rastreio));
-  const pecasTriSemLote=VOLS.filter(v=>v.triado&&TRIS[v.id]&&!lotesRastreios.has(v.codigo)).reduce((s,v)=>s+(TRIS[v.id]?.aprovadas||0),0);
+  const pecasTriSemLote=VOLS.filter(v=>{
+    if(!v.triado||!TRIS[v.id]) return false;
+    if(lotesRastreios.has(v.codigo)) return false;
+    const t=TRIS[v.id];
+    return (!d1||t.data>=d1)&&(!d2||t.data<=d2);
+  }).reduce((s,v)=>s+(TRIS[v.id]?.aprovadas||0),0);
+
   document.getElementById('kpi-tri').innerHTML=`
     <div class="kpi w"><div class="kl">Aguardando triagem</div><div class="kv">${pend}</div></div>
     <div class="kpi g"><div class="kl">Triados</div><div class="kv">${tri}</div></div>
@@ -2624,18 +2648,21 @@ async function salvarTri(){
 function renderLotKPI(){
   const d1=document.getElementById('lot-d1')?.value||'';
   const d2=document.getElementById('lot-d2')?.value||'';
+
   const volsSemLote=VOLS.filter(v=>{
     if(!v.triado||!TRIS[v.id]) return false;
     return !LOTES.find(l=>l.rastreio===v.codigo);
   });
   const pecasPend=volsSemLote.reduce((s,v)=>s+(TRIS[v.id]?.aprovadas||0),0);
+
   const lotesF=LOTES.filter(l=>(!d1||l.data>=d1)&&(!d2||l.data<=d2));
-  const total=LOTES.length, concl=LOTES.filter(l=>l.dob).length;
+  const concl=lotesF.filter(l=>l.dob).length;
+
   const kpiEl=document.getElementById('kpi-lot');
   if(kpiEl) kpiEl.innerHTML=`
     <div class="kpi w"><div class="kl">Aguardando lote</div><div class="kv">${volsSemLote.length}</div></div>
     <div class="kpi g"><div class="kl" style="color:var(--success)">✅ Peças aprovadas aguardando</div><div class="kv" style="color:var(--success)">${pecasPend}</div></div>
-    <div class="kpi a"><div class="kl">Total lotes</div><div class="kv">${total}</div></div>
+    <div class="kpi a"><div class="kl">Lotes ${d1||d2?'no período':'total'}</div><div class="kv">${lotesF.length}</div></div>
     <div class="kpi p"><div class="kl">Concluídos</div><div class="kv">${concl}</div></div>`;
 }
 
@@ -2878,14 +2905,13 @@ function renderProcPage(tipo) {
     return true;
   });
   
-  const totalFeitos = LOTES.filter(l=>l[tipo]).length;
   const totalPend = disponiveis.length;
   const pecasPendProc = disponiveis.reduce((s,l)=>s+getApr(l,tipo),0);
   const kpiHtml = `<div class="kg" style="margin-bottom:1rem">
     <div class="kpi w"><div class="kl">Aguardando</div><div class="kv">${totalPend}</div></div>
-    <div class="kpi g"><div class="kl" style="color:var(--success)">✅ Peças aprovadas aguardando</div><div class="kv" style="color:var(--success)">${pecasPendProc}</div></div>
-    <div class="kpi g"><div class="kl">Realizados</div><div class="kv">${totalFeitos}</div></div>
-    <div class="kpi a"><div class="kl">No período</div><div class="kv">${feitos.length}</div></div>
+    <div class="kpi g"><div class="kl" style="color:var(--success)">✅ Peças aguardando</div><div class="kv" style="color:var(--success)">${pecasPendProc}</div></div>
+    <div class="kpi g"><div class="kl">Realizados ${pd1||pd2?'no período':'total'}</div><div class="kv">${feitos.length}</div></div>
+    <div class="kpi a"><div class="kl">Total geral</div><div class="kv">${LOTES.filter(l=>l[tipo]).length}</div></div>
   </div>`;
 
   let pendHtml = '';
