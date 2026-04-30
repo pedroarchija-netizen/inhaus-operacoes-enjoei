@@ -1282,6 +1282,11 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
         </div>
         <!-- KPIs globais -->
         <div class="kg" id="kpi-dash2" style="margin-bottom:1.5rem"></div>
+        <!-- Card: Lotes 100% reprovados -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>🚫 Lotes 100% Reprovados</h2><span style="font-size:12px;color:var(--muted)">Lotes sem nenhuma peça aprovada na triagem</span></div>
+          <div class="cb"><div id="dash-rep-total"></div></div>
+        </div>
         <!-- Ranking geral -->
         <div class="card" style="margin-bottom:1.25rem">
           <div class="ch"><h2>🏆 Ranking de Produção</h2><span id="dash2-ranking-sub" style="font-size:12px;color:var(--muted)"></span></div>
@@ -2965,6 +2970,10 @@ function getTotalRep(lote) {
   ['cad','pas','fot','dob'].forEach(k=>{ if(lote[k]) rep += (lote[k].rep||0); });
   return rep;
 }
+// Lote 100% reprovado: aprovadas na triagem = 0 → pula etapas intermediárias e vai direto para notificação
+function isReprovadoTotal(lote) {
+  return (lote.apr_tri || 0) === 0;
+}
 
 function renderProcPage(tipo) {
   const label = PROC_LABEL[tipo];
@@ -2976,8 +2985,18 @@ function renderProcPage(tipo) {
   const pd2 = document.getElementById(`proc-d2-${tipo}`)?.value||'';
 
   const disponiveis = LOTES.filter(l => {
-    if(tipo==='not') return l.fot && !l.not;           // not: precisa de fot, independente de dob
-    if(tipo==='dob') return l.fot && !l.dob;           // dob: precisa de fot, not é opcional
+    if(tipo==='not') {
+      // Reprovado total: só precisa do lote criado, sem etapas intermediárias
+      if(isReprovadoTotal(l)) return !l.not;
+      return l.fot && !l.not;
+    }
+    if(tipo==='dob') {
+      // Reprovado total não passa por dobra
+      if(isReprovadoTotal(l)) return false;
+      return l.fot && !l.dob;
+    }
+    // Cad, Pas, Fot: reprovado total não passa por essas etapas
+    if(isReprovadoTotal(l)) return false;
     if(!prev) return !l[tipo];
     return l[prev] && !l[tipo];
   });
@@ -3427,7 +3446,7 @@ function renderDashIndicadoresExtra(){
   }
 
   const LIMITE_DIAS_UTEIS = 12;
-  const comPrazo = LOTES.filter(l => l.data && !l.not); // pendente de notificação
+  const comPrazo = LOTES.filter(l => l.data && !l.not && (isReprovadoTotal(l) || l.fot)); // pendente de notificação
   // Construir cache uma única vez para todas as datas dos lotes + hoje
   buildDuCache([...comPrazo.map(l => l.data), hoje]);
   const prazoInfo = comPrazo.map(l => ({ l, p: calcPrazoUtil(l, LIMITE_DIAS_UTEIS) })).filter(x => x.p);
@@ -3657,12 +3676,17 @@ function renderDashIndicadoresExtra(){
     LOTES.filter(l=>!(l.dob&&l.not)).forEach(l=>{
       // Descobrir qual etapa está pendente e desde quando
       let etapaAtual=null, dataUltima=l.data;
-      if(!l.cad){ etapaAtual={label:'🏷️ Cadastro'}; dataUltima=l.data; }
-      else if(!l.pas){ etapaAtual={label:'👕 Passadoria'}; dataUltima=l.cad.data; }
-      else if(!l.fot){ etapaAtual={label:'📸 Fotografia'}; dataUltima=l.pas.data; }
-      else if(!l.not&&!l.dob){ etapaAtual={label:'🔔 Not. ou 🗂️ Dobra'}; dataUltima=l.fot.data; }
-      else if(l.dob&&!l.not){ etapaAtual={label:'🔔 Notificação'}; dataUltima=l.dob.data; }
-      else if(l.not&&!l.dob){ etapaAtual={label:'🗂️ Dobra'}; dataUltima=l.not.data; }
+      if(isReprovadoTotal(l)){
+        // Fluxo: Lote → Notificação direta
+        if(!l.not){ etapaAtual={label:'🔔 Notificação'}; dataUltima=l.data; }
+      } else {
+        if(!l.cad){ etapaAtual={label:'🏷️ Cadastro'}; dataUltima=l.data; }
+        else if(!l.pas){ etapaAtual={label:'👕 Passadoria'}; dataUltima=l.cad.data; }
+        else if(!l.fot){ etapaAtual={label:'📸 Fotografia'}; dataUltima=l.pas.data; }
+        else if(!l.not&&!l.dob){ etapaAtual={label:'🔔 Not. ou 🗂️ Dobra'}; dataUltima=l.fot.data; }
+        else if(l.dob&&!l.not){ etapaAtual={label:'🔔 Notificação'}; dataUltima=l.dob.data; }
+        else if(l.not&&!l.dob){ etapaAtual={label:'🗂️ Dobra'}; dataUltima=l.not.data; }
+      }
       if(!etapaAtual||!dataUltima) return;
       const diasParado=Math.floor((new Date(hoje)-new Date(dataUltima))/(1000*60*60*24));
       if(diasParado>=DIAS_TRAV) travados.push({lote:l.lote,rastreio:l.rastreio,etapa:etapaAtual.label,dataUltima,diasParado,cliente:l.cliente||'—'});
@@ -4123,11 +4147,11 @@ function updateBadges(){
   setNB('lot', semLote, semLote>0);
 
   // Demais etapas: lotes pendentes em cada área
-  const cad=LOTES.filter(l=>!l.cad).length;
-  const pas=LOTES.filter(l=>l.cad&&!l.pas).length;
-  const fot=LOTES.filter(l=>l.pas&&!l.fot).length;
-  const not=LOTES.filter(l=>l.fot&&!l.not).length;
-  const dob=LOTES.filter(l=>l.fot&&!l.dob).length;
+  const cad=LOTES.filter(l=>!isReprovadoTotal(l)&&!l.cad).length;
+  const pas=LOTES.filter(l=>!isReprovadoTotal(l)&&l.cad&&!l.pas).length;
+  const fot=LOTES.filter(l=>!isReprovadoTotal(l)&&l.pas&&!l.fot).length;
+  const not=LOTES.filter(l=>(!isReprovadoTotal(l)?l.fot:true)&&!l.not).length;
+  const dob=LOTES.filter(l=>!isReprovadoTotal(l)&&l.fot&&!l.dob).length;
   setNB('cad', cad, cad>0);
   setNB('pas', pas, pas>0);
   setNB('fot', fot, fot>0);
@@ -4527,6 +4551,71 @@ function limparFiltroDash2(){
   renderDash2();
 }
 
+function renderRepTotais(d1='', d2='') {
+  const el = document.getElementById('dash-rep-total'); if (!el) return;
+
+  const lotesFiltro = LOTES.filter(l =>
+    isReprovadoTotal(l) &&
+    (!d1 || l.data >= d1) &&
+    (!d2 || l.data <= d2)
+  );
+
+  const qtdLotes   = lotesFiltro.length;
+  const qtdPecas   = lotesFiltro.reduce((s, l) => s + (l.apr_tri || 0) * 0 + (getTotalRep(l) || l.apr_tri || 0), 0);
+  // Para reprovados totais, as peças reprovadas = pecas_aprovadas_triagem (todas reprovadas no processo)
+  const pecasRep   = lotesFiltro.reduce((s, l) => s + (l.apr_tri || 0), 0);
+  const notificados = lotesFiltro.filter(l => l.not).length;
+  const pendentes   = qtdLotes - notificados;
+
+  if (!qtdLotes) {
+    el.innerHTML = '<div class="empty" style="padding:1rem">Nenhum lote 100% reprovado no período. ✅</div>';
+    return;
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1.25rem">
+      <div style="background:rgba(255,77,106,.12);border:1px solid rgba(255,77,106,.3);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:11px;color:var(--danger);margin-bottom:4px">🚫 Lotes reprovados</div>
+        <div style="font-size:36px;font-weight:700;color:var(--danger)">${qtdLotes}</div>
+        <div style="font-size:11px;color:var(--muted)">lotes no período</div>
+      </div>
+      <div style="background:rgba(255,77,106,.12);border:1px solid rgba(255,77,106,.3);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:11px;color:var(--danger);margin-bottom:4px">❌ Peças reprovadas</div>
+        <div style="font-size:36px;font-weight:700;color:var(--danger)">${pecasRep}</div>
+        <div style="font-size:11px;color:var(--muted)">peças no total</div>
+      </div>
+      <div style="background:var(--dl);border:1px solid rgba(255,77,106,.2);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:11px;color:var(--warn);margin-bottom:4px">⏳ Aguardando notif.</div>
+        <div style="font-size:36px;font-weight:700;color:var(--warn)">${pendentes}</div>
+        <div style="font-size:11px;color:var(--muted)">lotes pendentes</div>
+      </div>
+      <div style="background:var(--sl);border:1px solid rgba(0,255,163,.2);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:11px;color:var(--success);margin-bottom:4px">✅ Já notificados</div>
+        <div style="font-size:36px;font-weight:700;color:var(--success)">${notificados}</div>
+        <div style="font-size:11px;color:var(--muted)">lotes concluídos</div>
+      </div>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th>Lote</th><th>Rastreio</th><th>Cliente</th><th>Data</th>
+        <th style="text-align:center">Peças reprov.</th><th style="text-align:center">Status</th>
+      </tr></thead>
+      <tbody>${lotesFiltro.sort((a,b)=>b.data.localeCompare(a.data)).map(l=>{
+        const status = l.not
+          ? `<span style="background:var(--sl);color:var(--success);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">Notificado</span>`
+          : `<span style="background:rgba(255,184,0,.15);color:var(--warn);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">Pendente</span>`;
+        return `<tr>
+          <td class="mono" style="color:var(--at);font-weight:600">${l.lote}</td>
+          <td class="mono" style="font-size:11px">${l.rastreio||'—'}</td>
+          <td style="font-size:12px">${l.cliente||'—'}</td>
+          <td style="font-size:12px">${fmtDate(l.data)}</td>
+          <td style="text-align:center;font-weight:700;color:var(--danger)">${l.apr_tri||0}</td>
+          <td style="text-align:center">${status}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+}
+
 function renderDash2(){
   const dc=document.getElementById('dash2-content'), da=document.getElementById('dash2-acl');
   if(USER_NIVEL<4){dc.style.display='none';da.style.display='flex';return;}
@@ -4608,6 +4697,9 @@ function renderDash2(){
     <div class="kpi p"><div class="kl">Taxa média triagem</div><div class="kv">${taxaMedia}%</div></div>
     <div class="kpi ${totalDivs>0?'d':'g'}"><div class="kl">Divergências</div><div class="kv">${totalDivs}</div></div>
     <div class="kpi"><div class="kl">Colaboradores</div><div class="kv">${colabs.length}</div></div>`;
+
+  // ── REPROVADOS TOTAIS ──
+  renderRepTotais(d1, d2);
 
   // ── RANKING ──
   const ranking=[...colabs].sort((a,b)=>dados[b].total-dados[a].total);
