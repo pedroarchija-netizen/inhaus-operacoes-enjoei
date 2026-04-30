@@ -2844,8 +2844,8 @@ async function salvarEditLote(loteId){
       email_cliente: LOTES[idx].email,
       nome_cliente: LOTES[idx].cliente,
       numero_lote: LOTES[idx].lote,
-      data_criacao: data,
-      hora_criacao: hora,
+      data: data,
+      hora: hora,
       colaborador: colab,
       prazo_notificacao: novoPrazo
     }).eq('id', loteId);
