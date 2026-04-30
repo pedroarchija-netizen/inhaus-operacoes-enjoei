@@ -95,14 +95,14 @@ body{
   filter:drop-shadow(0 0 12px rgba(0,212,255,.4));
 }
 .alogo-sub{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:.06em;text-transform:uppercase;}
-.atabs{display:flex;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:1.5rem;gap:3px;}
+.atabs{display:flex;background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:1.5rem;gap:3px;}
 .atab{flex:1;text-align:center;padding:8px;font-size:13px;font-family:inherit;cursor:pointer;border-radius:7px;color:var(--muted);border:none;background:none;transition:all .2s;font-weight:500;letter-spacing:.02em;}
 .atab.on{background:rgba(0,212,255,.18);color:var(--accent);box-shadow:0 0 12px rgba(0,212,255,.2);border:1px solid rgba(0,212,255,.3);}
 .af{margin-bottom:1rem;}
 .af label{display:block;font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
 .af input,.af select{
   width:100%;
-  background:rgba(0,0,0,.3);
+  background:var(--surface3);
   border:1px solid var(--border2);
   border-radius:var(--rs);
   padding:11px 14px;font-size:14px;
@@ -222,7 +222,7 @@ body{
 
 /* FLOW */
 .flow{display:flex;align-items:center;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:4px;}
-.fs{padding:5px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--muted);font-weight:500;letter-spacing:.03em;}
+.fs{padding:5px 12px;font-size:11px;white-space:nowrap;flex-shrink:0;background:var(--surface3);border:1px solid var(--border);color:var(--muted);font-weight:500;letter-spacing:.03em;}
 .fs:first-child{border-radius:6px 0 0 6px;}.fs:last-child{border-radius:0 6px 6px 0;}
 .fs.act{background:rgba(0,212,255,.12);border-color:rgba(0,212,255,.4);color:var(--accent);font-weight:700;box-shadow:0 0 8px rgba(0,212,255,.15);}
 .fs.done{background:rgba(0,255,163,.08);border-color:rgba(0,255,163,.3);color:var(--success);}
@@ -355,11 +355,11 @@ tbody tr:last-child td{border-bottom:none;}
 .ff input,.ff select,.ff textarea{
   border:1px solid var(--border2);border-radius:var(--rs);
   padding:10px 13px;font-size:14px;font-family:inherit;
-  background:rgba(0,0,0,.3);color:var(--text);outline:none;
+  background:var(--surface3);color:var(--text);outline:none;
   transition:border-color .18s, box-shadow .18s;
 }
 .ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.1);}
-.ff select option{background:#0A1422;}
+.ff select option{background:var(--surface);}
 .ff input[readonly]{background:rgba(0,212,255,.05);color:var(--accent);cursor:default;border-color:rgba(0,212,255,.25);}
 .ff .hint{font-size:11px;color:var(--muted);margin-top:3px;}
 .farow{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;}
@@ -406,7 +406,7 @@ tbody tr:last-child td{border-bottom:none;}
 .search-bar{display:flex;align-items:center;gap:10px;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
 .search-bar input{
   flex:1;
-  background:rgba(0,0,0,.3);
+  background:var(--surface3);
   border:1px solid var(--border);
   border-radius:var(--rs);
   padding:9px 14px 9px 36px;
@@ -421,11 +421,11 @@ tbody tr:last-child td{border-bottom:none;}
 .search-bar input::placeholder{color:var(--muted2);font-family:'Space Grotesk',sans-serif;}
 
 /* SCAN BOX */
-.scanbox{background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:var(--r);padding:1rem;margin-bottom:.75rem;}
+.scanbox{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--r);padding:1rem;margin-bottom:.75rem;}
 .scanrow{display:flex;gap:8px;margin-bottom:.75rem;}
 .scanrow input{flex:1;border:1px solid var(--border2);border-radius:var(--rs);padding:10px 13px;font-size:14px;font-family:'DM Mono',monospace;background:rgba(0,0,0,.4);color:var(--text);outline:none;transition:border-color .18s,box-shadow .18s;}
 .scanrow input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.1);}
-.cmbtn{background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 12px;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0;transition:all .18s;}
+.cmbtn{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 12px;color:var(--muted);cursor:pointer;font-size:16px;flex-shrink:0;transition:all .18s;}
 .cmbtn:hover{color:var(--accent);border-color:var(--accent);box-shadow:0 0 8px rgba(0,212,255,.2);}
 .sclist{max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
 .scitem{display:flex;align-items:center;justify-content:space-between;background:rgba(0,212,255,.05);border:1px solid var(--border);border-radius:var(--rs);padding:6px 10px;font-family:'DM Mono',monospace;font-size:12px;}
@@ -434,7 +434,7 @@ tbody tr:last-child td{border-bottom:none;}
 .sccnt{font-size:12px;color:var(--muted);margin-top:.5rem;}
 
 /* TAXA BOX */
-.taxabox{background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin:12px 0;transition:border-color .2s;}
+.taxabox{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin:12px 0;transition:border-color .2s;}
 .taxalbl{font-size:12px;color:var(--muted);}
 .taxaval{font-size:22px;font-weight:700;}
 
@@ -496,7 +496,7 @@ tbody tr:last-child td{border-bottom:none;}
 /* Paginação */
 .pag-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);flex-wrap:wrap;gap:8px;}
 .pag-btns{display:flex;gap:4px;}
-.pag-btn{padding:4px 10px;border:1px solid var(--border);border-radius:var(--rs);background:rgba(0,0,0,.2);color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.pag-btn{padding:4px 10px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;}
 .pag-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.08);}
 .pag-btn.on{background:rgba(0,212,255,.18);color:var(--accent);border-color:rgba(0,212,255,.4);box-shadow:0 0 8px rgba(0,212,255,.15);}
 .pag-btn:disabled{opacity:.3;cursor:not-allowed;}
@@ -1003,7 +1003,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
         <div class="tw"><table>
           <thead><tr>
             <th>Rastreio</th><th>SKU</th><th>Data</th><th>Hora</th><th class="hm">Operação</th>
-            <th>Status</th><th>Motivo</th><th class="hm">Obs.</th>
+            <th>Status</th><th>Motivo</th><th class="hm">Obs.</th><th id="dev-done-acao-th" style="display:none"></th>
           </tr></thead>
           <tbody id="dev-done-tb"></tbody>
         </table></div>
@@ -1031,6 +1031,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
             <div style="display:flex;gap:8px;margin-top:4px">
               <button class="tbtn" id="dv-pro" onclick="setDevOp('pro')" style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px">PRO</button>
               <button class="tbtn" id="dv-red" onclick="setDevOp('red')" style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px">RED</button>
+              <button class="tbtn" id="dv-bag" onclick="setDevOp('bag')" style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;font-family:inherit;font-size:13px">BAG</button>
             </div>
           </div>
           <div class="ff">
@@ -1047,7 +1048,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
         </div>
         <div class="fg">
           <div class="ff">
-            <label>Motivo <span class="req">*</span></label>
+            <label>Motivo</label>
             <select id="dv-motivo">
               <option value="">Selecione...</option>
               <option>Autenticidade</option>
@@ -1065,6 +1066,38 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
         <div class="farow">
           <button class="btn" onclick="closeM('m-dev')">Cancelar</button>
           <button class="btn pri" onclick="salvarDev()">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MODAL EDITAR DEVOLUÇÃO (nível 4) ══ -->
+    <div class="overlay" id="m-edit-dev">
+      <div class="modal" style="max-width:500px">
+        <h3>✏️ Editar Devolução</h3>
+        <div id="edit-dv-rastreio" style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--muted);font-family:'DM Mono',monospace"></div>
+        <div class="fg">
+          <div class="ff">
+            <label>Status</label>
+            <select id="edit-dv-status">
+              <option value="">Selecione...</option>
+              <option>Republicado</option><option>Desativado</option><option>Vendido</option>
+              <option>Devolução solicitada</option><option>Rejeitado/removido</option>
+            </select>
+          </div>
+          <div class="ff">
+            <label>Motivo</label>
+            <select id="edit-dv-motivo">
+              <option value="">Selecione...</option>
+              <option>Autenticidade</option><option>Devolução solicitada</option><option>Avaria</option>
+              <option>Cancelado</option><option>Ao remetente</option><option>Troca</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg g1"><div class="ff"><label>SKUs (separados por vírgula)</label><input type="text" id="edit-dv-skus" placeholder="SKU1, SKU2..."></div></div>
+        <div class="fg g1"><div class="ff"><label>Observações</label><input type="text" id="edit-dv-obs" placeholder="Opcional"></div></div>
+        <div class="farow">
+          <button class="btn" onclick="closeM('m-edit-dev')">Cancelar</button>
+          <button class="btn pri" onclick="saveEditDev()">Salvar</button>
         </div>
       </div>
     </div>
@@ -1108,6 +1141,11 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
           <div class="ch"><h2>🔔 Prazo de Notificação</h2></div>
           <div class="cb"><div id="dash-prazo"></div></div>
         </div>
+        <!-- Card: média de dias de notificação -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>📈 Média de Dias para Notificação</h2><span style="font-size:12px;color:var(--muted)">Dias úteis entre criação do lote e notificação</span></div>
+          <div class="cb"><div id="dash-media-notif"></div></div>
+        </div>
         <!-- Gráfico: % notificados por dia útil -->
         <div class="card" style="margin-bottom:1.25rem">
           <div class="ch"><h2>📊 Notificações por Dia Útil</h2><span style="font-size:12px;color:var(--muted)">% notificados em cada dia útil do prazo</span></div>
@@ -1117,18 +1155,6 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
         <div class="card" style="margin-bottom:1.25rem">
           <div class="ch"><h2>🚚 Volumes por Transportadora</h2><span style="font-size:12px;color:var(--muted)">Tendência por período</span></div>
           <div class="cb"><div id="dash-transp-trend"></div></div>
-        </div>
-        <!-- Alerta taxa de aprovação -->
-        <div class="card" style="margin-bottom:1.25rem">
-          <div class="ch">
-            <h2>⚠️ Alerta de Taxa de Aprovação</h2>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:12px;color:var(--muted)">Limite mínimo:</span>
-              <input type="number" id="alerta-taxa-input" value="50" min="1" max="100" onchange="ALERTA_TAXA=+this.value;renderAlertaTaxa()" style="width:60px;border:1px solid var(--border2);border-radius:var(--rs);padding:4px 8px;font-size:13px;background:var(--surface2);color:var(--text);font-family:inherit">
-              <span style="font-size:12px;color:var(--muted)">%</span>
-            </div>
-          </div>
-          <div class="cb"><div id="dash-alerta-taxa"></div></div>
         </div>
       </div>
     </div>
@@ -1341,6 +1367,35 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
           </div>
         </div>
         <div class="cb"><div id="dash-cal-util"></div></div>
+      </div>
+
+      <!-- Férias de operadores -->
+      <div class="card" style="margin-top:1.25rem">
+        <div class="ch">
+          <h2>🏖️ Férias de Operadores</h2>
+          <button class="btn sm pri" onclick="openAddFerias()">+ Adicionar</button>
+        </div>
+        <div class="cb" id="ferias-lista-wrap">
+          <div id="ferias-lista"></div>
+        </div>
+      </div>
+
+      <!-- Modal adicionar férias -->
+      <div class="overlay" id="m-ferias-add">
+        <div class="modal" style="max-width:440px">
+          <h3>🏖️ Registrar Férias</h3>
+          <div class="fg g1"><div class="ff"><label>Operador <span class="req">*</span></label><input type="text" id="ferias-nome" placeholder="Nome do operador"></div></div>
+          <div class="fg g1"><div class="ff"><label>Setor <span class="req">*</span></label><input type="text" id="ferias-setor" placeholder="Ex: Triagem, Cadastro..."></div></div>
+          <div class="fg">
+            <div class="ff"><label>Início <span class="req">*</span></label><input type="date" id="ferias-ini"></div>
+            <div class="ff"><label>Fim <span class="req">*</span></label><input type="date" id="ferias-fim"></div>
+          </div>
+          <div class="valmsg e" id="ferias-msg" style="display:none"></div>
+          <div class="farow">
+            <button class="btn" onclick="closeM('m-ferias-add')">Cancelar</button>
+            <button class="btn pri" onclick="salvarFerias()">Salvar</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2149,7 +2204,7 @@ async function doFg() {
   if(error) setAM('Erro ao enviar.','e');
   else{setAM('Link enviado!','s');setTimeout(()=>showFg(false),3500);}
 }
-async function doLogout(){await logAction('LOGOUT','Saiu do sistema','—');if(sb)await sb.auth.signOut();else{document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}}
+async function doLogout(){if(sb)await sb.auth.signOut();else{document.getElementById('app').style.display='none';document.getElementById('auth').style.display='flex';}}
 function setAM(m,t){const el=document.getElementById('amsg');el.textContent=m;el.className='amsg '+t;}
 function showApp(){
   document.getElementById('auth').style.display='none';
@@ -2165,7 +2220,7 @@ function showApp(){
     if(el) el.style.display = USER_NIVEL>=4 ? 'flex' : 'none';
   });
   if(sb) {
-    loadData().then(()=>logAction('LOGIN','Acesso ao sistema','Dashboard'));
+    loadData();
   } else {setNow();renderAll();}
   try{ applyNivelControls(); }catch(e){ console.warn('applyNivelControls:',e); }
   try{ showBtnGerFeriados(); }catch(e){}
@@ -2413,7 +2468,7 @@ async function salvarRec(){
     scanCodes.forEach((c,i)=>VOLS.push({id:nid+i+1,codigo:c,id_bip:rHex(),data_hora:data+' '+hora,triado:false}));
     renderAll();
   }
-  scanCodes=[];closeM('m-rec');toast('Recebimento registrado!','ok');logAction('RECEBIMENTO','Registrou recebimento: '+transp+' ('+scanCodes.length+' vols)','Recebimento');
+  scanCodes=[];closeM('m-rec');toast('Recebimento registrado!','ok');
 }
 
 async function atualizarRec(id){
@@ -2440,7 +2495,7 @@ async function atualizarRec(id){
     }
     renderAll();
   }
-  scanCodes=[];closeM('m-rec');toast('Recebimento atualizado!','ok');
+  scanCodes=[];closeM('m-rec');toast('Recebimento atualizado!','ok');logAction('EDITAR','Editou recebimento: '+transp,'Recebimento');
 }
 
 function editRec(id){
@@ -2648,7 +2703,9 @@ async function salvarTri(){
     const idx=VOLS.findIndex(v=>v.id===vid);if(idx>=0)VOLS[idx].triado=true;
     renderAll();
   }
-  closeM('m-tri');toast(`Triagem registrada! Taxa: ${taxa}%`,'ok');logAction('TRIAGEM',`Triagem registrada: ${taxa}% aprovação`,'Triagem');
+  const isEdit = document.getElementById('btn-tri-save').textContent.includes('alterações');
+  closeM('m-tri');toast(`Triagem registrada! Taxa: ${taxa}%`,'ok');
+  if(isEdit) logAction('EDITAR',`Editou triagem: ${cod} · Taxa: ${taxa}%`,'Triagem');
 }
 
 // ═══════ LOTES ════════════════════════════════════
@@ -2751,30 +2808,50 @@ function editLote(loteId){
   openLot();
   setTimeout(()=>{
     document.getElementById('l-rastreio').value=l.rastreio||'';
-    buscaRastreio();
+    buscaRastreio(loteId); // passa o id para ignorar o próprio lote na validação
     setTimeout(()=>{
       document.getElementById('l-num').value=l.lote;
       document.getElementById('l-email').value=l.email||'';
       document.getElementById('l-cliente').value=l.cliente||'';
+      // Preserva data/hora/colaborador originais do lote
+      if(l.data) document.getElementById('l-data').value=l.data;
+      if(l.hora) document.getElementById('l-hora').value=l.hora;
+      if(l.colaborador) document.getElementById('l-colab').value=l.colaborador;
+      document.getElementById('m-lot-titulo') && (document.getElementById('m-lot-titulo').textContent='✏️ Editar Lote');
       document.getElementById('btn-lot-save').textContent='Salvar alterações';
+      document.getElementById('btn-lot-save').disabled=false;
       document.getElementById('btn-lot-save').onclick=()=>salvarEditLote(loteId);
     },100);
   },50);
 }
 async function salvarEditLote(loteId){
   const idx=LOTES.findIndex(x=>String(x.id)===String(loteId));if(idx<0)return;
+  const data=document.getElementById('l-data').value;
+  const hora=document.getElementById('l-hora').value;
+  const colab=document.getElementById('l-colab').value.trim();
+  if(!data||!hora){toast('Informe data e hora.','er');return;}
+  // Recalcula prazo com a nova data
+  const novoPrazo=calcPrazoUtilGlobal(data,12);
   LOTES[idx].email=document.getElementById('l-email').value.trim();
   LOTES[idx].cliente=document.getElementById('l-cliente').value.trim();
   LOTES[idx].lote=document.getElementById('l-num').value.trim();
+  LOTES[idx].data=data;
+  LOTES[idx].hora=hora;
+  LOTES[idx].colaborador=colab;
+  LOTES[idx].prazo=novoPrazo;
   if(sb){
     await sb.from('lotes').update({
       email_cliente: LOTES[idx].email,
       nome_cliente: LOTES[idx].cliente,
-      numero_lote: LOTES[idx].lote
+      numero_lote: LOTES[idx].lote,
+      data_criacao: data,
+      hora_criacao: hora,
+      colaborador: colab,
+      prazo_notificacao: novoPrazo
     }).eq('id', loteId);
     await loadData();
   } else renderAll();
-  closeM('m-lot');toast('Lote atualizado!','ok');
+  closeM('m-lot');toast('Lote atualizado!','ok');logAction('EDITAR',`Editou lote ${LOTES[idx].lote}`,'Lotes');
 }
 function openLot(){
   document.getElementById('l-rastreio').value='';document.getElementById('l-rastreio-msg').textContent='';
@@ -2790,11 +2867,11 @@ function openLot(){
   openM('m-lot');
   document.getElementById('l-data').addEventListener('change',calcPrazo);
 }
-function buscaRastreio(){
+function buscaRastreio(editingLoteId=''){
   const cod=document.getElementById('l-rastreio').value.trim().toUpperCase();
   const msg=document.getElementById('l-rastreio-msg'),info=document.getElementById('l-tri-info');
   if(!cod){msg.textContent='';info.style.display='none';document.getElementById('btn-lot-save').disabled=true;return;}
-  const jaLote=LOTES.find(l=>l.rastreio===cod);
+  const jaLote=LOTES.find(l=>l.rastreio===cod && String(l.id)!==String(editingLoteId));
   if(jaLote){msg.textContent=`⚠️ Este rastreio já pertence ao lote ${jaLote.lote}.`;msg.className='valmsg e';info.style.display='none';document.getElementById('btn-lot-save').disabled=true;return;}
   const vol=VOLS.find(v=>v.codigo===cod);
   if(!vol){msg.textContent='❌ Código não encontrado nos volumes bipados.';msg.className='valmsg e';info.style.display='none';document.getElementById('btn-lot-save').disabled=true;return;}
@@ -2855,7 +2932,7 @@ async function salvarLot(){
   } else {
     LOTES.unshift(loteData);renderAll();
   }
-  closeM('m-lot');toast(`Lote ${loteNum} criado!`,'ok');logAction('LOTE','Criou lote: '+loteNum,'Lotes');
+  closeM('m-lot');toast(`Lote ${loteNum} criado!`,'ok');
 }
 
 // ═══════ ETIQUETA ═════════════════════════════════
@@ -2994,16 +3071,30 @@ function renderProcPage(tipo) {
 function openProc(loteId, tipo){
   const l=LOTES.find(x=>String(x.id)===String(loteId));if(!l)return;
   const aprAtual=getApr(l,tipo);
+  const existing=l[tipo]; // dados já salvos nessa etapa, se existirem
   document.getElementById('mp-titulo').textContent=PROC_LABEL[tipo];
   document.getElementById('mp-info').textContent=`Lote: ${l.lote} · Rastreio: ${l.rastreio||'—'} · Cliente: ${l.cliente||'—'}`;
   document.getElementById('mp-apr-d').textContent=aprAtual;
   document.getElementById('mp-lote-id').value=loteId;
   document.getElementById('mp-tipo').value=tipo;
-  document.getElementById('mp-obs').value='';
-  setNow('mp');document.getElementById('mp-colab').value=getUserName();
-  repFlag=false;setReprova(false);
-  document.getElementById('mp-rep').value='';document.getElementById('mp-vmsg').textContent='';
+  document.getElementById('mp-vmsg').textContent='';
   document.getElementById('btn-proc-save').disabled=false;
+  if(existing){
+    // Pré-preenche com dados da etapa já registrada
+    document.getElementById('mp-data').value=existing.data||'';
+    document.getElementById('mp-hora').value=existing.hora||'';
+    document.getElementById('mp-colab').value=existing.colab||getUserName();
+    document.getElementById('mp-obs').value=existing.obs||'';
+    const rep=existing.rep||0;
+    repFlag=rep>0;
+    setReprova(repFlag);
+    document.getElementById('mp-rep').value=rep>0?rep:'';
+  } else {
+    setNow('mp');document.getElementById('mp-colab').value=getUserName();
+    document.getElementById('mp-obs').value='';
+    repFlag=false;setReprova(false);
+    document.getElementById('mp-rep').value='';
+  }
   openM('m-proc');
 }
 function setReprova(flag){
@@ -3035,6 +3126,7 @@ async function salvarProc(){
   if(rep>aprAntes){toast(`Reprovadas (${rep}) não pode ser maior que aprovadas (${aprAntes}).`,'er');return;}
   const aprNovo=aprAntes-rep;
   const reg={data,hora,colab,apr:aprNovo,rep,obs};
+  const wasExisting = !!l[tipo]; // etapa já existia antes de salvar
   if(sb){
     const tabelaMap={cad:'setor_cadastro',pas:'setor_passadoria',fot:'setor_fotografia',dob:'setor_dobra'};
     const tabela=tabelaMap[tipo];if(!tabela){toast('Tipo inválido.','er');return;}
@@ -3050,7 +3142,8 @@ async function salvarProc(){
     if(idx>=0)LOTES[idx][tipo]=reg;
     renderAll();
   }
-  closeM('m-proc');toast(`${PROC_LABEL[tipo]} do lote ${l.lote} registrada!`,'ok');logAction('PROCESSO',`${PROC_LABEL[tipo]} lote ${l.lote}`,tipo);
+  closeM('m-proc');toast(`${PROC_LABEL[tipo]} do lote ${l.lote} registrada!`,'ok');
+  if(wasExisting) logAction('EDITAR',`Editou ${PROC_LABEL[tipo]} · Lote ${l.lote}`,'Processos');
 }
 
 // ═══════ NOTIFICAÇÃO ══════════════════════════════
@@ -3064,15 +3157,29 @@ function openNot(loteId){
   const l=LOTES.find(x=>String(x.id)===String(loteId));if(!l)return;
   const aprFinal=getApr(l,'not');
   const repTotal=getTotalRep(l);
+  const existing=l.not;
   document.getElementById('mn-info').textContent=`Lote: ${l.lote} · Prazo: ${l.prazo?fmtDate(l.prazo):'—'}`;
   document.getElementById('mn-lote-id').value=loteId;
   document.getElementById('mn-apr').value=aprFinal;
   document.getElementById('mn-rep').value=repTotal;
   document.getElementById('mn-cliente').value=l.cliente||'(não informado)';
   document.getElementById('mn-email').value=l.email||'(não informado)';
-  document.getElementById('mn-obs').value='';document.getElementById('mn-tipo-erro').value='';document.getElementById('mn-qtd-err').value='';
-  setNow('mn');document.getElementById('mn-colab').value=getUserName();
-  divFlag=false;setDiv(false);
+  if(existing){
+    // Pré-preenche com dados já salvos
+    document.getElementById('mn-data').value=existing.data||'';
+    document.getElementById('mn-hora').value=existing.hora||'';
+    document.getElementById('mn-colab').value=existing.colab||getUserName();
+    document.getElementById('mn-obs').value=existing.obs||'';
+    document.getElementById('mn-tipo-erro').value=existing.tipo_erro||'';
+    document.getElementById('mn-qtd-err').value=existing.qtd_err||'';
+    divFlag=!!(existing.div);setDiv(divFlag);
+  } else {
+    document.getElementById('mn-obs').value='';
+    document.getElementById('mn-tipo-erro').value='';
+    document.getElementById('mn-qtd-err').value='';
+    setNow('mn');document.getElementById('mn-colab').value=getUserName();
+    divFlag=false;setDiv(false);
+  }
   openM('m-not');
 }
 
@@ -3115,7 +3222,7 @@ async function salvarNot(){
     if(idx>=0)LOTES[idx].not=reg;
     renderAll();
   }
-  closeM('m-not');toast(`Notificação do lote ${l.lote} registrada!`,'ok');logAction('NOTIFICAÇÃO',`Notificou lote ${l.lote}`,'Notificação');
+  closeM('m-not');toast(`Notificação do lote ${l.lote} registrada!`,'ok');
 }
 
 // ═══════ DASHBOARD ════════════════════════════════
@@ -3176,6 +3283,7 @@ function renderDash(){
       <div class="bar-val">${v}</div>
     </div>`).join('');
   renderDashAreaCards();
+  renderMediaNotif();
   renderNotifDias();
   renderTranspTrend();
   renderAlertaTaxa();
@@ -3329,86 +3437,91 @@ function renderDashIndicadoresExtra(){
 
   if (prazoEl) {
     const total = prazoInfo.length;
-    const pctOk = total ? Math.round((noPrazo.length / total) * 100) : 0;
-    const pctAt = total ? Math.round((atrasados.length / total) * 100) : 0;
+    const atrasados_count = atrasados.length;
+    const noPrazo_count   = noPrazo.length;
 
-    // ordenar atrasados por mais urgente
-    atrasados.sort((a, b) => b.p.diasAtraso - a.p.diasAtraso);
-    // ordenar no prazo por menos dias restantes
-    noPrazo.sort((a, b) => a.p.diasRestantes - b.p.diasRestantes);
+    // Agrupar todos por dias decorridos (D1=criação, D12+=vencido)
+    // diasDecorridos já calculado; vencido = passou do limite
+    const grupos = {}; // key: 1..12 ou '12+'
+    for (let i = 1; i <= 12; i++) grupos[i] = [];
+    grupos['12+'] = [];
+    prazoInfo.forEach(({l, p}) => {
+      const d = p.diasDecorridos;
+      if (d >= 12 || p.vencido) grupos['12+'].push({l, p});
+      else grupos[Math.max(d,1)].push({l, p});
+    });
+
+    const keys = [1,2,3,4,5,6,7,8,9,10,11,12,'12+'];
+
+    function corCol(k) {
+      if (k === '12+' || k >= 10) return '#ff2020';
+      if (k >= 7) return 'var(--warn)';
+      if (k >= 4) return '#f5c842';
+      return 'var(--success)';
+    }
+    function bgCol(k) {
+      if (k === '12+' || k >= 10) return 'rgba(255,32,32,.15)';
+      if (k >= 7) return 'rgba(251,191,36,.1)';
+      if (k >= 4) return 'rgba(245,200,66,.08)';
+      return 'rgba(45,212,160,.1)';
+    }
+
+    // resumo cards
+    const alertaStyle = atrasados_count > 0
+      ? 'animation:pulseAlert 0.8s infinite;border:2px solid #ff2020;box-shadow:0 0 20px rgba(255,32,32,.6)'
+      : '';
+
+    const resumoHtml = `
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1.25rem">
+        <div style="background:var(--sl);border:1px solid rgba(45,212,160,.3);border-radius:var(--rs);padding:10px 18px;flex:1;min-width:110px">
+          <div style="font-size:11px;color:var(--success)">✅ No prazo</div>
+          <div style="font-size:28px;font-weight:700;color:var(--success)">${noPrazo_count}</div>
+          <div style="font-size:11px;color:var(--muted)">lotes</div>
+        </div>
+        <div style="background:rgba(255,32,32,.12);border-radius:var(--rs);padding:10px 18px;flex:1;min-width:110px;${alertaStyle}">
+          <div style="font-size:11px;color:#ff2020">🚨 VENCIDOS (D12+)</div>
+          <div style="font-size:28px;font-weight:700;color:#ff2020">${atrasados_count}</div>
+          <div style="font-size:11px;color:var(--muted)">lotes — NOTIFICAR JÁ!</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 18px;flex:1;min-width:110px">
+          <div style="font-size:11px;color:var(--muted)">📋 Total pendentes</div>
+          <div style="font-size:28px;font-weight:700;color:var(--text)">${total}</div>
+          <div style="font-size:11px;color:var(--muted)">aguardando notificação</div>
+        </div>
+      </div>`;
+
+    // tabela dinâmica por dia
+    const colsHtml = keys.map(k => {
+      const lst = grupos[k] || [];
+      const cor = corCol(k);
+      const bg  = bgCol(k);
+      const alerta = (k === '12+' || k >= 10) ? ';border:2px solid #ff2020;box-shadow:0 0 12px rgba(255,32,32,.5)' : '';
+      const pulsaHeader = (k === '12+' || k >= 10) && lst.length > 0 ? ';animation:pulseAlert 0.9s infinite' : '';
+      const label = k === '12+' ? 'D12+<br>⛔ VENCIDO' : `D${k}${k>=10?'<br>🔴 ALERTA':''}`;
+      const rows = lst.map(({l,p}) => {
+        const etapa = l.dob ? '🗂️ Dobra' : l.fot ? '📸 Foto' : l.pas ? '👕 Pass.' : l.cad ? '🏷️ Cad.' : '📦 Lote';
+        return `<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;margin-bottom:4px;font-size:11px">
+          <div style="font-family:'DM Mono',monospace;font-weight:700;color:var(--at)">${l.lote}</div>
+          <div style="color:var(--muted);font-size:10px;margin-top:1px">${etapa}</div>
+          <div style="color:var(--muted);font-size:10px">${fmtDate(l.data)}</div>
+        </div>`;
+      }).join('');
+      return `
+        <div style="min-width:110px;flex:1;background:${bg};border-radius:8px;padding:10px 8px${alerta}">
+          <div style="text-align:center;font-size:12px;font-weight:700;color:${cor};margin-bottom:8px${pulsaHeader}">${label}</div>
+          <div style="text-align:center;font-size:22px;font-weight:700;color:${cor};margin-bottom:8px">${lst.length}</div>
+          ${rows || '<div style="text-align:center;font-size:10px;color:var(--muted)">—</div>'}
+        </div>`;
+    }).join('');
 
     prazoEl.innerHTML = `
       <div style="font-size:11px;color:var(--muted);margin-bottom:.75rem">
-        ⚙️ Prazo calculado em <b>dias úteis</b> (sem fins de semana e feriados de Cabreúva/SP) · Limite: ${LIMITE_DIAS_UTEIS} dias úteis
+        ⚙️ D1 = dia de criação do lote · Prazo máximo: <b>D12</b> · Alertas visuais a partir de <b>D10</b>
       </div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem">
-        <div style="background:var(--sl);border:1px solid rgba(45,212,160,.3);border-radius:var(--rs);padding:10px 18px;flex:1;min-width:120px">
-          <div style="font-size:11px;color:var(--success)">✅ No prazo</div>
-          <div style="font-size:26px;font-weight:700;color:var(--success)">${noPrazo.length}</div>
-          <div style="font-size:11px;color:var(--muted)">${pctOk}% dos lotes pendentes</div>
-        </div>
-        <div style="background:var(--dl);border:1px solid rgba(244,112,112,.3);border-radius:var(--rs);padding:10px 18px;flex:1;min-width:120px">
-          <div style="font-size:11px;color:var(--danger)">⚠️ Atrasados</div>
-          <div style="font-size:26px;font-weight:700;color:var(--danger)">${atrasados.length}</div>
-          <div style="font-size:11px;color:var(--muted)">${pctAt}% dos lotes pendentes</div>
-        </div>
-        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 18px;flex:1;min-width:120px">
-          <div style="font-size:11px;color:var(--muted)">📋 Total pendentes</div>
-          <div style="font-size:26px;font-weight:700;color:var(--text)">${total}</div>
-          <div style="font-size:11px;color:var(--muted)">aguardando notificação</div>
-        </div>
-      </div>
-
-      ${atrasados.length ? `
-      <div style="font-size:11px;font-weight:600;color:var(--danger);text-transform:uppercase;margin-bottom:.5rem">🚨 Lotes com prazo vencido</div>
-      <div class="tw"><table>
-        <thead><tr><th>Lote</th><th>Rastreio</th><th>Criação</th><th>Prazo útil</th><th>Dias úteis atraso</th><th>Etapa atual</th></tr></thead>
-        <tbody>${atrasados.map(({l, p}) => {
-          const etapa = l.dob ? '🗂️ Dobra (ag. not.)' : l.fot ? '📸 Foto' : l.pas ? '👕 Pass.' : l.cad ? '🏷️ Cad.' : '📦 Lote';
-          return `<tr>
-            <td class="mono" style="color:var(--at);font-weight:600">${l.lote}</td>
-            <td class="mono" style="font-size:11px">${l.rastreio||'—'}</td>
-            <td style="font-size:12px">${fmtDate(l.data)}</td>
-            <td style="color:var(--danger);font-weight:600">${fmtDate(p.prazoDate)}</td>
-            <td style="color:var(--danger);font-weight:700;text-align:center">🚨 ${p.diasAtraso}d</td>
-            <td>${etapa}</td>
-          </tr>`;
-        }).join('')}
-        </tbody>
-      </table></div>` : '<div class="empty" style="padding:1rem;color:var(--success)">✅ Nenhum lote atrasado!</div>'}
-
-      ${noPrazo.length ? `
-      <div style="font-size:11px;font-weight:600;color:var(--success);text-transform:uppercase;margin:1rem 0 .5rem">📋 Lotes no prazo (${noPrazo.length})</div>
-      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--rs)">
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <thead style="position:sticky;top:0;background:var(--surface2);z-index:1">
-            <tr><th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Lote</th><th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Rastreio</th><th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Criação</th><th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Prazo útil</th><th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Dias úteis restantes</th><th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)">Etapa</th></tr>
-          </thead>
-          <tbody>${noPrazo.map(({l, p}) => {
-            const etapa = l.dob ? '🗂️ Dobra (ag. not.)' : l.fot ? '📸 Foto' : l.pas ? '👕 Pass.' : l.cad ? '🏷️ Cad.' : '📦 Lote';
-            // Escala de cores: menos dias = mais urgente
-            // 1-3d = vermelho pulsante, 4-7d = amarelo, 8-12d = verde
-            const dr = p.diasRestantes;
-            const corDias = dr <= 3 ? 'var(--danger)' : dr <= 7 ? 'var(--warn)' : 'var(--success)';
-            const bgDias  = dr <= 3 ? 'var(--dl)' : dr <= 7 ? 'var(--wl)' : 'var(--sl)';
-            const icoDias = dr <= 3 ? '🚨' : dr <= 7 ? '⚠️' : '✅';
-            const bordaRow = dr <= 3 ? 'border-left:3px solid var(--danger);' : dr <= 7 ? 'border-left:3px solid var(--warn);' : '';
-            return `<tr style="border-bottom:1px solid var(--border);${bordaRow}">
-              <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--at);font-weight:600">${l.lote}</td>
-              <td style="padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${l.rastreio||'—'}</td>
-              <td style="padding:9px 12px;font-size:12px">${fmtDate(l.data)}</td>
-              <td style="padding:9px 12px;font-weight:600;color:${corDias}">${fmtDate(p.prazoDate)}</td>
-              <td style="padding:9px 12px;text-align:center">
-                <span style="display:inline-flex;align-items:center;gap:4px;background:${bgDias};color:${corDias};font-weight:700;padding:3px 10px;border-radius:20px;font-size:12px${dr<=3?';animation:pulseAlert 1.2s infinite':''}">
-                  ${icoDias} ${dr}d
-                </span>
-              </td>
-              <td style="padding:9px 12px">${etapa}</td>
-            </tr>`;
-          }).join('')}
-          </tbody>
-        </table>
-      </div>` : ''}`;
+      ${resumoHtml}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px">
+        ${colsHtml}
+      </div>`;
   }
 
   // ── TEMPO POR ÁREA: do recebimento até cada etapa + tempo que o lote ficou em cada área ──
@@ -3702,11 +3815,13 @@ function renderDevKPI(){
   const pendDev=volsDev.filter(v=>!DEVS.find(d=>d.rastreio===v.codigo)).length;
   const pros=devsFilt.filter(d=>d.operacao==='pro').length;
   const reds=devsFilt.filter(d=>d.operacao==='red').length;
+  const bags=devsFilt.filter(d=>d.operacao==='bag').length;
   document.getElementById('kpi-dev').innerHTML=`
-    <div class="kpi w"><div class="kl">Aguardando</div><div class="kv">${pendDev}</div></div>
-    <div class="kpi g"><div class="kl">Processados</div><div class="kv">${devsFilt.length}</div></div>
+    <div class="kpi w"><div class="kl">Pacotes aguardando devolução</div><div class="kv">${pendDev}</div></div>
+    <div class="kpi g"><div class="kl">Peças processadas</div><div class="kv">${devsFilt.length}</div></div>
     <div class="kpi a"><div class="kl">PRO</div><div class="kv" style="color:var(--success)">${pros}</div></div>
-    <div class="kpi p"><div class="kl">RED</div><div class="kv" style="color:var(--danger)">${reds}</div></div>`;
+    <div class="kpi p"><div class="kl">RED</div><div class="kv" style="color:var(--danger)">${reds}</div></div>
+    <div class="kpi" style="background:var(--pl);border:1px solid rgba(139,92,246,.3)"><div class="kl">BAG</div><div class="kv" style="color:var(--purple)">${bags}</div></div>`;
 }
 function renderDevPend(){
   const q=(document.getElementById('dev-s')?.value||'').toLowerCase();
@@ -3728,15 +3843,19 @@ function renderDevDone(){
   const d2=document.getElementById('dev-d2')?.value||'';
   const devsFilt=DEVS.filter(d=>{ if(d1&&d.data<d1) return false; if(d2&&d.data>d2) return false; return !q||d.rastreio.toLowerCase().includes(q)||(d.skus||[]).some(s=>s.toLowerCase().includes(q)); });
   const tb=document.getElementById('dev-done-tb');
-  if(!devsFilt.length){tb.innerHTML='<tr><td colspan="8"><div class="empty" style="padding:1.5rem">Nenhuma devolução no período.</div></td></tr>';return;}
-  tb.innerHTML=devsFilt.map(d=>`<tr>
+  const thAcao=document.getElementById('dev-done-acao-th');
+  const isN4=USER_NIVEL>=4;
+  if(thAcao) thAcao.style.display=isN4?'':'none';
+  if(!devsFilt.length){tb.innerHTML='<tr><td colspan="9"><div class="empty" style="padding:1.5rem">Nenhuma devolução no período.</div></td></tr>';return;}
+  tb.innerHTML=devsFilt.map((d,idx)=>`<tr>
     <td class="mono" style="color:var(--at)">${d.rastreio}</td>
     <td style="font-size:12px">${(d.skus||[]).join(', ')||'—'}</td>
     <td>${fmtDate(d.data)}</td><td class="mono">${d.hora}</td>
-    <td><span class="badge ${d.operacao==='pro'?'ok':'danger-btn'}" style="padding:2px 8px">${(d.operacao||'').toUpperCase()}</span></td>
+    <td><span class="badge ${d.operacao==='pro'?'ok':d.operacao==='bag'?'':'danger-btn'}" style="padding:2px 8px">${(d.operacao||'').toUpperCase()}</span></td>
     <td><span style="font-size:12px">${d.status||'—'}</span></td>
     <td><span style="font-size:12px;color:var(--muted)">${d.motivo||'—'}</span></td>
     <td class="hm" style="font-size:12px;color:var(--muted)">${d.obs||'—'}</td>
+    ${isN4?`<td><button class="btn xs" onclick="openEditDev(${idx})">✏️</button></td>`:'<td style="display:none"></td>'}
   </tr>`).join('');
 }
 function openDev(volId){
@@ -3756,6 +3875,8 @@ function openDev(volId){
   document.getElementById('dv-pro').style.color='var(--muted)';
   document.getElementById('dv-red').style.background='var(--surface2)';
   document.getElementById('dv-red').style.color='var(--muted)';
+  const bagBtnR=document.getElementById('dv-bag');
+  if(bagBtnR){bagBtnR.style.background='var(--surface2)';bagBtnR.style.color='var(--muted)';}
   addDevSku();
   openM('m-dev');
 }
@@ -3775,6 +3896,8 @@ function setDevOp(op){
   document.getElementById('dv-pro').style.color=op==='pro'?'#fff':'var(--muted)';
   document.getElementById('dv-red').style.background=op==='red'?'var(--danger)':'var(--surface2)';
   document.getElementById('dv-red').style.color=op==='red'?'#fff':'var(--muted)';
+  const bagBtn=document.getElementById('dv-bag');
+  if(bagBtn){bagBtn.style.background=op==='bag'?'var(--purple)':'var(--surface2)';bagBtn.style.color=op==='bag'?'#fff':'var(--muted)';}
   document.getElementById('dv-op').value=op;
 }
 async function salvarDev(){
@@ -3786,9 +3909,10 @@ async function salvarDev(){
   const obs=document.getElementById('dv-obs').value;
   const op=document.getElementById('dv-op').value;
   const skus=[...document.querySelectorAll('.dv-sku-inp')].map(i=>i.value.trim()).filter(Boolean);
-  if(!op){toast('Selecione a operação (PRO ou RED).','er');return;}
+  const skusUniq=[...new Set(skus)];
+  if(skusUniq.length!==skus.length){toast('SKUs duplicados detectados. Remova as duplicatas.','er');return;}
+  if(!op){toast('Selecione a operação (PRO, RED ou BAG).','er');return;}
   if(!status){toast('Selecione o status.','er');return;}
-  if(!motivo){toast('Selecione o motivo.','er');return;}
   if(!data||!hora){toast('Informe data e hora.','er');return;}
   const v=VOLS.find(x=>x.id===volId); if(!v) return;
   const reg={rastreio:v.codigo, data, hora, colaborador:colab, operacao:op, status, motivo, obs, skus};
@@ -3802,6 +3926,36 @@ function csvDev(){
   const d2=document.getElementById('dev-d2')?.value||'';
   const devsFilt=DEVS.filter(d=>(!d1||d.data>=d1)&&(!d2||d.data<=d2));
   dlCsv([['Rastreio','SKUs','Data','Hora','Colaborador','Operação','Status','Motivo','Obs.'],...devsFilt.map(d=>[d.rastreio,(d.skus||[]).join(' | '),d.data,d.hora,d.colaborador,d.operacao,d.status,d.motivo,d.obs])], 'devolucoes.csv');
+}
+
+let _editDevIdx=-1;
+function openEditDev(idx){
+  if(USER_NIVEL<4){toast('Acesso restrito ao Nível 4.','er');return;}
+  const d1=document.getElementById('dev-d1')?.value||'';
+  const d2=document.getElementById('dev-d2')?.value||'';
+  const devsFilt=DEVS.filter(d=>(!d1||d.data>=d1)&&(!d2||d.data<=d2));
+  const d=devsFilt[idx]; if(!d) return;
+  _editDevIdx=DEVS.indexOf(d);
+  document.getElementById('edit-dv-rastreio').textContent=d.rastreio;
+  document.getElementById('edit-dv-status').value=d.status||'';
+  document.getElementById('edit-dv-motivo').value=d.motivo||'';
+  document.getElementById('edit-dv-obs').value=d.obs||'';
+  document.getElementById('edit-dv-skus').value=(d.skus||[]).join(', ');
+  openM('m-edit-dev');
+}
+function saveEditDev(){
+  if(_editDevIdx<0||!DEVS[_editDevIdx]) return;
+  const skusRaw=document.getElementById('edit-dv-skus').value;
+  const skus=skusRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  const uniq=[...new Set(skus)];
+  if(uniq.length!==skus.length){toast('SKUs duplicados.','er');return;}
+  DEVS[_editDevIdx].status=document.getElementById('edit-dv-status').value;
+  DEVS[_editDevIdx].motivo=document.getElementById('edit-dv-motivo').value;
+  DEVS[_editDevIdx].obs=document.getElementById('edit-dv-obs').value;
+  DEVS[_editDevIdx].skus=skus;
+  closeM('m-edit-dev');
+  renderDevKPI(); renderDevPend(); renderDevDone();
+  toast('Devolução atualizada!','ok');logAction('EDITAR',`Editou devolução: ${DEVS[_editDevIdx]?.rastreio||''}`, 'Devolução');
 }
 
 // ═══════ USUÁRIOS ═════════════════════════════════
@@ -3935,7 +4089,7 @@ async function salvarEdicaoUsuario(){
     const resp=await fetch(`${SB_URL}/functions/v1/editar_usuario`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`,'apikey':SB_KEY},body:JSON.stringify({uid,nome,nivel,admissao})});
     const json=await resp.json();
     if(json.error){showUsrMsg(msg,json.error);return;}
-    closeM('m-edit-usr');toast('Usuário atualizado!','ok');carregarUsuarios();
+    closeM('m-edit-usr');toast('Usuário atualizado!','ok');carregarUsuarios();logAction('EDITAR',`Editou usuário: ${nome} · Nível ${nivel}`,'Usuários');
   }catch(e){showUsrMsg(msg,'Erro: '+e.message);}
 }
 
@@ -4895,7 +5049,88 @@ function initCalUtil() {
   const selAno = document.getElementById('dash-cal-ano');
   if (selMes) selMes.value = String(hoje.getMonth());
   if (selAno) selAno.value = String(hoje.getFullYear());
-  renderCalUtil();
+  renderCalUtil(); renderFerias();
+}
+
+// ═══════ FÉRIAS DE OPERADORES ═════════════════════
+let FERIAS_DB = JSON.parse(localStorage.getItem('ferias_operadores')||'[]');
+
+function renderFerias(){
+  const el=document.getElementById('ferias-lista'); if(!el) return;
+
+  // Pega o mês/ano selecionado no calendário
+  const mes=parseInt(document.getElementById('dash-cal-mes')?.value ?? new Date().getMonth());
+  const ano=parseInt(document.getElementById('dash-cal-ano')?.value ?? new Date().getFullYear());
+  const inicioMes=`${ano}-${String(mes+1).padStart(2,'0')}-01`;
+  const fimMes=`${ano}-${String(mes+1).padStart(2,'0')}-${String(new Date(ano,mes+1,0).getDate()).padStart(2,'0')}`;
+
+  // Filtra férias que tenham sobreposição com o mês selecionado
+  const feriasDoMes=FERIAS_DB.filter(f=>f.inicio<=fimMes && f.fim>=inicioMes);
+
+  if(!feriasDoMes.length){
+    el.innerHTML=`<div class="empty" style="padding:1rem">Nenhuma férias no período de ${new Date(ano,mes).toLocaleString('pt-BR',{month:'long',year:'numeric'})}.</div>`;
+    return;
+  }
+
+  const hoje=new Date().toISOString().split('T')[0];
+  const sorted=[...feriasDoMes].sort((a,b)=>a.inicio.localeCompare(b.inicio));
+  el.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr>
+      <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Operador</th>
+      <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Setor</th>
+      <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Início</th>
+      <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Fim</th>
+      <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Dias</th>
+      <th style="text-align:left;padding:8px 12px;color:var(--muted);font-size:11px;font-weight:500;text-transform:uppercase;border-bottom:1px solid var(--border)">Status</th>
+      <th style="padding:8px 12px;border-bottom:1px solid var(--border)"></th>
+    </tr></thead>
+    <tbody>${sorted.map((f)=>{
+      const idxOriginal=FERIAS_DB.indexOf(f);
+      const dias=Math.round((new Date(f.fim+'T12:00:00')-new Date(f.inicio+'T12:00:00'))/(86400000))+1;
+      const ativa=hoje>=f.inicio&&hoje<=f.fim;
+      const futura=f.inicio>hoje;
+      const status=ativa?'<span style="background:rgba(45,212,160,.15);color:var(--success);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">Em férias</span>':futura?'<span style="background:rgba(251,191,36,.12);color:var(--warn);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">Agendado</span>':'<span style="font-size:11px;color:var(--muted);padding:2px 8px">Encerrado</span>';
+      return `<tr style="border-bottom:1px solid var(--border)${ativa?';background:rgba(45,212,160,.05)':''}">
+        <td style="padding:9px 12px;font-weight:500">${f.nome}</td>
+        <td style="padding:9px 12px"><span style="background:var(--al);color:var(--accent);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">${f.setor||'—'}</span></td>
+        <td style="padding:9px 12px">${fmtDate(f.inicio)}</td>
+        <td style="padding:9px 12px">${fmtDate(f.fim)}</td>
+        <td style="padding:9px 12px;font-weight:600;color:var(--at)">${dias}d</td>
+        <td style="padding:9px 12px">${status}</td>
+        <td style="padding:9px 12px"><button class="btn xs" onclick="excluirFerias(${idxOriginal})" style="background:var(--dl);color:var(--danger)">✕</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function openAddFerias(){
+  document.getElementById('ferias-nome').value='';
+  document.getElementById('ferias-setor').value='';
+  document.getElementById('ferias-ini').value='';
+  document.getElementById('ferias-fim').value='';
+  document.getElementById('ferias-msg').style.display='none';
+  openM('m-ferias-add');
+}
+
+function salvarFerias(){
+  const nome=document.getElementById('ferias-nome').value.trim();
+  const setor=document.getElementById('ferias-setor').value;
+  const ini=document.getElementById('ferias-ini').value;
+  const fim=document.getElementById('ferias-fim').value;
+  const msg=document.getElementById('ferias-msg');
+  if(!nome||!setor||!ini||!fim){msg.textContent='Preencha todos os campos.';msg.style.display='block';return;}
+  if(fim<ini){msg.textContent='Data fim deve ser após o início.';msg.style.display='block';return;}
+  FERIAS_DB.push({nome,setor,inicio:ini,fim});
+  localStorage.setItem('ferias_operadores',JSON.stringify(FERIAS_DB));
+  closeM('m-ferias-add');
+  renderFerias();
+  toast('Férias registradas!','ok');
+}
+
+function excluirFerias(idx){
+  FERIAS_DB.splice(idx,1);
+  localStorage.setItem('ferias_operadores',JSON.stringify(FERIAS_DB));
+  renderFerias();
 }
 
 function renderCalUtil() {
@@ -5030,7 +5265,7 @@ function renderFerLista() {
     <td style="padding:9px 12px;font-weight:600;color:var(--at)">${fmtDate(f.data)}</td>
     <td style="padding:9px 12px;font-size:13px">${f.nome}</td>
     <td style="padding:9px 12px">
-      <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(0,0,0,.2);color:${TIPO_COR[f.tipo]||'var(--muted)'}">${f.tipo}</span>
+      <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--surface2);color:${TIPO_COR[f.tipo]||'var(--muted)'}">${f.tipo}</span>
     </td>
     <td style="padding:9px 12px;text-align:right">
       <button class="btn xs danger-btn" onclick="excluirFeriado('${f.id}','${f.nome}')">🗑️</button>
@@ -5060,7 +5295,7 @@ async function salvarFeriado() {
   document.getElementById('fer-data').value = '';
   document.getElementById('fer-nome').value = '';
   renderFerLista();
-  renderCalUtil();
+  renderCalUtil(); renderFerias();
   toast(`Feriado "${nome}" adicionado!`, 'ok');
 }
 
@@ -5073,7 +5308,7 @@ async function excluirFeriado(id, nome) {
   FERIADOS_DB = FERIADOS_DB.filter(f => f.id !== id);
   invalidateDuCache();
   renderFerLista();
-  renderCalUtil();
+  renderCalUtil(); renderFerias();
   toast(`Feriado "${nome}" removido.`, 'ok');
 }
 
@@ -5124,7 +5359,7 @@ function navCal(dir) {
     selMes.value = String(mes);
     selAno.value = String(ano);
   }
-  renderCalUtil();
+  renderCalUtil(); renderFerias();
 }
 
 // ═══════════════════════════════════════════════════
@@ -5419,7 +5654,9 @@ async function salvarCap() {
   document.getElementById('btn-cap-save').disabled = false;
   closeM('m-cap');
   renderCap();
+  const isEditCap = document.getElementById('btn-cap-save').textContent.includes('alterações');
   toast(`Capacidade de ${fmtDate(data)} salva!`, 'ok');
+  if(isEditCap) logAction('EDITAR',`Editou capacidade: ${fmtDate(data)}`,'Capacidade');
 }
 
 async function excluirCapDia(data) {
@@ -5433,6 +5670,7 @@ async function excluirCapDia(data) {
   }
   renderCap();
   toast(`Registro de ${fmtDate(data)} excluído.`, 'ok');
+  logAction('EXCLUIR',`Excluiu capacidade: ${fmtDate(data)}`,'Capacidade');
 }
 
 function verCapDia(data) {
@@ -5504,6 +5742,67 @@ function renderPCPAreaCards(lotesF) {
 }
 
 // ── Gráfico de barras: % notificados por dia útil ──
+function renderMediaNotif() {
+  const el = document.getElementById('dash-media-notif'); if (!el) return;
+  const d1 = document.getElementById('dash-d1')?.value || '';
+  const d2 = document.getElementById('dash-d2')?.value || '';
+
+  const notificados = LOTES.filter(l => l.not?.data && l.data && (!d1||l.data>=d1) && (!d2||l.data<=d2));
+  if (!notificados.length) { el.innerHTML = '<div class="empty">Sem notificações no período.</div>'; return; }
+
+  const dias = notificados.map(l => diasUteisLote(l.data, l.not.data));
+  const total = dias.length;
+  const soma  = dias.reduce((a,b)=>a+b,0);
+  const media = soma / total;
+  const mediana = (() => { const s=[...dias].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; })();
+  const minD  = Math.min(...dias);
+  const maxD  = Math.max(...dias);
+  const dentroP = dias.filter(d=>d<=12).length;
+  const forP    = dias.filter(d=>d>12).length;
+
+  function corMedia(v) {
+    if (v >= 10) return '#ff2020';
+    if (v >= 7)  return 'var(--warn)';
+    if (v >= 4)  return '#f5c842';
+    return 'var(--success)';
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">📊 Média do período</div>
+        <div style="font-size:36px;font-weight:700;color:${corMedia(media)}">${media.toFixed(1)}</div>
+        <div style="font-size:11px;color:var(--muted)">dias úteis</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:120px;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">〰️ Mediana</div>
+        <div style="font-size:36px;font-weight:700;color:${corMedia(mediana)}">${mediana.toFixed(1)}</div>
+        <div style="font-size:11px;color:var(--muted)">dias úteis</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:100px;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">⬇️ Mínimo</div>
+        <div style="font-size:28px;font-weight:700;color:var(--success)">${minD}</div>
+        <div style="font-size:11px;color:var(--muted)">dias úteis</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:100px;text-align:center">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">⬆️ Máximo</div>
+        <div style="font-size:28px;font-weight:700;color:${corMedia(maxD)}">${maxD}</div>
+        <div style="font-size:11px;color:var(--muted)">dias úteis</div>
+      </div>
+      <div style="background:var(--sl);border:1px solid rgba(45,212,160,.3);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:100px;text-align:center">
+        <div style="font-size:11px;color:var(--success);margin-bottom:4px">✅ Dentro do prazo</div>
+        <div style="font-size:28px;font-weight:700;color:var(--success)">${dentroP}</div>
+        <div style="font-size:11px;color:var(--muted)">${Math.round(dentroP/total*100)}% dos lotes</div>
+      </div>
+      <div style="background:rgba(255,32,32,.1);border:1px solid rgba(255,32,32,.25);border-radius:var(--rs);padding:14px 20px;flex:1;min-width:100px;text-align:center">
+        <div style="font-size:11px;color:#ff2020;margin-bottom:4px">🚨 Fora do prazo</div>
+        <div style="font-size:28px;font-weight:700;color:#ff2020">${forP}</div>
+        <div style="font-size:11px;color:var(--muted)">${Math.round(forP/total*100)}% dos lotes</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted)">Base: <b style="color:var(--text)">${total}</b> lotes notificados no período · Prazo máximo: D12</div>`;
+}
+
 function renderNotifDias() {
   const el = document.getElementById('dash-notif-dias'); if (!el) return;
   const d1 = document.getElementById('dash-d1')?.value || '';
@@ -5681,7 +5980,7 @@ function renderLog() {
     return `<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:8px 12px;font-size:11px;color:var(--muted);white-space:nowrap">${dtStr}</td>
       <td style="padding:8px 12px;font-size:12px;font-weight:500">${x.usuario||'—'}</td>
-      <td style="padding:8px 12px"><span style="background:rgba(0,0,0,.2);color:${cor};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">${x.acao||'—'}</span></td>
+      <td style="padding:8px 12px"><span style="background:var(--surface2);color:${cor};font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px">${x.acao||'—'}</span></td>
       <td style="padding:8px 12px;font-size:12px;color:var(--muted)">${x.detalhe||'—'}</td>
       <td style="padding:8px 12px;font-size:11px;color:var(--muted)">${x.pagina||'—'}</td>
     </tr>`;
@@ -6029,7 +6328,7 @@ async function salvarTodasMetas() {
     });
   }
   toast(`Metas de ${MESES_NOMES[mes]} ${ano} salvas!`,'ok');
-  logAction('METAS',`Salvou metas de ${MESES_NOMES[mes]}/${ano}`,'Metas');
+  
 }
 
 async function copiarMetaMesAnterior() {
@@ -6560,7 +6859,7 @@ async function salvarProdManualDia() {
   }
 
   if (btn) btn.disabled = false;
-  logAction('PRODUÇÃO MANUAL', 'Lançou produção de ' + data, 'Produção Manual');
+  
   // Mostrar mensagem de sucesso
   const msg = document.getElementById('pm-msg');
   if (msg) { msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
