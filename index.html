@@ -1146,6 +1146,11 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
           <div class="ch"><h2>📈 Média de Dias para Notificação</h2><span style="font-size:12px;color:var(--muted)">Dias úteis entre criação do lote e notificação</span></div>
           <div class="cb"><div id="dash-media-notif"></div></div>
         </div>
+        <!-- Card: Lotes 100% reprovados -->
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="ch"><h2>🚫 Lotes 100% Reprovados</h2><span style="font-size:12px;color:var(--muted)">Lotes sem nenhuma peça aprovada na triagem</span></div>
+          <div class="cb"><div id="dash-rep-total"></div></div>
+        </div>
         <!-- Gráfico: % notificados por dia útil -->
         <div class="card" style="margin-bottom:1.25rem">
           <div class="ch"><h2>📊 Notificações por Dia Útil</h2><span style="font-size:12px;color:var(--muted)">% notificados em cada dia útil do prazo</span></div>
@@ -1282,11 +1287,6 @@ input:focus,select:focus,textarea:focus,button:focus-visible{
         </div>
         <!-- KPIs globais -->
         <div class="kg" id="kpi-dash2" style="margin-bottom:1.5rem"></div>
-        <!-- Card: Lotes 100% reprovados -->
-        <div class="card" style="margin-bottom:1.25rem">
-          <div class="ch"><h2>🚫 Lotes 100% Reprovados</h2><span style="font-size:12px;color:var(--muted)">Lotes sem nenhuma peça aprovada na triagem</span></div>
-          <div class="cb"><div id="dash-rep-total"></div></div>
-        </div>
         <!-- Ranking geral -->
         <div class="card" style="margin-bottom:1.25rem">
           <div class="ch"><h2>🏆 Ranking de Produção</h2><span id="dash2-ranking-sub" style="font-size:12px;color:var(--muted)"></span></div>
@@ -3022,10 +3022,11 @@ function renderProcPage(tipo) {
     pendHtml = `<div class="card" style="margin-bottom:1.25rem">
       <div class="ch"><h2>Lotes aguardando ${label}</h2><span style="font-size:12px;color:var(--muted)">${disponiveis.length} lote(s)</span></div>
       <div class="search-bar"><input placeholder="Pesquisar lote..." oninput="renderProcPage('${tipo}')" class="proc-search-${tipo}"></div>
-      <div class="tw"><table><thead><tr><th>Nº Lote</th><th>Rastreio</th><th class="nc hm">Peças disponíveis</th><th>Ação</th></tr></thead><tbody>
+      <div class="tw"><table><thead><tr><th>Nº Lote</th><th>Rastreio</th><th>Criação</th><th class="nc hm">Peças disponíveis</th><th>Ação</th></tr></thead><tbody>
         ${disponiveis.map(l=>`<tr>
           <td class="mono" style="color:var(--at)">${l.lote}</td>
           <td class="mono">${l.rastreio||'—'}</td>
+          <td style="font-size:12px;color:var(--muted)">${fmtDate(l.data)}</td>
           <td class="nc hm" style="color:var(--success);font-weight:600">${getApr(l,tipo)}</td>
           <td>${tipo==='not'
             ?`<button class="btn xs pri" onclick="openNot('${l.id}')">${label}</button>`
@@ -3303,6 +3304,7 @@ function renderDash(){
     </div>`).join('');
   renderDashAreaCards();
   renderMediaNotif();
+  renderRepTotais();
   renderNotifDias();
   renderTranspTrend();
   renderAlertaTaxa();
@@ -4553,6 +4555,8 @@ function limparFiltroDash2(){
 
 function renderRepTotais(d1='', d2='') {
   const el = document.getElementById('dash-rep-total'); if (!el) return;
+  if(!d1) d1 = document.getElementById('dash-d1')?.value||'';
+  if(!d2) d2 = document.getElementById('dash-d2')?.value||'';
 
   const lotesFiltro = LOTES.filter(l =>
     isReprovadoTotal(l) &&
@@ -4560,10 +4564,11 @@ function renderRepTotais(d1='', d2='') {
     (!d2 || l.data <= d2)
   );
 
-  const qtdLotes   = lotesFiltro.length;
-  const qtdPecas   = lotesFiltro.reduce((s, l) => s + (l.apr_tri || 0) * 0 + (getTotalRep(l) || l.apr_tri || 0), 0);
-  // Para reprovados totais, as peças reprovadas = pecas_aprovadas_triagem (todas reprovadas no processo)
-  const pecasRep   = lotesFiltro.reduce((s, l) => s + (l.apr_tri || 0), 0);
+  const qtdLotes  = lotesFiltro.length;
+  const pecasRep  = lotesFiltro.reduce((s, l) => {
+    const tri = TRIS[l.rastreio_vol_id] || {};
+    return s + (tri.reprovadas || tri.total || l.apr_tri || 0);
+  }, 0);
   const notificados = lotesFiltro.filter(l => l.not).length;
   const pendentes   = qtdLotes - notificados;
 
@@ -4609,7 +4614,7 @@ function renderRepTotais(d1='', d2='') {
           <td class="mono" style="font-size:11px">${l.rastreio||'—'}</td>
           <td style="font-size:12px">${l.cliente||'—'}</td>
           <td style="font-size:12px">${fmtDate(l.data)}</td>
-          <td style="text-align:center;font-weight:700;color:var(--danger)">${l.apr_tri||0}</td>
+          <td style="text-align:center;font-weight:700;color:var(--danger)">${(TRIS[l.rastreio_vol_id]?.reprovadas || TRIS[l.rastreio_vol_id]?.total || l.apr_tri || 0)}</td>
           <td style="text-align:center">${status}</td>
         </tr>`;
       }).join('')}</tbody>
@@ -4697,9 +4702,6 @@ function renderDash2(){
     <div class="kpi p"><div class="kl">Taxa média triagem</div><div class="kv">${taxaMedia}%</div></div>
     <div class="kpi ${totalDivs>0?'d':'g'}"><div class="kl">Divergências</div><div class="kv">${totalDivs}</div></div>
     <div class="kpi"><div class="kl">Colaboradores</div><div class="kv">${colabs.length}</div></div>`;
-
-  // ── REPROVADOS TOTAIS ──
-  renderRepTotais(d1, d2);
 
   // ── RANKING ──
   const ranking=[...colabs].sort((a,b)=>dados[b].total-dados[a].total);
@@ -6228,20 +6230,7 @@ function renderComparativo(d1, d2) {
   const hoje = new Date().toISOString().slice(0,10);
   const data = d1 || hoje;
 
-  // Produção real do app por área para a data
-  const trisF = Object.values(TRIS).filter(t => t.data === data);
-  const lotesF = LOTES.filter(l => l.data === data);
-
-  const prodApp = {
-    'TRIAGEM':      trisF.reduce((s,t)=>s+(t.aprovadas||0),0),
-    'CADASTRO':     lotesF.filter(l=>l.cad?.data===data).reduce((s,l)=>s+(l.cad?.apr||0),0),
-    'PASSADORIA':   lotesF.filter(l=>l.pas?.data===data).reduce((s,l)=>s+(l.pas?.apr||0),0),
-    'FOTOGRAFIA':   lotesF.filter(l=>l.fot?.data===data).reduce((s,l)=>s+(l.fot?.apr||0),0),
-    'DOBRA':        lotesF.filter(l=>l.dob?.data===data).reduce((s,l)=>s+(l.dob?.apr||0),0),
-    'CRIAÇÃO DE LOTES': lotesF.length,
-  };
-
-  // Produção manual para a data
+  // Produção manual para a data (todas as áreas lançadas manualmente)
   const prodManual = {};
   PROD_MANUAL_DB.filter(x=>x.data===data).forEach(x=>{ prodManual[x.area] = x.pecas; });
 
@@ -6252,17 +6241,15 @@ function renderComparativo(d1, d2) {
     capPlan[x.area] = Math.round((x.fixos||0)*(x.pecas_por_dia_fixos||0) + (x.em_treinamento||0)*(x.pecas_por_dia_treinamento||0));
   });
 
-  // Áreas manuais
-  const AREAS_MANUAL = ['PICKING','CONFERENCIA','EXPEDIÇÃO','CHECK IN','ARMAZENAGEM','CADASTRO RED','FOTOGRAFIA RED'];
-  const AREAS_APP = ['CRIAÇÃO DE LOTES','TRIAGEM','CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA'];
-  const TODAS = [...AREAS_APP, ...AREAS_MANUAL];
+  // Todas as áreas são manuais temporariamente
+  const AREAS_MANUAL = ['CRIAÇÃO DE LOTES','TRIAGEM','CADASTRO','PASSADORIA','FOTOGRAFIA','DOBRA','PICKING','CONFERENCIA','EXPEDIÇÃO','CHECK IN','ARMAZENAGEM','CADASTRO RED','FOTOGRAFIA RED'];
+  const TODAS = AREAS_MANUAL;
 
   const rows = TODAS.map(area => {
     const plan = capPlan[area] || 0;
-    const real = AREAS_APP.includes(area) ? (prodApp[area]||0) : (prodManual[area]||0);
+    const real = prodManual[area] || 0;
     const pct = plan > 0 ? Math.round((real/plan)*100) : null;
-    const isManual = AREAS_MANUAL.includes(area);
-    return { area, plan, real, pct, isManual };
+    return { area, plan, real, pct, isManual: true };
   });
 
   el.innerHTML = `
@@ -6868,13 +6855,19 @@ function renderGrafMeta() {
 // PRODUÇÃO MANUAL — LANÇAMENTO DIÁRIO
 // ═══════════════════════════════════════════════════
 const PM_AREAS = [
-  { key:'CHECK IN',      label:'✅ Check In',      grupo:'inbound' },
-  { key:'ARMAZENAGEM',   label:'📦 Armazenagem',   grupo:'inbound' },
-  { key:'PICKING',       label:'🔎 Picking',        grupo:'outbound' },
-  { key:'CONFERENCIA',   label:'📋 Conferência',   grupo:'outbound' },
-  { key:'EXPEDIÇÃO',     label:'🚚 Expedição',      grupo:'outbound' },
-  { key:'CADASTRO RED',  label:'🏷️ Cadastro Red',  grupo:'red_carpet' },
-  { key:'FOTOGRAFIA RED',label:'📸 Fotografia Red', grupo:'red_carpet' },
+  { key:'CHECK IN',         label:'✅ Check In',         grupo:'inbound' },
+  { key:'ARMAZENAGEM',      label:'📦 Armazenagem',      grupo:'inbound' },
+  { key:'PICKING',          label:'🔎 Picking',           grupo:'outbound' },
+  { key:'CONFERENCIA',      label:'📋 Conferência',      grupo:'outbound' },
+  { key:'EXPEDIÇÃO',        label:'🚚 Expedição',         grupo:'outbound' },
+  { key:'CADASTRO RED',     label:'🏷️ Cadastro Red',     grupo:'red_carpet' },
+  { key:'FOTOGRAFIA RED',   label:'📸 Fotografia Red',   grupo:'red_carpet' },
+  { key:'CRIAÇÃO DE LOTES', label:'📁 Criação de Lotes', grupo:'operacoes' },
+  { key:'TRIAGEM',          label:'🔍 Triagem',           grupo:'operacoes' },
+  { key:'CADASTRO',         label:'💻 Cadastro',          grupo:'operacoes' },
+  { key:'PASSADORIA',       label:'👕 Passadoria',        grupo:'operacoes' },
+  { key:'FOTOGRAFIA',       label:'📷 Fotografia',        grupo:'operacoes' },
+  { key:'DOBRA',            label:'📐 Dobra',             grupo:'operacoes' },
 ];
 
 function initProdManual() {
